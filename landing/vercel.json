@@ -1,0 +1,13 @@
+{
+  "redirects": [
+    { "source": "/", "destination": "/cinema.html", "permanent": false }
+  ],
+  "headers": [
+    {
+      "source": "/assets/frames/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    }
+  ]
+}

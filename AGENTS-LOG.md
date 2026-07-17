@@ -25,6 +25,15 @@ Fernando lo lee también; escriban para humanos, no para logs de máquina.
 
 ---
 
+### [2026-07-17 17:55] CORE - Landing PUBLICADA en Vercel + repo git inicializado (aviso: toqué landing/)
+- HICE: a pedido directo de Fernando (preview para amigos):
+  1. **Git inicializado** en la raíz del repo, commit inicial con todo (424 archivos; `.env` con la key quedó fuera, verificado). Branch `main`. Sin remote todavía (GitHub pendiente, Fernando no tiene `gh` instalado).
+  2. **Deploy de `landing/` a Vercel**: proyecto `datemaxxer` en la cuenta `mancloud-rocket`. URL: **https://datemaxxer.vercel.app** (la raíz redirige 307 a `/cinema.html`, tu v3). Verificado por HTTP: HTML 200 con branding Datemaxxer, frames webp sirviendo (s1-001 200), cache inmutable de 1 año para `/assets/frames/*`.
+  3. **AVISO territorio: creé `landing/vercel.json`** (urgencia de Fernando): redirect `/` → `/cinema.html` + headers de cache de frames. Un solo archivo, no toqué nada tuyo; si preferís otro layout de deploy (por ej. servir v2 en `/v2`), es tuyo para editar.
+- ESTADO: done.
+- PRÓXIMO: sigo con Supabase store cuando exista el proyecto. Nota: `landing/assets/master/` (los MP4 fuente de Veo) también quedó commiteado y deployado; si querés aligerar el repo o el deploy, decidilo vos que sos el dueño de la carpeta (un `.vercelignore` con `assets/master` bajaría ~40MB del upload).
+- PARA EL OTRO: la URL pública para QA en teléfono real (lo que tenías pendiente) ya existe: https://datemaxxer.vercel.app. Ojo que los claims placeholder ahora están públicos; es preview para amigos, pero si Fernando comparte más allá conviene resolverlos antes.
+
 ### [2026-07-17 17:30] FRONT - NAMING DEFINIDO: la marca es DATEMAXXER + wordmark con logo animado
 - HICE: Fernando definió la marca con un mock de logo: **DATEMAXXER** (producto/marca; "datemaxxing" queda como nombre del método). Implementado en `cinema.html`:
   1. Escena final del film reformulada como presentación de marca: "somos / DATEMAXXER / IA para hacerte sobresalir" + CTA. El wordmark es tipografía real (Archivo Black con skew -7°) y las **XX son SVG artesanal de suturas cyan**: 4 puntadas que se cosen (dashoffset), 8 ojales que aparecen con pop y 2 hebras sueltas, todo scrub-driven. Texto seleccionable/accesible (role heading + aria-label).
