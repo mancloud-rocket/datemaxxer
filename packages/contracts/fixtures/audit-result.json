@@ -1,0 +1,37 @@
+{
+  "version": "1.0",
+  "arquetipo_detectado": { "nombre": "viajero", "confianza": 0.72 },
+  "score_coherencia": 41,
+  "lectura_200ms": "Tres señales distintas compitiendo: viaje, oficina, gimnasio.",
+  "evidencia_por_foto": [
+    {
+      "foto": 1,
+      "dice": "profesional",
+      "señales": ["camisa", "interior", "luz fría"],
+      "calidad_tecnica": 62
+    }
+  ],
+  "gap_analysis": {
+    "objetivo": "outdoor",
+    "distancia": "alta",
+    "acciones": [
+      "reemplazar foto 1 por exterior con luz natural",
+      "sumar una foto haciendo la actividad outdoor que declarás"
+    ]
+  },
+  "plan_de_fotos": {
+    "conservar": [2, 4],
+    "reemplazar": [1, 5],
+    "orden_sugerido": [4, 2, 6, 3],
+    "briefs_faltantes": [
+      {
+        "tipo": "apertura",
+        "specs": "exterior, luz día lateral, plano medio, cara visible, sin lentes, sin grupo"
+      }
+    ]
+  },
+  "quick_wins": [
+    "sacar los lentes de sol de la foto 1",
+    "mover la foto 4 a primera posición"
+  ]
+}

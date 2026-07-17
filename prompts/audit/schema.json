@@ -1,0 +1,63 @@
+{
+  "type": "object",
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "arquetipo_detectado": {
+      "type": "object",
+      "properties": {
+        "nombre": {
+          "type": "string",
+          "enum": ["viajero", "intelectual", "deportista", "creativo", "profesional", "outdoor", "social", "hogareno"]
+        },
+        "confianza": { "type": "number", "description": "0 a 1" }
+      },
+      "required": ["nombre", "confianza"],
+      "additionalProperties": false
+    },
+    "score_coherencia": { "type": "integer", "description": "0-100, legibilidad del perfil en 200ms" },
+    "lectura_200ms": { "type": "string" },
+    "gap_analysis": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "objetivo": {
+              "type": "string",
+              "enum": ["viajero", "intelectual", "deportista", "creativo", "profesional", "outdoor", "social", "hogareno"]
+            },
+            "distancia": { "type": "string", "enum": ["baja", "media", "alta"] },
+            "acciones": { "type": "array", "items": { "type": "string" } }
+          },
+          "required": ["objetivo", "distancia", "acciones"],
+          "additionalProperties": false
+        },
+        { "type": "null" }
+      ]
+    },
+    "plan_de_fotos": {
+      "type": "object",
+      "properties": {
+        "conservar": { "type": "array", "items": { "type": "integer" } },
+        "reemplazar": { "type": "array", "items": { "type": "integer" } },
+        "orden_sugerido": { "type": "array", "items": { "type": "integer" } },
+        "briefs_faltantes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tipo": { "type": "string" },
+              "specs": { "type": "string" }
+            },
+            "required": ["tipo", "specs"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["conservar", "reemplazar", "orden_sugerido", "briefs_faltantes"],
+      "additionalProperties": false
+    },
+    "quick_wins": { "type": "array", "items": { "type": "string" } }
+  },
+  "required": ["version", "arquetipo_detectado", "score_coherencia", "lectura_200ms", "gap_analysis", "plan_de_fotos", "quick_wins"],
+  "additionalProperties": false
+}

@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Percentil - El mercado está torcido. Movete de lugar.</title>
+<meta name="description" content="Tu copiloto de citas. Datos, no humo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+
+:root{
+  --void:#101318;
+  --surface:#171B22;
+  --line:#262C36;
+  --steel:#5B6672;
+  --steel-dim:#333C47;
+  --sodium:#E8B04B;
+  --oxide:#C94B32;
+  --stamp:#8F2B22;
+  --signal:#4FD9C2;
+  --ink:#E6E9ED;
+  --ink-mute:#8C96A3;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scrollbar-width:thin;scrollbar-color:var(--steel-dim) var(--void)}
+html.lenis{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto}
+
+body{
+  background:var(--void);
+  color:var(--ink);
+  font-family:'Inter Tight',system-ui,sans-serif;
+  overflow-x:clip; /* clip, no hidden: hidden rompe position:sticky del stage */
+  -webkit-font-smoothing:antialiased;
+}
+
+::selection{background:var(--oxide);color:var(--ink)}
+
+/* ---------- utilidades tipográficas ---------- */
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:clamp(.6rem,1.1vw,.72rem);
+  letter-spacing:.28em;
+  color:var(--ink-mute);
+  text-transform:uppercase;
+}
+.stamp{
+  display:inline-block;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:clamp(.58rem,1vw,.7rem);
+  letter-spacing:.3em;text-transform:uppercase;
+  color:var(--oxide);border:1.5px solid var(--stamp);
+  padding:.55em 1.2em;border-radius:2px;
+  transform:rotate(-2.5deg);
+}
+.display{
+  font-family:'Archivo Black',sans-serif;
+  text-transform:uppercase;
+  letter-spacing:-.035em;
+  line-height:.94;
+}
+
+/* ---------- overlays cinemáticos globales ---------- */
+.grain{
+  position:fixed;inset:0;z-index:60;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  opacity:.055;
+  animation:grainShift 1.1s steps(4) infinite;
+}
+@keyframes grainShift{
+  0%{background-position:0 0}
+  25%{background-position:-38px 22px}
+  50%{background-position:24px -30px}
+  75%{background-position:-16px -14px}
+  100%{background-position:0 0}
+}
+.vignette{
+  position:fixed;inset:0;z-index:59;pointer-events:none;
+  background:radial-gradient(ellipse 130% 100% at 50% 42%,transparent 55%,rgba(6,8,11,.72) 100%);
+}
+
+/* ---------- acto 0-3: el cine (sticky stage) ---------- */
+.cinema-track{height:760vh;position:relative}
+.stage{
+  position:sticky;top:0;height:100vh;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+}
+
+/* slot de clip ambiental de fondo (Google Flow / Veo) */
+.stage-clip{
+  position:absolute;inset:0;z-index:0;overflow:hidden;
+}
+.stage-clip video{
+  width:100%;height:100%;object-fit:cover;
+  opacity:.32;filter:saturate(.6) brightness(.7);
+}
+.stage-clip .fallback{
+  position:absolute;inset:0;display:none;
+  background:
+    radial-gradient(ellipse 60% 45% at 30% 70%,rgba(91,102,114,.10),transparent 70%),
+    radial-gradient(ellipse 55% 40% at 72% 25%,rgba(51,60,71,.16),transparent 70%),
+    var(--void);
+  animation:ambientDrift 16s ease-in-out infinite alternate;
+}
+.stage-clip.no-clip .fallback{display:block}
+.stage-clip.no-clip video{display:none}
+@keyframes ambientDrift{
+  from{background-position:0 0,0 0;filter:brightness(1)}
+  to{background-position:60px -40px,-50px 30px;filter:brightness(1.18)}
+}
+
+/* tinte de color por acto (el color es el argumento) */
+.tint{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:0}
+.tint-oxide{background:radial-gradient(ellipse 80% 65% at 50% 45%,rgba(201,75,50,.10),transparent 75%)}
+.tint-signal{background:radial-gradient(ellipse 80% 65% at 50% 45%,rgba(79,217,194,.10),transparent 75%)}
+
+/* partículas */
+#dust{position:absolute;inset:0;z-index:2;pointer-events:none}
+
+/* ---------- el corazón ---------- */
+.heart-wrap{
+  position:relative;z-index:3;
+  width:min(58vmin,480px);
+  aspect-ratio:1/1;
+}
+.heart-glow{
+  position:absolute;inset:-18%;z-index:-1;opacity:0;
+  background:radial-gradient(circle at 50% 48%,rgba(79,217,194,.16),transparent 62%);
+}
+#heart{width:100%;height:100%;display:block;overflow:visible}
+#heart .shard{
+  stroke:var(--void);stroke-width:1.6;stroke-linejoin:round;
+  transform-box:fill-box;transform-origin:center;
+}
+#heart .crack{
+  fill:none;stroke:var(--oxide);stroke-width:2.4;
+  stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 5px rgba(201,75,50,.55));
+}
+#seams{opacity:0} /* sin JS jamás se ve cyan antes del kintsugi (regla §1.3) */
+#heart .seam{
+  fill:none;stroke:var(--signal);stroke-width:2.8;
+  stroke-linecap:round;stroke-linejoin:round;
+  filter:drop-shadow(0 0 7px rgba(79,217,194,.65));
+}
+
+/* ---------- copy de los actos (overlays) ---------- */
+.act{
+  position:absolute;inset:0;z-index:5;pointer-events:none;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:0 6vw;opacity:0;
+}
+.act .eyebrow,.act .stamp{margin-bottom:1.4rem}
+.act h1,.act h2{font-size:clamp(2.6rem,8.5vw,7rem);text-shadow:0 2px 28px rgba(16,19,24,.85)}
+.act .sub{
+  margin-top:1.6rem;max-width:34em;
+  color:var(--ink-mute);font-size:clamp(.95rem,1.5vw,1.15rem);
+  font-weight:400;line-height:1.55;
+}
+
+/* acto 0: hero visible de entrada */
+#act-hero{opacity:1}
+.scroll-hint{
+  position:absolute;bottom:4.5vh;left:50%;transform:translateX(-50%);
+  font-family:'IBM Plex Mono',monospace;font-size:.62rem;
+  letter-spacing:.3em;color:var(--ink-mute);white-space:nowrap;
+  animation:hintPulse 2.4s ease-in-out infinite;
+}
+@keyframes hintPulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* acto 1: stats forenses, alineadas a la izquierda del corazón */
+.stat{
+  position:absolute;z-index:5;pointer-events:none;opacity:0;
+  left:8vw;top:50%;transform:translateY(-50%);
+  text-align:left;max-width:38vw;
+}
+.stat .num{
+  font-family:'Archivo Black',sans-serif;
+  font-size:clamp(4rem,11vw,9rem);
+  letter-spacing:-.035em;line-height:1;
+  color:var(--oxide);
+}
+.stat .label{
+  margin-top:.8rem;font-size:clamp(.95rem,1.6vw,1.2rem);
+  color:var(--ink);line-height:1.45;
+}
+.stat .source{
+  margin-top:1rem;font-family:'IBM Plex Mono',monospace;
+  font-size:.62rem;letter-spacing:.18em;color:var(--ink-mute);
+  text-transform:uppercase;
+}
+.stat--steel .num{color:var(--steel)}
+
+/* acto 3: la vuelta */
+#act-turn .l1,#act-turn .l2{display:block}
+#act-turn .l2{margin-top:.2em}
+#act-turn .cyan{color:var(--signal)}
+#act-turn .sub{font-family:'IBM Plex Mono',monospace;letter-spacing:.22em;font-size:clamp(.62rem,1.1vw,.75rem);text-transform:uppercase;color:var(--ink-mute)}
+
+/* ---------- protocolo: glass cards ---------- */
+.protocol{position:relative;z-index:4;padding:18vh 6vw 14vh;max-width:1240px;margin:0 auto}
+.protocol-head{margin-bottom:8vh}
+.protocol-head h2{font-size:clamp(2.2rem,5.5vw,4.2rem);margin-top:1.2rem}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem}
+.card{
+  position:relative;overflow:hidden;border-radius:14px;
+  background:linear-gradient(160deg,rgba(23,27,34,.82),rgba(16,19,24,.9));
+  border:1px solid var(--line);
+  backdrop-filter:blur(14px);
+  transition:transform .5s cubic-bezier(.2,.8,.2,1),border-color .5s;
+}
+.card:hover{transform:translateY(-6px);border-color:var(--steel)}
+.card .clip-slot{
+  position:relative;aspect-ratio:16/9;overflow:hidden;
+  border-bottom:1px solid var(--line);
+}
+.card .clip-slot video{width:100%;height:100%;object-fit:cover;filter:saturate(.75)}
+.card .clip-slot .fallback{position:absolute;inset:0;display:none}
+.card .clip-slot.no-clip .fallback{display:block}
+.card .clip-slot.no-clip video{display:none}
+.fb-audit{background:linear-gradient(135deg,#1B2028 0%,#242B36 45%,#171B22 100%)}
+.fb-audit::after{content:'';position:absolute;inset:0;background:linear-gradient(105deg,transparent 42%,rgba(201,75,50,.16) 50%,transparent 58%);animation:scanline 3.2s ease-in-out infinite}
+@keyframes scanline{0%{transform:translateX(-70%)}100%{transform:translateX(70%)}}
+.fb-kit{background:linear-gradient(135deg,#171B22,#1E242E)}
+.fb-kit::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 30% 55% at 50% 50%,rgba(232,176,75,.20),transparent 70%);animation:hintPulse 3.6s ease-in-out infinite}
+.fb-copilot{background:linear-gradient(135deg,#141922,#171B22)}
+.fb-copilot::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 40% 30% at 50% 55%,rgba(79,217,194,.16),transparent 70%);animation:hintPulse 2.8s ease-in-out infinite}
+.card .body{padding:1.6rem 1.5rem 1.8rem}
+.card .tag{font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.24em;color:var(--ink-mute)}
+.card h3{font-family:'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:-.02em;font-size:1.25rem;margin:.8rem 0 .7rem}
+.card p{color:var(--ink-mute);font-size:.95rem;line-height:1.55}
+.card .price{margin-top:1.2rem;font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.14em;color:var(--ink)}
+.card--signal{border-color:rgba(79,217,194,.25)}
+.card--signal .tag,.card--signal .price{color:var(--signal)}
+
+/* ---------- CTA final ---------- */
+.finale{
+  position:relative;z-index:4;min-height:88vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:10vh 6vw;
+}
+.finale h2{font-size:clamp(3rem,9vw,7.5rem)}
+.finale .heart-mark{width:64px;margin-bottom:3rem;opacity:.9}
+.cta{
+  pointer-events:auto;display:inline-block;margin-top:3.2rem;
+  font-family:'IBM Plex Mono',monospace;font-size:.85rem;letter-spacing:.2em;
+  text-transform:uppercase;text-decoration:none;
+  color:var(--void);background:var(--signal);
+  padding:1.25rem 3.2rem;border-radius:4px;
+  box-shadow:0 0 32px rgba(79,217,194,.28);
+  transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s;
+}
+.cta:hover{transform:translateY(-3px);box-shadow:0 0 52px rgba(79,217,194,.45)}
+.finale .micro{
+  margin-top:1.6rem;font-family:'IBM Plex Mono',monospace;
+  font-size:.62rem;letter-spacing:.22em;color:var(--ink-mute);text-transform:uppercase;
+}
+
+footer{
+  border-top:1px solid var(--line);
+  padding:2.2rem 6vw;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+  font-family:'IBM Plex Mono',monospace;font-size:.6rem;
+  letter-spacing:.2em;color:var(--ink-mute);text-transform:uppercase;
+}
+
+/* ---------- responsive ---------- */
+@media (max-width:900px){
+  .cards{grid-template-columns:1fr}
+  .stat{left:6vw;top:auto;bottom:9vh;transform:none;max-width:80vw}
+  .stat .num{font-size:clamp(3.4rem,16vw,5.5rem)}
+  .heart-wrap{width:min(72vmin,420px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .grain,.scroll-hint,.fb-audit::after,.fb-kit::after,.fb-copilot::after{animation:none}
+}
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="vignette"></div>
+
+<!-- ============ CINE: actos 0 a 3 (sticky) ============ -->
+<div class="cinema-track" id="cinema">
+  <div class="stage">
+
+    <!-- slot: clip ambiental de fondo · assets/clips/hero-ambient.mp4 -->
+    <div class="stage-clip" aria-hidden="true">
+      <video src="assets/clips/hero-ambient.mp4" autoplay muted loop playsinline
+             onerror="this.parentElement.classList.add('no-clip')"></video>
+      <div class="fallback"></div>
+    </div>
+
+    <div class="tint tint-oxide" id="tintOxide"></div>
+    <div class="tint tint-signal" id="tintSignal"></div>
+    <canvas id="dust"></canvas>
+
+    <!-- el corazón de acero -->
+    <div class="heart-wrap">
+      <div class="heart-glow" id="heartGlow"></div>
+      <svg id="heart" viewBox="0 0 400 400" role="img" aria-label="Corazón de acero que se agrieta y se repara">
+        <g id="heartInner">
+          <g id="shards">
+            <polygon class="shard" fill="#2B323D" points="200,95 150,40 95,35 140,120"/>
+            <polygon class="shard" fill="#242A34" points="95,35 50,75 35,135 120,200 140,120"/>
+            <polygon class="shard" fill="#2E3540" points="35,135 55,200 120,200"/>
+            <polygon class="shard" fill="#293039" points="140,120 120,200 204,192"/>
+            <polygon class="shard" fill="#3A4350" points="200,95 140,120 204,192 260,120"/>
+            <polygon class="shard" fill="#232932" points="55,200 200,355 196,278 120,200"/>
+            <polygon class="shard" fill="#313947" points="120,200 196,278 204,192"/>
+            <polygon class="shard" fill="#272E38" points="200,95 250,40 305,35 260,120"/>
+            <polygon class="shard" fill="#2E3540" points="305,35 350,75 365,135 280,200 260,120"/>
+            <polygon class="shard" fill="#252B35" points="365,135 345,200 280,200"/>
+            <polygon class="shard" fill="#2C333E" points="260,120 280,200 204,192"/>
+            <polygon class="shard" fill="#20262F" points="345,200 200,355 196,278 280,200"/>
+            <polygon class="shard" fill="#343D4A" points="280,200 196,278 204,192"/>
+          </g>
+          <g id="cracks">
+            <path class="crack" d="M200,95 L204,192 L196,278 L200,355"/>
+            <path class="crack" d="M35,135 L120,200 L196,278"/>
+            <path class="crack" d="M365,135 L280,200 L196,278"/>
+            <path class="crack" d="M200,95 L140,120 L120,200"/>
+            <path class="crack" d="M200,95 L260,120 L280,200"/>
+          </g>
+          <g id="seams">
+            <path class="seam" d="M200,95 L204,192 L196,278 L200,355"/>
+            <path class="seam" d="M35,135 L120,200 L196,278"/>
+            <path class="seam" d="M365,135 L280,200 L196,278"/>
+            <path class="seam" d="M200,95 L140,120 L120,200"/>
+            <path class="seam" d="M200,95 L260,120 L280,200"/>
+          </g>
+        </g>
+      </svg>
+    </div>
+
+    <!-- acto 0: hero -->
+    <div class="act" id="act-hero">
+      <div class="stamp">Expediente 001 · Abierto · 2026</div>
+      <h1 class="display">El mercado<br>está torcido.</h1>
+      <p class="sub">294 millones de swipes analizados dicen lo mismo.<br>No es mala suerte: es diseño.</p>
+    </div>
+    <div class="scroll-hint" id="scrollHint">SCROLLEÁ PARA VER LA EVIDENCIA ▼</div>
+
+    <!-- acto 1: la evidencia -->
+    <div class="stat" id="stat-1">
+      <div class="num">2%</div>
+      <div class="label">match rate promedio de un hombre.</div>
+      <div class="source">Fuente: SwipeStats · 294M swipes</div>
+    </div>
+    <div class="stat" id="stat-2">
+      <div class="num">44%</div>
+      <div class="label">match rate promedio de una mujer.<br>Misma app. Mismo dedo.</div>
+      <div class="source">Fuente: SwipeStats · 294M swipes</div>
+    </div>
+    <div class="stat stat--steel" id="stat-3">
+      <div class="num">22×</div>
+      <div class="label">la brecha. No estás jugando mal:<br>estás parado en otra fila.</div>
+      <div class="source">El algoritmo te lee en 200 ms</div>
+    </div>
+
+    <!-- acto 2: la ruptura -->
+    <div class="act" id="act-break">
+      <h2 class="display">No es tu cara.<br>Es tu señal.</h2>
+      <p class="sub">El algoritmo te lee en 200 milisegundos.<br>Vos todavía no elegiste qué le estás diciendo.</p>
+    </div>
+
+    <!-- acto 3: kintsugi -->
+    <div class="act" id="act-turn">
+      <h2 class="display">
+        <span class="l1">No podemos arreglar<br>el mercado.</span>
+        <span class="l2">Podemos <span class="cyan">moverte<br>de lugar</span> en él.</span>
+      </h2>
+      <p class="sub">Percentil · Tu copiloto de citas · Datos, no humo</p>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ EL PROTOCOLO ============ -->
+<section class="protocol" id="protocol">
+  <div class="protocol-head">
+    <div class="eyebrow">El protocolo</div>
+    <h2 class="display">Tres movimientos.</h2>
+  </div>
+  <div class="cards">
+    <article class="card">
+      <!-- slot: assets/clips/clip-audit.mp4 -->
+      <div class="clip-slot" aria-hidden="true">
+        <video src="assets/clips/clip-audit.mp4" autoplay muted loop playsinline
+               onerror="this.parentElement.classList.add('no-clip')"></video>
+        <div class="fallback fb-audit"></div>
+      </div>
+      <div class="body">
+        <div class="tag">F1 · Gratis</div>
+        <h3>Auditoría de arquetipo</h3>
+        <p>Subís de 4 a 9 fotos y tu bio. Te decimos qué arquetipo transmitís sin querer, tu score de coherencia y el gap contra el que querés transmitir.</p>
+        <div class="price">USD 0 · 2 minutos</div>
+      </div>
+    </article>
+    <article class="card">
+      <!-- slot: assets/clips/clip-kit.mp4 -->
+      <div class="clip-slot" aria-hidden="true">
+        <video src="assets/clips/clip-kit.mp4" autoplay muted loop playsinline
+               onerror="this.parentElement.classList.add('no-clip')"></video>
+        <div class="fallback fb-kit"></div>
+      </div>
+      <div class="body">
+        <div class="tag">F2 + F3 · Kit</div>
+        <h3>Kit de perfil</h3>
+        <p>Arquetipo elegido, plan de fotos, retoque honesto y bio por intención. Mejoramos la foto. No te mejoramos a vos.</p>
+        <div class="price">USD 19 · Pago único</div>
+      </div>
+    </article>
+    <article class="card card--signal">
+      <!-- slot: assets/clips/clip-copilot.mp4 -->
+      <div class="clip-slot" aria-hidden="true">
+        <video src="assets/clips/clip-copilot.mp4" autoplay muted loop playsinline
+               onerror="this.parentElement.classList.add('no-clip')"></video>
+        <div class="fallback fb-copilot"></div>
+      </div>
+      <div class="body">
+        <div class="tag">F4 + F5 · Copiloto</div>
+        <h3>Copiloto de chat</h3>
+        <p>Dónde invertir energía y dónde no. Veredicto con evidencia: latencias, ratios, quién reengancha. Invertí donde hay señal.</p>
+        <div class="price">USD 9 · 100 turnos</div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ============ FINALE ============ -->
+<section class="finale" id="finale">
+  <svg class="heart-mark" viewBox="0 0 400 400" aria-hidden="true">
+    <path fill="none" stroke="#333C47" stroke-width="10" stroke-linejoin="round"
+          d="M200,95 L150,40 L95,35 L50,75 L35,135 L55,200 L200,355 L345,200 L365,135 L350,75 L305,35 L250,40 Z"/>
+    <path fill="none" stroke="#4FD9C2" stroke-width="7" stroke-linecap="round"
+          d="M200,95 L204,192 L196,278 L200,355"/>
+  </svg>
+  <div class="eyebrow">Sin vueltas</div>
+  <h2 class="display">Movete<br>de lugar.</h2>
+  <a class="cta" href="/auditoria">Auditá tu perfil gratis</a>
+  <div class="micro">4 a 9 fotos + bio · Sin APIs truchas · Todo por screenshot</div>
+</section>
+
+<footer>
+  <span>Percentil © 2026</span>
+  <span>Mejoramos la foto. No te mejoramos a vos.</span>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script>
+(() => {
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ---------- lenis + gsap wiring ---------- */
+  const lenis = new Lenis({ lerp: 0.09 });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(t => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+
+  /* ---------- prep: trazos (grietas y costuras) ---------- */
+  const cracks = gsap.utils.toArray('#cracks path');
+  const seams  = gsap.utils.toArray('#seams path');
+  [...cracks, ...seams].forEach(p => {
+    const L = p.getTotalLength();
+    p.style.strokeDasharray = L;
+    p.style.strokeDashoffset = L;
+  });
+
+  /* ---------- prep: shards (dirección de vuelo determinística) ---------- */
+  const CX = 200, CY = 195;
+  const shardData = gsap.utils.toArray('#shards polygon').map((el, i) => {
+    const pts = el.getAttribute('points').trim().split(/[\s,]+/).map(Number);
+    let sx = 0, sy = 0;
+    for (let k = 0; k < pts.length; k += 2) { sx += pts[k]; sy += pts[k + 1]; }
+    const n = pts.length / 2;
+    let dx = sx / n - CX, dy = sy / n - CY;
+    const m = Math.hypot(dx, dy) || 1;
+    const dist = 240 + (i * 53) % 180;
+    return {
+      el,
+      x: (dx / m) * dist,
+      y: (dy / m) * dist,
+      rot: (i % 2 ? 1 : -1) * (12 + (i * 7) % 28)
+    };
+  });
+
+  /* ---------- estados iniciales (autoAlpha saca del a11y tree) ---------- */
+  gsap.set(['#act-break', '#act-turn', '.stat'], { autoAlpha: 0 });
+  gsap.set('#act-turn .l2', { autoAlpha: 0, y: 26 });
+  gsap.set('#seams', { autoAlpha: 0 });
+
+  /* ---------- latido ambiente (en #heartInner; el scrub escala .heart-wrap) ---------- */
+  gsap.to('#heartInner', {
+    scale: 1.03, transformOrigin: '200px 195px',
+    duration: 0.9, yoyo: true, repeat: -1, ease: 'sine.inOut'
+  });
+
+  /* ---------- polvo (canvas propio, boost durante la ruptura) ---------- */
+  const burst = { v: 0 };
+  const canvas = document.getElementById('dust');
+  const ctx = canvas.getContext('2d');
+  let motes = [];
+  function sizeDust() {
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+    motes = Array.from({ length: 60 }, (_, i) => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      r: 0.5 + Math.random() * 1.1,
+      vy: -(0.1 + Math.random() * 0.25),
+      vx: (Math.random() - 0.5) * 0.08,
+      a: 0.05 + Math.random() * 0.2,
+      hot: i % 3 === 0
+    }));
+  }
+  sizeDust();
+  addEventListener('resize', sizeDust);
+  (function drawDust() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const boost = 1 + burst.v * 5;
+    for (const mo of motes) {
+      mo.x += mo.vx * boost; mo.y += mo.vy * boost;
+      if (mo.y < -4) { mo.y = canvas.height + 4; mo.x = Math.random() * canvas.width; }
+      if (mo.x < -4) mo.x = canvas.width + 4;
+      if (mo.x > canvas.width + 4) mo.x = -4;
+      const hot = mo.hot && burst.v > 0.15;
+      ctx.fillStyle = hot
+        ? 'rgba(201,75,50,' + Math.min(1, mo.a + burst.v * 0.25) + ')'
+        : 'rgba(91,102,114,' + mo.a + ')';
+      ctx.beginPath();
+      ctx.arc(mo.x, mo.y, mo.r * (hot ? 1.4 : 1), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    requestAnimationFrame(drawDust);
+  })();
+
+  /* ---------- timeline maestro: posiciones absolutas 0-1 sobre el track ---------- */
+  const tl = gsap.timeline({
+    defaults: { ease: 'none' },
+    scrollTrigger: { trigger: '#cinema', start: 'top top', end: 'bottom bottom', scrub: 0.8 }
+  });
+
+  /* acto 0 → 1: hero cede, el corazón se acerca */
+  tl.to(['#act-hero', '#scrollHint'], { autoAlpha: 0, y: -36, duration: 0.05 }, 0.01)
+    .to('.heart-wrap', { scale: 1.12, duration: 0.3, ease: 'sine.inOut' }, 0);
+
+  /* acto 1: evidencia (cada stat dibuja grietas óxido) */
+  tl.fromTo('#stat-1', { x: -34 }, { autoAlpha: 1, x: 0, duration: 0.03 }, 0.08)
+    .to('#tintOxide', { opacity: 0.85, duration: 0.1 }, 0.08)
+    .to(cracks[3], { strokeDashoffset: 0, ease: 'power1.inOut', duration: 0.05 }, 0.09)
+    .to('#stat-1', { autoAlpha: 0, y: -24, duration: 0.02 }, 0.15);
+
+  tl.fromTo('#stat-2', { x: -34 }, { autoAlpha: 1, x: 0, duration: 0.03 }, 0.17)
+    .to(cracks[4], { strokeDashoffset: 0, ease: 'power1.inOut', duration: 0.05 }, 0.18)
+    .to(cracks[0], { strokeDashoffset: 0, ease: 'power1.inOut', duration: 0.06 }, 0.19)
+    .to('#stat-2', { autoAlpha: 0, y: -24, duration: 0.02 }, 0.24);
+
+  tl.fromTo('#stat-3', { x: -34 }, { autoAlpha: 1, x: 0, duration: 0.03 }, 0.26)
+    .to(cracks[1], { strokeDashoffset: 0, ease: 'power1.inOut', duration: 0.05 }, 0.27)
+    .to(cracks[2], { strokeDashoffset: 0, ease: 'power1.inOut', duration: 0.05 }, 0.28)
+    .to('.heart-wrap', {
+      keyframes: [{ x: -4 }, { x: 4 }, { x: -3 }, { x: 3 }, { x: 0 }],
+      duration: 0.03
+    }, 0.29)
+    .to('#stat-3', { autoAlpha: 0, y: -24, duration: 0.02 }, 0.32);
+
+  /* acto 2: ruptura */
+  shardData.forEach((d, i) => {
+    tl.to(d.el, { x: d.x, y: d.y, rotation: d.rot, duration: 0.16, ease: 'power3.out' }, 0.34 + i * 0.004);
+  });
+  tl.to(burst, { v: 1, duration: 0.03 }, 0.34)
+    .to('#cracks', { autoAlpha: 0, duration: 0.05 }, 0.37)
+    .to('#act-break', { autoAlpha: 1, duration: 0.04 }, 0.40)
+    .to('#act-break', { autoAlpha: 0, y: -30, duration: 0.03 }, 0.49)
+    .to(burst, { v: 0, duration: 0.06 }, 0.50);
+
+  /* acto 3: kintsugi (los shards vuelven, costuras cyan) */
+  shardData.forEach((d, i) => {
+    tl.to(d.el, { x: 0, y: 0, rotation: 0, duration: 0.14, ease: 'power2.inOut' }, 0.54 + i * 0.004);
+  });
+  tl.to('#tintOxide', { opacity: 0, duration: 0.08 }, 0.54)
+    .set('#seams', { autoAlpha: 1 }, 0.60);
+  seams.forEach((p, i) => {
+    tl.to(p, { strokeDashoffset: 0, ease: 'power1.inOut', duration: 0.07 }, 0.62 + i * 0.014);
+  });
+  tl.to('#heartGlow', { opacity: 1, duration: 0.1 }, 0.62)
+    .to('#tintSignal', { opacity: 0.9, duration: 0.1 }, 0.62);
+
+  /* la vuelta: el corazón cede protagonismo al mensaje */
+  tl.to('.heart-wrap', { scale: 0.9, autoAlpha: 0.38, duration: 0.08 }, 0.74)
+    .to('#act-turn', { autoAlpha: 1, duration: 0.04 }, 0.76)
+    .to('#act-turn .l2', { autoAlpha: 1, y: 0, duration: 0.04 }, 0.82)
+    .to({}, { duration: 0.14 }, 0.86); /* respiro antes del unpin */
+
+  /* ---------- reveals post-cine ---------- */
+  gsap.from('.protocol-head', {
+    y: 44, autoAlpha: 0, duration: 0.9, ease: 'power2.out',
+    scrollTrigger: { trigger: '.protocol-head', start: 'top 80%' }
+  });
+  gsap.from('.card', {
+    y: 44, autoAlpha: 0, duration: 0.8, stagger: 0.12, ease: 'power2.out',
+    scrollTrigger: { trigger: '.cards', start: 'top 80%' }
+  });
+  gsap.from('.finale > *', {
+    y: 36, autoAlpha: 0, duration: 0.8, stagger: 0.1, ease: 'power2.out',
+    scrollTrigger: { trigger: '.finale', start: 'top 72%' }
+  });
+
+  /* ---------- hooks de QA ----------
+     ?seek=0.0-1.0 : scrollea a ese punto (test manual en browser real)
+     ?tl=0.0-1.0   : fija el progreso del timeline SIN scroll (screenshots headless,
+                     porque --screenshot captura siempre el tope del documento) */
+  const qs = new URLSearchParams(location.search);
+  const seek = qs.get('seek');
+  if (seek !== null) {
+    addEventListener('load', () => setTimeout(() => {
+      const track = document.getElementById('cinema');
+      lenis.scrollTo((track.offsetHeight - innerHeight) * parseFloat(seek), { immediate: true });
+      ScrollTrigger.update();
+    }, 500));
+  }
+  const tlp = qs.get('tl');
+  if (tlp !== null) {
+    addEventListener('load', () => setTimeout(() => {
+      tl.scrollTrigger.kill();
+      tl.pause().progress(parseFloat(tlp));
+    }, 300));
+  }
+})();
+</script>
+</body>
+</html>

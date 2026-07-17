@@ -1,0 +1,30 @@
+{
+  "version": "1.0",
+  "eje_declarado": {
+    "principal": "aventura",
+    "secundario": "estetica",
+    "confianza": 0.7
+  },
+  "nivel_curaduria": "producido",
+  "densidad_competitiva": {
+    "nivel": "alta",
+    "implicancia": "opener genérico muere; diferenciar por gancho concreto"
+  },
+  "intencion_declarada": null,
+  "coherencia_texto_fotos": {
+    "coincide": false,
+    "nota": "bio dice tranqui, fotos dicen producción alta"
+  },
+  "ganchos": [
+    {
+      "tipo": "lugar",
+      "dato": "foto en Torres del Paine",
+      "uso": "pregunta específica del circuito W, no 'qué linda foto'"
+    }
+  ],
+  "registro_sugerido": {
+    "tono": "nonchalant",
+    "evitar": ["formalidad", "doble mensaje inicial"]
+  },
+  "disclaimer": "interpretación sobre curaduría pública; confianza indicada por campo"
+}

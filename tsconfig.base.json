@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    // Sin esto TS sube hasta C:\Users\<user>\node_modules\@types (basura fuera del repo)
+    "typeRoots": [
+      "${configDir}/node_modules/@types",
+      "${configDir}/../../node_modules/@types"
+    ]
+  }
+}

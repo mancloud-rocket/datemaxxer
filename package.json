@@ -1,0 +1,20 @@
+{
+  "name": "percentil",
+  "private": true,
+  "packageManager": "pnpm@10.34.5",
+  "engines": {
+    "node": ">=22"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "~19.1.0",
+      "@types/react-dom": "~19.1.0"
+    }
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter @percentil/api --filter @percentil/web dev",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "db:push": "supabase db push"
+  }
+}

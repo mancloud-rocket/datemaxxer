@@ -1,0 +1,7 @@
+# Blocklist anti-slop (una frase por línea, case-insensitive).
+# Placeholder Fase 0 — se llena en Fase 1 junto con el motor F3.
+# Semillas de la spec §7:
+amante de
+vivir la vida
+sin drama
+partner in crime

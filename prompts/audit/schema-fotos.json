@@ -1,0 +1,25 @@
+{
+  "type": "object",
+  "properties": {
+    "evidencia_por_foto": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "foto": { "type": "integer", "description": "Número de foto, empezando en 1" },
+          "dice": { "type": "string", "description": "Qué transmite esta foto en 200ms" },
+          "señales": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Elementos visibles que sostienen la lectura"
+          },
+          "calidad_tecnica": { "type": "integer", "description": "0-100" }
+        },
+        "required": ["foto", "dice", "señales", "calidad_tecnica"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["evidencia_por_foto"],
+  "additionalProperties": false
+}

@@ -1,0 +1,35 @@
+{
+  "version": "1.0",
+  "comportamiento": {
+    "latencia_promedio_min": 47,
+    "latencia_tendencia": "creciente",
+    "ratio_esfuerzo": 0.4,
+    "preguntas_ella_ultimos_10": 1,
+    "reinicia_ella": false,
+    "profundidad": "responde_solo"
+  },
+  "registro_detectado": {
+    "formalidad": "baja",
+    "mayusculas": false,
+    "emojis": "pocos",
+    "humor": "seco"
+  },
+  "sugerencias": [
+    {
+      "estrategia": "proponer_salida",
+      "texto": "che, el jueves hay feria de vinilos en palermo, venís?",
+      "por_que": "el chat está en meseta; una propuesta concreta fuerza señal real"
+    },
+    {
+      "estrategia": "profundizar",
+      "texto": "y eso de mudarte a valpo, era en serio o era lunes a la noche?",
+      "por_que": "retoma lo único que ella compartió espontáneamente"
+    }
+  ],
+  "veredicto": {
+    "decision": "bajar_energia",
+    "confianza": 0.66,
+    "evidencia": ["latencia x3 en 4 días", "0 preguntas en 12 mensajes"],
+    "revisar_en_dias": 4
+  }
+}

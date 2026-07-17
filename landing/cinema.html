@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datemaxxer - IA para hacerte sobresalir en las apps de citas</title>
+<meta name="description" content="Tu copiloto de citas. Datos, no humo.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#101318;
+  --surface:#171B22;
+  --line:#262C36;
+  --steel:#5B6672;
+  --steel-dim:#333C47;
+  --sodium:#E8B04B;
+  --oxide:#C94B32;
+  --stamp:#8F2B22;
+  --signal:#4FD9C2;
+  --ink:#E6E9ED;
+  --ink-mute:#8C96A3;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--void);color:var(--ink);
+  font-family:'Inter Tight',system-ui,sans-serif;
+  overflow-x:clip;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--oxide);color:var(--ink)}
+html.lenis{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto}
+
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:clamp(.6rem,1.1vw,.72rem);letter-spacing:.28em;color:var(--ink-mute);text-transform:uppercase}
+.stamp{display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:clamp(.58rem,1vw,.7rem);letter-spacing:.3em;text-transform:uppercase;color:var(--oxide);border:1.5px solid var(--stamp);padding:.55em 1.2em;border-radius:2px;transform:rotate(-2.5deg)}
+.display{font-family:'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:-.035em;line-height:.94}
+
+/* overlays cinemáticos */
+.grain{position:fixed;inset:0;z-index:60;pointer-events:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");opacity:.05;animation:grainShift 1.1s steps(4) infinite}
+/* el jitter va por background-position: con inset negativo + transform la caja
+   supera el viewport y en mobile expande el layout viewport (bug real en devices) */
+@keyframes grainShift{0%{background-position:0 0}25%{background-position:-38px 22px}50%{background-position:24px -30px}75%{background-position:-16px -14px}100%{background-position:0 0}}
+.vignette{position:fixed;inset:0;z-index:59;pointer-events:none;background:radial-gradient(ellipse 130% 100% at 50% 42%,transparent 55%,rgba(6,8,11,.72) 100%)}
+
+/* loader */
+#loader{
+  position:fixed;top:0;left:0;right:0;z-index:70;pointer-events:none;
+  font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.24em;
+  color:var(--ink-mute);text-transform:uppercase;
+  display:flex;justify-content:center;padding-top:.7rem;
+  transition:opacity .6s;
+}
+#loader .bar{position:absolute;top:0;left:0;height:2px;background:var(--steel);width:0%;transition:width .2s}
+#loader.done{opacity:0;visibility:hidden;transition:opacity .6s,visibility 0s .7s}
+
+/* ---------- el cine ---------- */
+#cinema-track{position:relative}
+#cinema-track .stage{position:sticky;top:0;height:100vh;overflow:hidden}
+#film{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+/* ---------- HUD forense (firma del sitio, siempre presente) ---------- */
+.hud{position:absolute;inset:0;z-index:7;pointer-events:none;opacity:0;font-family:'IBM Plex Mono',monospace;text-transform:uppercase}
+.hud .tl{position:absolute;top:1.4rem;left:1.6rem}
+.hud .chip{display:inline-block;font-size:.58rem;letter-spacing:.26em;color:var(--oxide);border:1px solid var(--stamp);padding:.5em 1.1em;border-radius:2px;transform:rotate(-1.6deg);background:rgba(16,19,24,.4);backdrop-filter:blur(2px)}
+.hud .tr{position:absolute;top:1.5rem;right:1.6rem;text-align:right;font-size:.58rem;letter-spacing:.22em;color:var(--ink-mute);text-shadow:0 1px 8px rgba(6,8,11,.9)}
+.hud .tr .frame{color:var(--ink);font-size:.72rem;letter-spacing:.3em;margin-bottom:.35rem;font-variant-numeric:tabular-nums}
+.hud .bl{position:absolute;bottom:1.3rem;left:1.6rem;font-size:.52rem;letter-spacing:.24em;color:var(--steel);text-shadow:0 1px 8px rgba(6,8,11,.9)}
+.hud .progress{position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(38,44,54,.55)}
+.hud .progress i{display:block;height:100%;width:100%;background:var(--oxide);transform-origin:left;transform:scaleX(0);transition:background .6s}
+.hud.act4 .progress i{background:var(--signal);box-shadow:0 0 10px rgba(79,217,194,.6)}
+
+/* ---------- overlays de copy ---------- */
+.ov{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;visibility:hidden}
+.ov-center{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 6vw}
+.ov h1,.ov h2{font-size:clamp(2.6rem,8.5vw,7.5rem);text-shadow:0 4px 44px rgba(6,8,11,.95),0 1px 12px rgba(6,8,11,.9)}
+.ov .wd{display:inline-block;white-space:nowrap}
+.ov .ch{display:inline-block;will-change:transform,opacity}
+.ov .stroke{color:transparent;-webkit-text-stroke:2.5px var(--ink);text-shadow:none;filter:drop-shadow(0 4px 30px rgba(6,8,11,.9))}
+.cyan{color:var(--signal)}
+.cyan .ch{color:var(--signal)}
+
+/* wordmark DATEMAXXER: tipografía real + las XX como sutura SVG animada */
+.somos{font-weight:600;font-size:clamp(1.05rem,1.8vw,1.5rem);color:var(--ink);opacity:.92;letter-spacing:.06em;text-shadow:0 2px 14px rgba(6,8,11,.95)}
+.wordmark{display:flex;align-items:center;gap:.02em;margin:.6rem 0 1.4rem;transform:skewX(-7deg);font-size:clamp(2.7rem,8.8vw,7.2rem);filter:drop-shadow(0 6px 40px rgba(6,8,11,.9))}
+.wm-t{font-family:'Archivo Black',sans-serif;letter-spacing:-.03em;color:var(--ink);line-height:1}
+.wm-xx{height:.8em;width:auto;overflow:visible;margin:0 .02em;filter:drop-shadow(0 0 14px rgba(79,217,194,.5))}
+.wm-xx .xbar{fill:url(#wmg);stroke:#1E8A78;stroke-width:1.5;stroke-linejoin:round;transform-box:fill-box;transform-origin:center}
+.wm-xx .thread{fill:none;stroke:#EAFBF6;stroke-width:2.6;stroke-linecap:round;opacity:.95}
+.wm-xx .tail{fill:none;stroke:#EAFBF6;stroke-width:2.4;stroke-linecap:round}
+.wm-xx .eyelet{fill:#101318;stroke:#EAFBF6;stroke-width:2;transform-box:fill-box;transform-origin:center}
+
+/* legibilidad del lockup sobre el corazón: scrim radial + tagline en chip de vidrio */
+#ov7::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 48% 44% at 50% 52%,rgba(6,9,12,.74),rgba(6,9,12,.3) 56%,transparent 74%)}
+#ov7 > *{position:relative}
+#ov7 .kicker{background:rgba(13,17,22,.62);backdrop-filter:blur(8px);padding:.6em 1.25em;border-radius:999px;border:1px solid rgba(79,217,194,.3)}
+.ov .sub{margin-top:1.8rem;max-width:34em;color:var(--ink);opacity:.88;font-size:clamp(.95rem,1.5vw,1.15rem);line-height:1.55;text-shadow:0 2px 18px rgba(6,8,11,.95)}
+/* kicker: frase de apoyo con peso real, nada de mono microscópico */
+.kicker{font-family:'Inter Tight',sans-serif;font-weight:600;font-size:clamp(.95rem,1.4vw,1.1rem);color:var(--ink);display:flex;align-items:center;gap:.65rem;text-shadow:0 2px 14px rgba(6,8,11,.95)}
+.kicker i{flex:none;width:9px;height:9px;border-radius:50%;background:var(--signal);box-shadow:0 0 12px rgba(79,217,194,.8)}
+.kicker.k-ox i{background:var(--oxide);box-shadow:0 0 12px rgba(201,75,50,.8)}
+.ov-center .kicker{margin-bottom:2rem}
+.ov-center .kicker:last-of-type{margin-bottom:0;margin-top:1.6rem}
+.ev .kicker{margin-bottom:.4rem}
+.ov .cta{pointer-events:auto;display:inline-block;margin-top:2.6rem;font-family:'IBM Plex Mono',monospace;font-size:.85rem;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;color:var(--void);background:var(--signal);padding:1.25rem 3.2rem;border-radius:4px;box-shadow:0 0 32px rgba(79,217,194,.28);transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.ov .cta:hover{transform:translateY(-3px);box-shadow:0 0 52px rgba(79,217,194,.45)}
+
+/* evidencias: bloques anclados a los bordes, número gigante con count-up */
+.ev{position:absolute;max-width:46vw}
+#ov2 .ev{left:7vw;bottom:11vh}
+#ov3 .ev{right:7vw;top:13vh;text-align:right}
+#ov4 .ev{left:7vw;top:50%;transform:translateY(-50%)}
+.ev .rule{height:2px;background:var(--oxide);transform-origin:left;transform:scaleX(0);margin:1rem 0 1.2rem;box-shadow:0 0 14px rgba(201,75,50,.55)}
+#ov3 .rule{transform-origin:right}
+#ov4 .rule{background:var(--steel);box-shadow:none}
+.numline{font-family:'Archivo Black',sans-serif;line-height:.86;letter-spacing:-.04em;color:var(--oxide);font-size:clamp(6rem,20vw,19rem);text-shadow:0 8px 70px rgba(6,8,11,.95);font-variant-numeric:tabular-nums}
+.numline .unit{font-size:.42em;vertical-align:.14em;letter-spacing:-.02em}
+#ov4 .numline{color:var(--ink)}
+.stat-label{margin-top:1rem;font-size:clamp(1rem,1.7vw,1.3rem);color:var(--ink);line-height:1.45;text-shadow:0 2px 16px rgba(6,8,11,.95);max-width:22em}
+
+.scroll-hint{position:absolute;bottom:2.9rem;left:50%;transform:translateX(-50%);z-index:6;font-family:'IBM Plex Mono',monospace;font-size:.62rem;letter-spacing:.3em;color:var(--ink-mute);white-space:nowrap;animation:hintPulse 2.4s ease-in-out infinite;text-shadow:0 2px 10px rgba(6,8,11,.95)}
+@keyframes hintPulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+/* ============================================================
+   LOS ACTOS V-VIII: la película continúa fuera del video.
+   Una grieta óxido recorre la evidencia; en el método se vuelve
+   sutura cyan; al final el corazón se dibuja completo.
+   Sin cards en grilla. Sin eyebrows mono. Editorial + instrumentos.
+   ============================================================ */
+.scene{position:relative;z-index:4;padding:16vh 6vw;max-width:1280px;margin:0 auto;background:var(--void)}
+.spine{position:absolute;left:50%;top:0;transform:translateX(-50%);width:60px;height:100%;pointer-events:none;overflow:visible;z-index:0}
+.spine path{fill:none;stroke:var(--oxide);stroke-width:2;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(201,75,50,.5));opacity:.75}
+.spine.spine-cy path{stroke:var(--signal);stroke-dasharray:12 9;filter:drop-shadow(0 0 6px rgba(79,217,194,.5))}
+
+/* cabecera de acto: numeral romano fantasma gigante */
+.acto{position:relative;z-index:1;display:flex;align-items:center;gap:2.4rem;margin-bottom:11vh}
+/* fondo sólido = la grieta se interrumpe detrás de los títulos y vuelve después */
+.acto-t{background:var(--void);padding:1rem 1.6rem 1.2rem 0}
+.acto .rn{font-family:'Archivo Black',sans-serif;font-size:clamp(6rem,14vw,12rem);line-height:.8;color:transparent;-webkit-text-stroke:1.5px rgba(201,75,50,.5);user-select:none;flex:none}
+.acto .rn.rn-cy{-webkit-text-stroke-color:rgba(79,217,194,.45)}
+.acto h2{font-size:clamp(2.4rem,5.5vw,4.6rem)}
+.lead{margin-top:1.1rem;max-width:34em;color:var(--ink-mute);font-size:clamp(1rem,1.5vw,1.2rem);line-height:1.6;font-weight:500}
+
+/* filas de evidencia: copy + instrumento, alternando lados */
+.viz{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1.1fr;gap:8.5rem;align-items:center;margin:0 0 15vh;padding:0 1vw}
+.viz.flip .viz-copy{order:2}
+.viz.flip .viz-art{order:1}
+.viz-copy{background:var(--void);padding:1.2rem 0}
+.viz-copy h3{font-family:'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:-.02em;font-size:clamp(1.5rem,2.6vw,2.2rem)}
+.viz-copy p{margin-top:1rem;color:var(--ink-mute);font-size:clamp(1rem,1.4vw,1.15rem);line-height:1.65}
+.viz-copy b{color:var(--ink);font-weight:700}
+.viz-copy b.ox,.ox{color:var(--oxide)}
+.vsrc{margin-top:1.2rem !important;font-size:.85rem !important;color:var(--steel) !important;font-weight:600}
+.viz-art{position:relative;background:#141922;border-radius:16px;padding:2.2rem}
+.viz-art svg{width:100%;height:auto;display:block;overflow:visible}
+.viz-art figcaption{margin-top:1rem;font-size:.95rem;color:var(--ink-mute);font-weight:600}
+.bignum{display:block;font-family:'Archivo Black',sans-serif;font-size:clamp(1.8rem,3vw,2.6rem);color:var(--ink);letter-spacing:-.03em;margin-bottom:.15rem;font-variant-numeric:tabular-nums}
+.bignum.ox{color:var(--oxide)}
+.art-reparto{display:flex;gap:2.5rem;justify-content:center}
+.art-reparto .pane{flex:1;max-width:190px;text-align:center}
+.art-gauges{display:flex;gap:2rem;justify-content:center}
+.art-gauges .gauge{flex:1;max-width:230px;text-align:center}
+.art-tally .trow{display:grid;grid-template-columns:8.5em 1fr;align-items:center;gap:1.4rem;margin:1.2rem 0}
+.art-tally figcaption{margin:0;white-space:nowrap;overflow:hidden}
+.art-tally figcaption b{display:block}
+.thesis{position:relative;z-index:1;margin:4vh auto 0;max-width:26em;text-align:center;font-size:clamp(1.35rem,2.4vw,2rem);line-height:1.45;font-weight:600;color:var(--ink);background:var(--void);padding:1.2rem 1.5rem}
+.tacho{position:relative;white-space:nowrap}
+.tacho::after{content:'';position:absolute;left:-2%;top:54%;height:3px;width:0;background:var(--oxide);transform:rotate(-1.5deg);transition:width .6s cubic-bezier(.2,.8,.2,1) .3s}
+.tacho.go::after{width:104%}
+
+/* estaciones del método */
+.station{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:8.5rem;align-items:center;margin-bottom:14vh}
+.st-copy{background:var(--void);padding:1rem 0}
+.station:nth-child(odd) .st-copy{order:2}
+.station:nth-child(odd) .st-art{order:1}
+.stn{font-family:'Archivo Black',sans-serif;font-size:1.1rem;color:var(--signal);display:inline-block;margin-bottom:.6rem}
+.st-copy h3{font-family:'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:-.02em;font-size:clamp(1.4rem,2.4vw,2rem)}
+.st-copy p{margin-top:.9rem;color:var(--ink-mute);font-size:clamp(1rem,1.4vw,1.15rem);line-height:1.65}
+.st-art{display:flex;justify-content:center}
+.st-art svg{width:min(320px,80vw);height:auto;overflow:visible}
+
+/* la prueba: libro mayor + citas grandes */
+.ledger{margin-bottom:9vh}
+.lrow{display:grid;grid-template-columns:minmax(9em,.6fr) 2fr auto;gap:2.2rem;align-items:center;padding:1.7rem 0;border-bottom:1px solid var(--line)}
+.lrow:first-child{border-top:1px solid var(--line)}
+.lwho{font-weight:700;font-size:1.1rem}
+.lwho span{display:block;font-weight:500;color:var(--steel);font-size:.85rem;margin-top:.2rem}
+.lbar{position:relative;height:12px;background:#1A202A;border-radius:6px}
+.lbar i{position:absolute;left:0;top:0;bottom:0;border-radius:6px}
+.lbar .lb-pre{background:var(--steel-dim)}
+.lbar .lb-post{background:var(--signal);box-shadow:0 0 14px rgba(79,217,194,.35)}
+.lbar em{position:absolute;left:0;top:1.4rem;font-style:normal;font-size:.85rem;color:var(--ink-mute);font-weight:600;white-space:nowrap}
+.ldelta{font-family:'Archivo Black',sans-serif;font-size:clamp(1.6rem,2.6vw,2.3rem);color:var(--signal);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.pq{position:relative;max-width:31em;margin:0 0 6vh;padding-left:2rem}
+.pq::before{content:'«';position:absolute;left:-1.2rem;top:-2.6rem;font-family:'Archivo Black',sans-serif;font-size:7rem;color:rgba(201,75,50,.22);line-height:1}
+.pq p{font-size:clamp(1.2rem,2vw,1.6rem);line-height:1.5;font-weight:500;color:var(--ink)}
+.pq cite{display:block;margin-top:1rem;font-style:normal;font-weight:600;color:var(--steel);font-size:.95rem}
+.pq.pq-r{margin-left:auto;text-align:right;padding-left:0;padding-right:2rem}
+.pq.pq-r::before{left:auto;right:-1.2rem}
+.marq{overflow:hidden;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:1.3rem 0;margin-top:4vh}
+.marq-in{display:flex;gap:3.2rem;align-items:center;white-space:nowrap;width:max-content}
+.marq-in span{font-weight:600;font-size:1.05rem;color:var(--ink)}
+.marq-in b{color:var(--oxide);font-size:.7rem}
+
+/* planes: fichas facetadas, sin video, con glifo propio */
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:1.6rem;margin-bottom:16vh}
+.plan{position:relative;padding:2.2rem 1.9rem;background:linear-gradient(165deg,rgba(23,27,34,.85),rgba(16,19,24,.95));clip-path:polygon(0 16px,16px 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%);transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.plan::before{content:'';position:absolute;top:0;left:16px;right:0;height:3px;background:var(--steel-dim)}
+.plan:hover{transform:translateY(-8px)}
+.plan-hot::before{background:var(--signal);box-shadow:0 0 16px rgba(79,217,194,.6)}
+.pglyph{width:44px;height:44px;margin-bottom:1.2rem}
+.plan h3{font-family:'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:-.02em;font-size:1.2rem}
+.pprice{font-family:'Archivo Black',sans-serif;font-size:1.9rem;color:var(--ink);margin:.5rem 0 .8rem;letter-spacing:-.02em}
+.plan-hot .pprice{color:var(--signal)}
+.pprice span{font-family:'Inter Tight',sans-serif;font-weight:600;font-size:.85rem;color:var(--steel);letter-spacing:0}
+.plan p{color:var(--ink-mute);font-size:.95rem;line-height:1.6}
+.pbadge{margin-top:1.1rem;display:inline-block;font-weight:700;font-size:.8rem;color:var(--signal)}
+
+/* cierre: el corazón se termina de dibujar */
+.hfin{text-align:center;padding-top:4vh}
+.hfin svg{width:min(300px,60vw);margin-bottom:2.5rem;overflow:visible}
+.hfin .hf-seam{filter:drop-shadow(0 0 8px rgba(79,217,194,.6))}
+.hfin h2{font-size:clamp(2.6rem,7vw,5.5rem)}
+.hfin .cta{pointer-events:auto;display:inline-block;margin-top:2.8rem;font-weight:700;font-size:1rem;text-decoration:none;color:var(--void);background:var(--signal);padding:1.3rem 3.4rem;border-radius:6px;box-shadow:0 0 32px rgba(79,217,194,.28);transition:transform .35s,box-shadow .35s;font-family:'Inter Tight',sans-serif;letter-spacing:.02em}
+.hfin .cta:hover{transform:translateY(-3px);box-shadow:0 0 52px rgba(79,217,194,.45)}
+.fmicro{margin-top:2.4rem;color:var(--steel);font-size:.9rem;font-weight:600}
+
+footer{border-top:1px solid var(--line);padding:2.2rem 6vw;display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;font-family:'Inter Tight',sans-serif;font-weight:600;font-size:.85rem;color:var(--steel);background:var(--void)}
+
+@media (max-width:900px){
+  /* la línea fija más larga ("de lugar en él.") son 15 glifos Archivo Black:
+     a 7.2vw entra en 390px con las líneas del <br> intactas */
+  .ov h1,.ov h2{font-size:clamp(1.6rem,7.2vw,7rem)}
+  .ov .stroke{-webkit-text-stroke-width:1.5px}
+  .ov .kicker{font-size:.85rem}
+  .ov .cta{padding:1rem 1.8rem;font-size:.85rem}
+  .ev{max-width:86vw}
+  #ov2 .ev{left:7vw;bottom:9vh}
+  #ov3 .ev{right:7vw;top:11vh}
+  .numline{font-size:clamp(4.5rem,26vw,19rem)}
+  .hud .bl{display:none}
+  .hud .chip{font-size:.5rem}
+  .hud .tr{font-size:.5rem}
+  .hud .tr .frame{font-size:.62rem}
+  /* nada puede medir más que el viewport: expande el layout viewport en mobile */
+  .scroll-hint{white-space:normal;max-width:82vw;text-align:center;letter-spacing:.22em}
+  /* escenas V-VIII apiladas */
+  .scene{padding:12vh 6vw}
+  .spine{display:none}
+  .acto{gap:1.4rem;margin-bottom:7vh}
+  .viz,.station{grid-template-columns:1fr;gap:2.2rem;margin-bottom:10vh}
+  .viz.flip .viz-copy,.station:nth-child(odd) .st-copy{order:0}
+  .viz.flip .viz-art,.station:nth-child(odd) .st-art{order:1}
+  .art-reparto,.art-gauges{gap:1.2rem}
+  .lrow{grid-template-columns:1fr;gap:1rem;padding:1.4rem 0}
+  .lbar{margin-bottom:1.4rem}
+  .ldelta{font-size:1.8rem}
+  .pq{padding-left:1.2rem}
+  .pq.pq-r{padding-right:1.2rem}
+  .plans{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  .grain,.scroll-hint,.fb-audit::after,.fb-kit::after,.fb-copilot::after{animation:none}
+}
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="vignette"></div>
+<div id="loader"><div class="bar"></div><span id="loaderTxt">CARGANDO EXPEDIENTE · 0%</span></div>
+
+<!-- ============ EL CINE ============ -->
+<section id="cinema-track">
+  <div class="stage">
+    <canvas id="film"></canvas>
+
+    <!-- HUD forense: la firma. El contador de frame se mueve con tu dedo. -->
+    <div class="hud" id="hud">
+      <div class="tl"><span class="chip">Datemaxxer · Expediente 001</span></div>
+      <div class="tr">
+        <div class="frame" id="hudFrame">FRAME 0000 / 0359</div>
+        <div id="hudAct">Acto I · El latido</div>
+      </div>
+      <div class="bl">Evidencia en tiempo real · el scroll controla el tiempo</div>
+      <div class="progress"><i id="hudBar"></i></div>
+    </div>
+
+    <!-- o1: gancho + promesa + prueba social (todo arriba del fold) -->
+    <div class="ov ov-center" id="ov1">
+      <p class="kicker fade"><i></i>Más de 2.500 hombres ya consiguen más y mejores citas</p>
+      <h1 class="display split">El mercado de citas<br>es injusto.</h1>
+      <p class="sub fade">Y podemos ayudarte a sobresalir.<br>Con datos, método e inteligencia artificial.</p>
+      <a class="cta fade" href="/auditoria">Empieza gratis</a>
+    </div>
+    <div class="scroll-hint" id="hint">DESLIZA · LA PELÍCULA OBEDECE A TU DEDO ▼</div>
+
+    <!-- o2: el dolor, en primera persona -->
+    <div class="ov" id="ov2"><div class="ev">
+      <p class="kicker k-ox fade"><i></i>¿Te suena?</p>
+      <div class="rule"></div>
+      <div class="numline"><span class="cnt" data-to="0">0</span></div>
+      <div class="stat-label fade">Respuestas. Escribes bien, lo intentas, y nada.<br>No eres tú: la app está diseñada para que esto pase.<br>Si te fuera bien, dejarías de pagar.</div>
+    </div></div>
+    <!-- o3-o4: la evidencia -->
+    <div class="ov" id="ov3"><div class="ev">
+      <p class="kicker k-ox fade"><i></i>Y los datos lo confirman</p>
+      <div class="rule"></div>
+      <div class="numline"><span class="cnt" data-to="2">0</span><span class="unit">%</span></div>
+      <div class="stat-label fade">Tu probabilidad de hacer match.<br>La de ella: 44%. Mismo juego, reglas distintas.</div>
+    </div></div>
+    <div class="ov" id="ov4"><div class="ev">
+      <p class="kicker k-ox fade"><i></i>La brecha real</p>
+      <div class="rule"></div>
+      <div class="numline"><span class="cnt" data-to="22">0</span><span class="unit">×</span></div>
+      <div class="stat-label fade">Más difícil para nosotros. Y con opciones infinitas,<br>las expectativas del otro lado suben solas<br>mientras tú aprendes a conformarte.</div>
+    </div></div>
+
+    <!-- o5: la ruptura -->
+    <div class="ov ov-center" id="ov5">
+      <h2 class="display split">No estás fallando.</h2>
+      <h2 class="display split stroke">Te hacen fallar.</h2>
+      <p class="sub fade">Las apps ganan cuando sigues buscando, no cuando encuentras.<br>Tu frustración es su modelo de negocio.</p>
+    </div>
+
+    <!-- o6: el giro -->
+    <div class="ov ov-center" id="ov6">
+      <h2 class="display split">¿Y si pudieras ganarle<br>al algoritmo?</h2>
+    </div>
+
+    <!-- o7: kintsugi + marca + CTA -->
+    <div class="ov ov-center" id="ov7">
+      <p class="somos">somos</p>
+      <div class="wordmark" role="heading" aria-level="2" aria-label="Datemaxxer">
+        <span class="wm-t">DATEMA</span><svg class="wm-xx" viewBox="0 0 176 96" aria-hidden="true">
+          <defs>
+            <linearGradient id="wmg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#6FEBD4"/><stop offset="1" stop-color="#2FAE97"/>
+            </linearGradient>
+          </defs>
+          <g class="xg">
+            <path class="xbar" d="M6 0 L32 0 L80 96 L54 96 Z"/>
+            <path class="xbar" d="M54 0 L80 0 L32 96 L6 96 Z"/>
+            <path class="thread" d="M29.5 21 C36 34 50 62 56.5 75"/>
+            <path class="thread" d="M56.4 21 C50 34 36 62 29.6 75"/>
+            <path class="tail" d="M29.5 21 C22 8 34 2 27 12"/>
+            <circle class="eyelet" cx="29.5" cy="21" r="4.6"/><circle class="eyelet" cx="56.4" cy="21" r="4.6"/>
+            <circle class="eyelet" cx="29.6" cy="75" r="4.6"/><circle class="eyelet" cx="56.5" cy="75" r="4.6"/>
+          </g>
+          <g class="xg" transform="translate(90 0)">
+            <path class="xbar" d="M6 0 L32 0 L80 96 L54 96 Z"/>
+            <path class="xbar" d="M54 0 L80 0 L32 96 L6 96 Z"/>
+            <path class="thread" d="M29.5 21 C36 34 50 62 56.5 75"/>
+            <path class="thread" d="M56.4 21 C50 34 36 62 29.6 75"/>
+            <path class="tail" d="M56.5 75 C64 88 50 94 58 84"/>
+            <circle class="eyelet" cx="29.5" cy="21" r="4.6"/><circle class="eyelet" cx="56.4" cy="21" r="4.6"/>
+            <circle class="eyelet" cx="29.6" cy="75" r="4.6"/><circle class="eyelet" cx="56.5" cy="75" r="4.6"/>
+          </g>
+        </svg><span class="wm-t">ER</span>
+      </div>
+      <p class="kicker fade"><i></i>IA para hacerte sobresalir</p>
+      <a class="cta fade" href="/auditoria">Empieza tu auditoría gratis</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ACTO V · LA EVIDENCIA ============ -->
+<section class="scene" id="sc-evidencia">
+  <svg class="spine" id="spineOx" aria-hidden="true"><path d=""/></svg>
+  <header class="acto">
+    <span class="rn">V</span>
+    <div class="acto-t">
+      <h2 class="display">La evidencia</h2>
+      <p class="lead">Cinco datos, cero opiniones. Esto es lo que las apps saben de ti y nunca te van a contar.</p>
+    </div>
+  </header>
+
+  <div class="viz" id="vz-reparto">
+    <div class="viz-copy">
+      <h3>El reparto</h3>
+      <p>De cada 50 intentos, tú consigues <b class="ox">1 match</b>. Ella consigue <b>22</b>. La misma app reparte cartas distintas según quién juega.</p>
+      <p class="vsrc">SwipeStats · 294 millones de swipes analizados</p>
+    </div>
+    <figure class="viz-art art-reparto">
+      <div class="pane"><svg class="dots" data-lit="1" viewBox="0 0 120 240"></svg><figcaption><span class="bignum ox"><span class="cnt2" data-to="2">0</span>%</span> él</figcaption></div>
+      <div class="pane"><svg class="dots dots-her" data-lit="22" viewBox="0 0 120 240"></svg><figcaption><span class="bignum"><span class="cnt2" data-to="44">0</span>%</span> ella</figcaption></div>
+    </figure>
+  </div>
+
+  <div class="viz flip" id="vz-like">
+    <div class="viz-copy">
+      <h3>El doble estándar</h3>
+      <p>Nosotros damos like al <b class="ox">62%</b> de los perfiles que vemos. Ellas, al <b>4,5%</b>. Con esa asimetría, la fila del otro lado siempre está llena.</p>
+      <p class="vsrc">Queen Mary University of London</p>
+    </div>
+    <figure class="viz-art art-gauges">
+      <div class="gauge"><svg class="gsvg" data-pct="62" data-ox="1" viewBox="0 0 210 130"></svg><figcaption><span class="bignum ox"><span class="cnt2" data-to="62">0</span>%</span> él da like</figcaption></div>
+      <div class="gauge"><svg class="gsvg" data-pct="4.5" viewBox="0 0 210 130"></svg><figcaption><span class="bignum"><span class="cnt2" data-to="4.5" data-dec="1">0</span>%</span> ella da like</figcaption></div>
+    </figure>
+  </div>
+
+  <div class="viz" id="vz-curva">
+    <div class="viz-copy">
+      <h3>La vara rota</h3>
+      <p>En OkCupid, ellas puntúan al <b class="ox">80%</b> de los hombres como “menos atractivos que el promedio”. Matemáticamente imposible. Emocionalmente real.</p>
+      <p class="vsrc">OkCupid · datos internos publicados</p>
+    </div>
+    <figure class="viz-art">
+      <svg viewBox="0 0 460 230" id="bellSvg">
+        <defs><pattern id="hatch" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse"><line x1="0" y1="0" x2="0" y2="7" stroke="#C94B32" stroke-width="1.1"/></pattern></defs>
+        <line x1="20" y1="192" x2="440" y2="192" stroke="#262C36" stroke-width="1.5"/>
+        <path id="bellArea" d="M30 192 C120 188 152 180 180 136 C208 92 218 56 232 56 C246 56 256 92 284 136 C299 159 314 172 340 180 L340 192 Z" fill="url(#hatch)" opacity="0"/>
+        <path id="bellCurve" d="M30 192 C120 188 152 180 180 136 C208 92 218 56 232 56 C246 56 256 92 284 136 C312 180 344 188 434 192" fill="none" stroke="#8C96A3" stroke-width="2"/>
+        <line id="bellAvg" x1="232" y1="62" x2="232" y2="192" stroke="#5B6672" stroke-width="1.5" stroke-dasharray="4 5"/>
+        <text x="240" y="56" font-family="Inter Tight,sans-serif" font-weight="600" font-size="13" fill="#5B6672">promedio real</text>
+        <g id="bellFlag" opacity="0">
+          <line x1="340" y1="86" x2="340" y2="192" stroke="#E6E9ED" stroke-width="2"/>
+          <path d="M340 86 L398 86 L390 97 L398 108 L340 108 Z" fill="#E6E9ED"/>
+          <text x="347" y="102" font-family="Inter Tight,sans-serif" font-weight="700" font-size="13" fill="#101318">la vara</text>
+        </g>
+        <text id="bell80" x="96" y="216" font-family="Inter Tight,sans-serif" font-weight="600" font-size="14" fill="#C94B32" opacity="0">aquí quedamos el 80%</text>
+      </svg>
+    </figure>
+  </div>
+
+  <div class="viz flip" id="vz-esfuerzo">
+    <div class="viz-copy">
+      <h3>El esfuerzo desigual</h3>
+      <p><b class="ox">3,6 veces</b> más mensajes para lograr lo mismo. No es que tu tiempo valga menos: es que este mercado lo cobra más caro.</p>
+      <p class="vsrc">Hinge · estudio de mensajería</p>
+    </div>
+    <figure class="viz-art art-tally">
+      <div class="trow"><figcaption><b class="ox">36 intentos</b> él</figcaption><svg class="tally tal-ox" data-n="36" viewBox="0 0 320 40"></svg></div>
+      <div class="trow"><figcaption><b>10 intentos</b> ella</figcaption><svg class="tally" data-n="10" viewBox="0 0 320 40"></svg></div>
+    </figure>
+  </div>
+
+  <div class="viz" id="vz-maquina">
+    <div class="viz-copy">
+      <h3>El casino gana siempre</h3>
+      <p>Tinder factura <b class="ox">US$ 1.900 millones</b> al año. Si encontraras pareja esta semana, dejarías de pagar. Tu frustración es el modelo de negocio.</p>
+      <p class="vsrc">Match Group · reporte anual</p>
+    </div>
+    <figure class="viz-art">
+      <svg viewBox="0 0 440 210" id="revSvg">
+        <line x1="18" y1="170" x2="422" y2="170" stroke="#262C36" stroke-width="1.5"/>
+        <path id="revPath" d="M20 168 L80 168 L80 148 L140 148 L140 126 L200 126 L200 102 L260 102 L260 76 L320 76 L320 48 L400 48" fill="none" stroke="#C94B32" stroke-width="2.5" stroke-linejoin="round"/>
+        <text id="revNum" x="20" y="36" font-family="'Archivo Black',sans-serif" font-size="27" fill="#C94B32">US$ 0</text>
+        <text x="20" y="196" font-family="Inter Tight,sans-serif" font-weight="600" font-size="13" fill="#5B6672">ingresos por año · la soledad como suscripción</text>
+      </svg>
+    </figure>
+  </div>
+
+  <p class="thesis">Del otro lado hay un catálogo infinito. Las expectativas <b class="ox">suben solas</b>…<br>y tú aprendes a <span class="tacho">conformarte</span>.</p>
+</section>
+
+<!-- ============ ACTO VI · EL MÉTODO ============ -->
+<section class="scene" id="sc-metodo">
+  <svg class="spine spine-cy" id="spineCy" aria-hidden="true"><path d=""/></svg>
+  <header class="acto">
+    <span class="rn rn-cy">VI</span>
+    <div class="acto-t">
+      <h2 class="display">El método</h2>
+      <p class="lead">Datemaxxing: análisis y mejora integral con IA. No es magia ni frases de coach: es reparar tu señal, pieza por pieza.</p>
+    </div>
+  </header>
+
+  <div class="station" id="st-audit">
+    <div class="st-copy">
+      <span class="stn">01</span>
+      <h3>Auditoría con IA de visión</h3>
+      <p>Leemos tu perfil foto por foto, como lo lee el algoritmo y como lo ve ella en 200 milisegundos. Score real y diagnóstico sin filtro.</p>
+    </div>
+    <figure class="st-art">
+      <svg viewBox="0 0 300 360" id="svgAudit">
+        <defs><linearGradient id="scanGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4FD9C2" stop-opacity="0"/><stop offset=".5" stop-color="#4FD9C2" stop-opacity=".3"/><stop offset="1" stop-color="#4FD9C2" stop-opacity="0"/></linearGradient></defs>
+        <rect x="45" y="28" width="210" height="270" rx="12" fill="rgba(23,27,34,.55)" stroke="#262C36" stroke-width="1.5"/>
+        <circle cx="150" cy="126" r="40" fill="#232932"/>
+        <path d="M80 262 C98 202 202 202 220 262 L220 294 L80 294 Z" fill="#232932"/>
+        <g id="scanG"><rect x="49" y="-30" width="202" height="30" fill="url(#scanGrad)"/><rect x="49" y="-2" width="202" height="2" fill="#4FD9C2" opacity=".9"/></g>
+        <g class="co"><circle cx="106" cy="102" r="15" fill="none" stroke="#4FD9C2" stroke-width="1.5"/><line x1="121" y1="102" x2="176" y2="84" stroke="#4FD9C2" stroke-width="1"/><text x="180" y="88" font-family="Inter Tight,sans-serif" font-weight="700" font-size="14" fill="#E6E9ED">luz 62</text></g>
+        <g class="co"><circle cx="196" cy="158" r="15" fill="none" stroke="#4FD9C2" stroke-width="1.5"/><line x1="181" y1="158" x2="120" y2="176" stroke="#4FD9C2" stroke-width="1"/><text x="62" y="180" font-family="Inter Tight,sans-serif" font-weight="700" font-size="14" fill="#E6E9ED">fondo 41</text></g>
+        <g class="co"><circle cx="150" cy="252" r="15" fill="none" stroke="#4FD9C2" stroke-width="1.5"/><line x1="165" y1="252" x2="205" y2="268" stroke="#4FD9C2" stroke-width="1"/><text x="209" y="272" font-family="Inter Tight,sans-serif" font-weight="700" font-size="14" fill="#E6E9ED">orden 28</text></g>
+        <text id="auditScore" x="150" y="340" text-anchor="middle" font-family="'Archivo Black',sans-serif" font-size="22" fill="#4FD9C2" opacity="0">SCORE 47/100</text>
+      </svg>
+    </figure>
+  </div>
+
+  <div class="station" id="st-opt">
+    <div class="st-copy">
+      <span class="stn">02</span>
+      <h3>Optimización total</h3>
+      <p>Mejoramos tus fotos reales, tu bio y el orden de todo. Sin inventarte: tu mejor versión, la que el algoritmo premia.</p>
+    </div>
+    <figure class="st-art">
+      <svg viewBox="0 0 300 360" id="svgOpt">
+        <rect x="45" y="18" width="210" height="250" rx="12" fill="rgba(23,27,34,.55)" stroke="#262C36" stroke-width="1.5"/>
+        <circle cx="150" cy="108" r="36" fill="#232932"/>
+        <path d="M85 236 C102 182 198 182 215 236 L215 264 L85 264 Z" fill="#232932"/>
+        <g id="optCracks" stroke="#C94B32" stroke-width="1.5" fill="none"><path d="M60 60 L96 84 L88 118"/><path d="M240 48 L204 90 L216 128"/><path d="M150 268 L138 226"/></g>
+        <g id="optSeams" stroke="#4FD9C2" stroke-width="1.8" fill="none" opacity="0"><path d="M60 60 L96 84 L88 118"/><path d="M240 48 L204 90 L216 128"/><path d="M150 268 L138 226"/></g>
+        <g id="optSliders">
+          <text x="45" y="298" font-family="Inter Tight,sans-serif" font-weight="600" font-size="13" fill="#5B6672">luz</text>
+          <line x1="90" y1="294" x2="255" y2="294" stroke="#262C36" stroke-width="3" stroke-linecap="round"/>
+          <circle class="knob" data-x="225" cx="105" cy="294" r="7" fill="#4FD9C2"/>
+          <text x="45" y="323" font-family="Inter Tight,sans-serif" font-weight="600" font-size="13" fill="#5B6672">encuadre</text>
+          <line x1="120" y1="319" x2="255" y2="319" stroke="#262C36" stroke-width="3" stroke-linecap="round"/>
+          <circle class="knob" data-x="200" cx="132" cy="319" r="7" fill="#4FD9C2"/>
+          <text x="45" y="348" font-family="Inter Tight,sans-serif" font-weight="600" font-size="13" fill="#5B6672">orden</text>
+          <line x1="98" y1="344" x2="255" y2="344" stroke="#262C36" stroke-width="3" stroke-linecap="round"/>
+          <circle class="knob" data-x="238" cx="110" cy="344" r="7" fill="#4FD9C2"/>
+        </g>
+      </svg>
+    </figure>
+  </div>
+
+  <div class="station" id="st-chat">
+    <div class="st-copy">
+      <span class="stn">03</span>
+      <h3>Copiloto de conversaciones</h3>
+      <p>La IA lee el interés real del otro lado: tiempos de respuesta, patrones, señales. Invierte donde hay futuro. Suelta donde no.</p>
+    </div>
+    <figure class="st-art">
+      <svg viewBox="0 0 300 360" id="svgChat">
+        <g class="bub"><rect x="42" y="34" width="152" height="36" rx="13" fill="#1B222B" stroke="#262C36"/><line x1="210" y1="52" x2="258" y2="52" stroke="#232932" stroke-width="6" stroke-linecap="round"/><line class="ibar" data-w="44" x1="210" y1="52" x2="210" y2="52" stroke="#4FD9C2" stroke-width="6" stroke-linecap="round"/></g>
+        <g class="bub"><rect x="42" y="88" width="128" height="36" rx="13" fill="#1B222B" stroke="#262C36"/><line x1="210" y1="106" x2="258" y2="106" stroke="#232932" stroke-width="6" stroke-linecap="round"/><line class="ibar" data-w="38" x1="210" y1="106" x2="210" y2="106" stroke="#4FD9C2" stroke-width="6" stroke-linecap="round"/></g>
+        <g class="bub"><rect x="42" y="142" width="140" height="36" rx="13" fill="#1B222B" stroke="#262C36"/><line x1="210" y1="160" x2="258" y2="160" stroke="#232932" stroke-width="6" stroke-linecap="round"/><line class="ibar ibar-low" data-w="9" x1="210" y1="160" x2="210" y2="160" stroke="#C94B32" stroke-width="6" stroke-linecap="round"/></g>
+        <g class="bub bub-go"><rect x="88" y="216" width="170" height="44" rx="15" fill="rgba(79,217,194,.08)" stroke="#4FD9C2" stroke-width="1.8"/><text x="173" y="243" text-anchor="middle" font-family="Inter Tight,sans-serif" font-weight="700" font-size="15" fill="#4FD9C2">invierte aquí</text></g>
+        <g class="bub bub-no" opacity=".45"><rect x="42" y="288" width="120" height="34" rx="13" fill="none" stroke="#262C36" stroke-dasharray="5 5"/><text x="102" y="309" text-anchor="middle" font-family="Inter Tight,sans-serif" font-weight="600" font-size="13" fill="#5B6672">suelta esta</text></g>
+      </svg>
+    </figure>
+  </div>
+
+  <div class="station" id="st-result">
+    <div class="st-copy">
+      <span class="stn">04</span>
+      <h3>Resultados medibles</h3>
+      <p>Tu match rate antes y después, semana a semana, en tu panel. Si en 30 días no mejora, te devolvemos el dinero.</p>
+    </div>
+    <figure class="st-art">
+      <svg viewBox="0 0 300 360" id="svgResult">
+        <line x1="40" y1="290" x2="280" y2="290" stroke="#262C36" stroke-width="1.5"/>
+        <line x1="40" y1="290" x2="40" y2="60" stroke="#262C36" stroke-width="1.5"/>
+        <path id="resLine" d="M40 272 L100 258 L160 208 L220 148 L280 84" fill="none" stroke="#4FD9C2" stroke-width="2.5" stroke-linejoin="round"/>
+        <g id="resDots" fill="#4FD9C2"><path d="M100 251 L107 258 L100 265 L93 258 Z"/><path d="M160 201 L167 208 L160 215 L153 208 Z"/><path d="M220 141 L227 148 L220 155 L213 148 Z"/><path d="M280 77 L287 84 L280 91 L273 84 Z"/></g>
+        <circle id="resHalo" cx="280" cy="84" r="14" fill="none" stroke="#4FD9C2" stroke-width="1.5" opacity="0"/>
+        <g id="resStamp" transform="rotate(-7 150 330)" opacity="0"><rect x="62" y="310" width="176" height="42" rx="6" fill="none" stroke="#4FD9C2" stroke-width="2"/><text x="150" y="337" text-anchor="middle" font-family="'Archivo Black',sans-serif" font-size="16" fill="#4FD9C2">GARANTÍA 30 DÍAS</text></g>
+      </svg>
+    </figure>
+  </div>
+</section>
+
+<!-- ============ ACTO VII · LA PRUEBA ============ -->
+<section class="scene" id="sc-prueba">
+  <header class="acto">
+    <span class="rn rn-cy">VII</span>
+    <div class="acto-t">
+      <h2 class="display">La prueba</h2>
+      <p class="lead">Personas reales, números medidos en sus propios paneles. Sin promesas: registros.</p>
+    </div>
+  </header>
+
+  <div class="ledger">
+    <div class="lrow">
+      <div class="lwho">Martín<span>29 · Argentina</span></div>
+      <div class="lbar"><i class="lb-pre" style="width:14%"></i><i class="lb-post" style="width:14%" data-w="88%"></i><em>0,9% → 5,8% de match rate en 3 semanas</em></div>
+      <div class="ldelta">+<span class="cnt2" data-to="544">0</span>%</div>
+    </div>
+    <div class="lrow">
+      <div class="lwho">Diego<span>31 · Chile</span></div>
+      <div class="lbar"><i class="lb-pre" style="width:18%"></i><i class="lb-post" style="width:18%" data-w="97%"></i><em>1,2% → 6,4% de match rate en 30 días</em></div>
+      <div class="ldelta">+<span class="cnt2" data-to="433">0</span>%</div>
+    </div>
+    <div class="lrow">
+      <div class="lwho">Andrés<span>27 · Colombia</span></div>
+      <div class="lbar"><i class="lb-pre" style="width:11%"></i><i class="lb-post" style="width:11%" data-w="74%"></i><em>0,7% → 4,9% de match rate en 30 días</em></div>
+      <div class="ldelta">+<span class="cnt2" data-to="600">0</span>%</div>
+    </div>
+  </div>
+
+  <blockquote class="pq"><p>Pensé que el problema era yo. Era mi perfil. En dos semanas tuve más matches que en los últimos dos años.</p><cite>Martín, Buenos Aires</cite></blockquote>
+  <blockquote class="pq pq-r"><p>El copiloto me cambió la forma de conversar. Dejé de perder tiempo donde no había interés real.</p><cite>Diego, Santiago</cite></blockquote>
+  <blockquote class="pq"><p>El análisis de fotos te dice lo que ningún amigo se anima a decirte.</p><cite>Andrés, Medellín</cite></blockquote>
+
+  <div class="marq" aria-hidden="true"><div class="marq-in" id="marqIn"><span>Más de 2.500 usuarios</span><b>◆</b><span>38.000 fotos analizadas</span><b>◆</b><span>4,8/5 de satisfacción</span><b>◆</b><span>Garantía de 30 días</span><b>◆</b></div></div>
+</section>
+
+<!-- ============ ACTO VIII · TU TURNO ============ -->
+<section class="scene" id="sc-turno">
+  <header class="acto">
+    <span class="rn rn-cy">VIII</span>
+    <div class="acto-t">
+      <h2 class="display">Tu turno</h2>
+      <p class="lead">Empieza gratis. Sube de nivel cuando veas los resultados.</p>
+    </div>
+  </header>
+
+  <div class="plans">
+    <article class="plan">
+      <svg class="pglyph" viewBox="0 0 48 48" fill="none" stroke="#5B6672" stroke-width="2" stroke-linecap="round"><circle cx="24" cy="24" r="13"/><line x1="24" y1="4" x2="24" y2="13"/><line x1="24" y1="35" x2="24" y2="44"/><line x1="4" y1="24" x2="13" y2="24"/><line x1="35" y1="24" x2="44" y2="24"/><circle cx="24" cy="24" r="3" fill="#5B6672"/></svg>
+      <h3>Auditoría</h3>
+      <p class="pprice">Gratis</p>
+      <p>Tu score frente al algoritmo, qué imagen proyectas sin querer y qué corregir primero.</p>
+    </article>
+    <article class="plan plan-hot">
+      <svg class="pglyph" viewBox="0 0 48 48" fill="none"><rect x="7" y="7" width="34" height="34" rx="5" stroke="#4FD9C2" stroke-width="2"/><path d="M24 13 L26.8 21.2 L35 24 L26.8 26.8 L24 35 L21.2 26.8 L13 24 L21.2 21.2 Z" fill="#4FD9C2"/></svg>
+      <h3>Kit completo</h3>
+      <p class="pprice">US$ 19 <span>una vez</span></p>
+      <p>Auditoría completa, optimización de fotos con IA, bio con intención y re-chequeo a los 30 días.</p>
+      <p class="pbadge">El más elegido</p>
+    </article>
+    <article class="plan">
+      <svg class="pglyph" viewBox="0 0 48 48" fill="none" stroke="#5B6672" stroke-width="2"><rect x="5" y="9" width="27" height="19" rx="7"/><rect x="17" y="22" width="26" height="17" rx="7" fill="#101318"/><line x1="24" y1="30" x2="36" y2="30" stroke="#4FD9C2" stroke-linecap="round"/></svg>
+      <h3>Copiloto</h3>
+      <p class="pprice">US$ 9 <span>100 análisis</span></p>
+      <p>Lectura de interés real y sugerencias concretas para cada conversación que te importa.</p>
+    </article>
+  </div>
+
+  <div class="hfin">
+    <svg viewBox="0 0 400 400" id="heartFin" aria-hidden="true">
+      <g fill="none" stroke-linejoin="round" stroke-linecap="round">
+        <path class="hf" d="M200,95 L150,40 L95,35 L50,75 L35,135 L55,200 L200,355 L345,200 L365,135 L350,75 L305,35 L250,40 Z" stroke="#333C47" stroke-width="6"/>
+        <path class="hf hf-seam" d="M200,95 L204,192 L196,278 L200,355" stroke="#4FD9C2" stroke-width="5"/>
+        <path class="hf hf-seam" d="M35,135 L120,200 L196,278" stroke="#4FD9C2" stroke-width="5"/>
+        <path class="hf hf-seam" d="M365,135 L280,200 L196,278" stroke="#4FD9C2" stroke-width="5"/>
+        <path class="hf hf-seam" d="M200,95 L140,120 L120,200" stroke="#4FD9C2" stroke-width="5"/>
+        <path class="hf hf-seam" d="M200,95 L260,120 L280,200" stroke="#4FD9C2" stroke-width="5"/>
+      </g>
+    </svg>
+    <h2 class="display">El mercado no va<br>a cambiar. <span class="cyan">Tú sí.</span></h2>
+    <a class="cta" href="/auditoria">Empieza tu auditoría gratis</a>
+    <p class="fmicro">Gratis · 2 minutos · Sin tarjeta · Garantía de 30 días en planes pagos</p>
+  </div>
+</section>
+
+<footer>
+  <span>Datemaxxer © 2026</span>
+  <span>Mejoramos tus fotos. No te inventamos.</span>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+<script>
+(() => {
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ---------- manifiesto de shots ---------- */
+  const SHOTS = [
+    { prefix: 's1', count: 96 },
+    { prefix: 's2', count: 96 },
+    { prefix: 's3', count: 72 },
+    { prefix: 's4', count: 96 },
+  ];
+  const TOTAL = SHOTS.reduce((a, s) => a + s.count, 0); // 360
+  const starts = []; { let acc = 0; for (const s of SHOTS) { starts.push(acc); acc += s.count; } }
+
+  /* móvil con datos: carga 1 de cada 2 frames */
+  const stride = matchMedia('(max-width:768px)').matches ? 2 : 1;
+
+  function pathOf(i) {
+    let k = 0;
+    while (k < SHOTS.length - 1 && i >= starts[k + 1]) k++;
+    const local = i - starts[k] + 1;
+    return `assets/frames/${SHOTS[k].prefix}-${String(local).padStart(3, '0')}.webp`;
+  }
+
+  /* ---------- empalmes con dissolve (saltos leves entre shots 2→3 y 3→4) ---------- */
+  const BLENDS = [
+    { from: starts[2] - 3, to: starts[2] + 2 },  /* s2→s3 */
+    { from: starts[3] - 3, to: starts[3] + 2 },  /* s3→s4 */
+  ];
+
+  /* ---------- overlays de copy: rangos en frames globales ---------- */
+  const F = 8;       /* fade-out en frames */
+  const REVEAL = 18; /* largo de la entrada animada en frames */
+  const overlays = [
+    { id: 'ov1',  in: 0,   out: 52 },
+    { id: 'hint', in: 0,   out: 40, bare: true },
+    { id: 'ov2',  in: 60,  out: 94 },
+    { id: 'ov3',  in: 104, out: 144 },
+    { id: 'ov4',  in: 152, out: 188 },
+    { id: 'ov5',  in: 204, out: 258 },
+    { id: 'ov6',  in: 270, out: 310 },
+    { id: 'ov7',  in: 320, out: Infinity },
+  ];
+  overlays.forEach(o => o.el = document.getElementById(o.id));
+
+  /* ---------- motion graphics de texto (todo scrub-driven) ---------- */
+  /* split por caracteres, preservando <br> y spans */
+  function splitChars(root) {
+    /* agrupa por palabra (.wd nowrap) para que el quiebre de línea respete palabras */
+    const walk = node => {
+      [...node.childNodes].forEach(child => {
+        if (child.nodeType === 3) {
+          const frag = document.createDocumentFragment();
+          for (const word of child.textContent.split(/(\s+)/)) {
+            if (!word) continue;
+            if (/^\s+$/.test(word)) { frag.appendChild(document.createTextNode(' ')); continue; }
+            const w = document.createElement('span');
+            w.className = 'wd';
+            for (const c of word) {
+              const s = document.createElement('span');
+              s.className = 'ch'; s.textContent = c;
+              w.appendChild(s);
+            }
+            frag.appendChild(w);
+          }
+          child.replaceWith(frag);
+        } else if (child.nodeType === 1 && child.tagName !== 'BR') {
+          walk(child);
+        }
+      });
+    };
+    walk(root);
+    return root.querySelectorAll('.ch');
+  }
+
+  /* timeline de entrada por overlay; en render() se scrubbea con .progress() */
+  const SCRAMBLE_SET = '01%×#/·—▏▶';
+  overlays.forEach(o => {
+    if (o.bare) return;
+    const tl = gsap.timeline({ paused: true });
+    o.el.querySelectorAll('.split').forEach(h => {
+      const chars = splitChars(h);
+      tl.fromTo(chars, { yPercent: 115, opacity: 0, rotateZ: 3 },
+        { yPercent: 0, opacity: 1, rotateZ: 0, duration: .6, ease: 'power3.out', stagger: { amount: .45 } }, 0);
+    });
+    const rule = o.el.querySelector('.rule');
+    if (rule) tl.fromTo(rule, { scaleX: 0 }, { scaleX: 1, duration: .5, ease: 'power2.inOut' }, .05);
+    const cnt = o.el.querySelector('.cnt');
+    if (cnt) {
+      const target = parseInt(cnt.dataset.to, 10);
+      const proxy = { v: 0 };
+      tl.fromTo(proxy, { v: 0 }, {
+        v: target, duration: .65, ease: 'power2.out',
+        onUpdate: () => { cnt.textContent = Math.round(proxy.v); },
+      }, .08);
+      tl.fromTo(cnt.parentElement, { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: .4, ease: 'power2.out' }, .05);
+    }
+    /* wordmark DATEMAXXER: letras suben, puntadas se cosen, ojales aparecen */
+    const wmx = o.el.querySelector('.wm-xx');
+    if (wmx) {
+      tl.from(o.el.querySelector('.somos'), { y: 24, autoAlpha: 0, duration: .35, ease: 'power2.out' }, 0);
+      tl.from(o.el.querySelectorAll('.wm-t'), { y: 70, autoAlpha: 0, duration: .55, ease: 'power3.out', stagger: .12 }, .1);
+      const threads = wmx.querySelectorAll('.thread, .tail');
+      threads.forEach(p => { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; });
+      tl.fromTo(wmx, { autoAlpha: 0 }, { autoAlpha: 1, duration: .08 }, .26)
+        .from(wmx.querySelectorAll('.xbar'), { scaleY: 0, duration: .42, stagger: .07, ease: 'back.out(1.7)' }, .28)
+        .from(wmx.querySelectorAll('.eyelet'), { scale: 0, duration: .28, stagger: .04, ease: 'back.out(2.6)' }, .52)
+        .to(threads, { strokeDashoffset: 0, duration: .38, stagger: .07, ease: 'power2.inOut' }, .66);
+    }
+    const fadeBase = wmx ? .78 : .3;
+    o.el.querySelectorAll('.fade').forEach((f, i) => {
+      tl.fromTo(f, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: .45, ease: 'power2.out' }, fadeBase + i * .08);
+    });
+    o.tl = tl;
+    /* eyebrows con efecto decodificación */
+    o.scrambles = [...o.el.querySelectorAll('[data-scramble]')].map(el => ({ el, text: el.dataset.scramble.toUpperCase(), done: -1 }));
+  });
+
+  function scrambleAt(o, e, fidx) {
+    if (!o.scrambles) return;
+    for (const s of o.scrambles) {
+      if (e >= 1) { if (s.done !== 1) { s.el.textContent = s.text; s.done = 1; } continue; }
+      const n = s.text.length;
+      const shown = Math.floor(e * 1.4 * n);
+      let out = '';
+      for (let i = 0; i < n; i++) {
+        if (s.text[i] === ' ') { out += ' '; continue; }
+        if (i < shown) { out += s.text[i]; continue; }
+        out += SCRAMBLE_SET[(i * 31 + (fidx * 3 | 0)) % SCRAMBLE_SET.length];
+      }
+      s.el.textContent = out; s.done = 0;
+    }
+  }
+
+  /* ---------- HUD ---------- */
+  const hud = document.getElementById('hud');
+  const hudFrame = document.getElementById('hudFrame');
+  const hudAct = document.getElementById('hudAct');
+  const hudBar = document.getElementById('hudBar');
+  const ACTS = [
+    { at: 0,   name: 'Acto I · El latido' },
+    { at: 96,  name: 'Acto II · La corrosión' },
+    { at: 192, name: 'Acto III · La ruptura' },
+    { at: 264, name: 'Acto IV · El kintsugi' },
+  ];
+
+  /* ---------- carga de frames ---------- */
+  const frames = new Array(TOTAL).fill(null);
+  let loaded = 0, wanted = 0;
+  const loaderEl = document.getElementById('loader');
+  const loaderBar = loaderEl.querySelector('.bar');
+  const loaderTxt = document.getElementById('loaderTxt');
+
+  const indices = [];
+  for (let i = 0; i < TOTAL; i += stride) indices.push(i);
+  /* asegurar frames de empalme y el último */
+  if (!indices.includes(TOTAL - 1)) indices.push(TOTAL - 1);
+  wanted = indices.length;
+
+  function loadOne(i) {
+    return new Promise(res => {
+      const img = new Image();
+      img.onload = () => { frames[i] = img; loaded++; res(); };
+      img.onerror = () => { loaded++; res(); };
+      img.src = pathOf(i);
+    });
+  }
+
+  async function loadAll() {
+    /* primero el póster, después oleadas con concurrencia */
+    await loadOne(0);
+    render();
+    const queue = indices.filter(i => i !== 0);
+    const CONC = 14;
+    let cursor = 0;
+    async function worker() {
+      while (cursor < queue.length) {
+        const i = queue[cursor++];
+        await loadOne(i);
+        if (loaded % 12 === 0 || loaded === wanted) {
+          const pct = Math.round(loaded / wanted * 100);
+          loaderBar.style.width = pct + '%';
+          loaderTxt.textContent = `CARGANDO EXPEDIENTE · ${pct}%`;
+          render();
+        }
+      }
+    }
+    await Promise.all(Array.from({ length: CONC }, worker));
+    loaderEl.classList.add('done');
+    gsap.to('#hud', { opacity: .95, duration: 1.2, ease: 'power2.out' });
+    render();
+  }
+
+  function nearestLoaded(i) {
+    i = Math.max(0, Math.min(TOTAL - 1, Math.round(i / stride) * stride));
+    for (let d = 0; d < TOTAL; d += stride) {
+      if (frames[i - d]) return i - d;
+      if (frames[i + d]) return i + d;
+    }
+    return 0;
+  }
+
+  /* ---------- canvas ---------- */
+  const canvas = document.getElementById('film');
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  function sizeCanvas() {
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    canvas.width = canvas.offsetWidth * dpr;
+    canvas.height = canvas.offsetHeight * dpr;
+    /* cambiar el tamaño resetea el contexto: reaplicar smoothing */
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+  }
+  sizeCanvas();
+
+  function drawCover(img, alpha) {
+    if (!img) return;
+    ctx.globalAlpha = alpha;
+    const cw = canvas.width, ch = canvas.height;
+    const s = Math.max(cw / img.width, ch / img.height);
+    const w = img.width * s, h = img.height * s;
+    ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h);
+    ctx.globalAlpha = 1;
+  }
+
+  /* ---------- render maestro ---------- */
+  let progress = 0; /* 0..1 */
+  function render() {
+    const fidx = progress * (TOTAL - 1);
+
+    /* frame base + dissolve en empalmes */
+    let blend = null;
+    for (const b of BLENDS) {
+      if (fidx >= b.from && fidx <= b.to) { blend = b; break; }
+    }
+    ctx.fillStyle = '#101318';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (blend) {
+      const t = (fidx - blend.from) / (blend.to - blend.from);
+      drawCover(frames[nearestLoaded(blend.from)], 1);
+      drawCover(frames[nearestLoaded(blend.to)], t);
+    } else {
+      drawCover(frames[nearestLoaded(fidx)], 1);
+    }
+
+    /* overlays: entrada animada scrubbed + fade-out */
+    for (const o of overlays) {
+      const active = fidx >= o.in && (fidx <= o.out || o.out === Infinity);
+      if (!active) {
+        o.el.style.opacity = 0;
+        o.el.style.visibility = 'hidden';
+        if (o.tl && fidx < o.in) o.tl.progress(0);
+        continue;
+      }
+      const aout = o.out === Infinity ? 1 : Math.min(1, (o.out - fidx) / F);
+      o.el.style.opacity = aout.toFixed(3);
+      o.el.style.visibility = 'visible';
+      if (o.tl) {
+        /* el hero ya jugó su intro al cargar: no des-animarlo en reposo */
+        const e = (o.introDone && fidx <= o.in + REVEAL)
+          ? 1
+          : Math.min(1, (fidx - o.in) / REVEAL);
+        if (!o.introPlaying) o.tl.progress(e);
+        scrambleAt(o, e, fidx);
+      }
+    }
+
+    /* HUD en vivo */
+    const fi = Math.round(fidx);
+    hudFrame.textContent = `FRAME ${String(fi).padStart(4, '0')} / 0${TOTAL - 1}`;
+    let act = ACTS[0];
+    for (const a of ACTS) if (fi >= a.at) act = a;
+    if (hudAct.textContent !== act.name) hudAct.textContent = act.name;
+    hudBar.style.transform = `scaleX(${progress.toFixed(4)})`;
+    hud.classList.toggle('act4', fi >= 264);
+  }
+
+  /* ---------- scroll ---------- */
+  const track = document.getElementById('cinema-track');
+  track.style.height = Math.round(TOTAL * 26 + innerHeight) + 'px';
+
+  const lenis = new Lenis({ lerp: 0.09 });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(t => lenis.raf(t * 1000));
+  gsap.ticker.lagSmoothing(0);
+
+  ScrollTrigger.create({
+    trigger: track,
+    start: 'top top',
+    end: 'bottom bottom',
+    scrub: 0.6,
+    onUpdate(self) { progress = self.progress; render(); },
+  });
+
+  /* ================= ACTOS V-VIII: instrumentos y coreografía ================= */
+  const qaParams = new URLSearchParams(location.search);
+  const secQA = qaParams.get('sec') !== null;
+  const tlQA = qaParams.get('tl') !== null;
+  if (secQA) {
+    document.getElementById('cinema-track').style.display = 'none';
+    loaderEl.style.display = 'none';
+    const n = parseInt(qaParams.get('sec'), 10) || 1;
+    ['sc-evidencia', 'sc-metodo', 'sc-prueba'].slice(0, n - 1)
+      .forEach(id => { const s = document.getElementById(id); if (s) s.style.display = 'none'; });
+  }
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const mk = (tag, attrs, parent) => {
+    const el = document.createElementNS(NS, tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    parent.appendChild(el); return el;
+  };
+  const setDraw = p => { const L = p.getTotalLength(); p.style.strokeDasharray = L; p.style.strokeDashoffset = L; return L; };
+
+  /* --- constructores de instrumentos --- */
+  document.querySelectorAll('.dots').forEach(svg => {
+    const lit = +svg.dataset.lit, her = svg.classList.contains('dots-her');
+    const litSet = new Set(); if (lit === 1) litSet.add(27); else for (let i = 0; litSet.size < lit; i++) litSet.add((i * 23) % 50);
+    for (let i = 0; i < 50; i++) {
+      const c = i % 5, r = (i / 5) | 0, x = 12 + c * 24, y = 12 + r * 24;
+      const on = litSet.has(i);
+      mk('path', {
+        d: `M${x} ${y - 9} L${x + 9} ${y} L${x} ${y + 9} L${x - 9} ${y} Z`,
+        class: 'dt' + (on ? ' on' : ''),
+        fill: on ? (her ? '#E6E9ED' : '#C94B32') : 'none',
+        stroke: on ? 'none' : '#2A313B', 'stroke-width': 1.4,
+        style: 'transform-box:fill-box;transform-origin:center',
+      }, svg);
+    }
+  });
+
+  document.querySelectorAll('.gsvg').forEach(svg => {
+    const cx = 105, cy = 115, pct = parseFloat(svg.dataset.pct);
+    mk('path', { d: 'M25 115 A80 80 0 0 1 185 115', fill: 'none', stroke: '#262C36', 'stroke-width': 3 }, svg);
+    for (let i = 0; i <= 10; i++) {
+      const a = Math.PI - i * Math.PI / 10, r1 = 80, r2 = i % 5 === 0 ? 68 : 73;
+      mk('line', {
+        x1: cx + r1 * Math.cos(a), y1: cy - r1 * Math.sin(a),
+        x2: cx + r2 * Math.cos(a), y2: cy - r2 * Math.sin(a),
+        stroke: '#3A4350', 'stroke-width': i % 5 === 0 ? 2 : 1.2,
+      }, svg);
+    }
+    const needle = mk('line', { x1: cx, y1: cy, x2: cx - 62, y2: cy, stroke: svg.dataset.ox ? '#C94B32' : '#E6E9ED', 'stroke-width': 3.5, 'stroke-linecap': 'round', class: 'needle' }, svg);
+    mk('circle', { cx, cy, r: 6.5, fill: '#171B22', stroke: '#5B6672', 'stroke-width': 2 }, svg);
+    svg._needle = needle; svg._deg = pct * 1.8;
+  });
+
+  document.querySelectorAll('.tally').forEach(svg => {
+    const n = +svg.dataset.n, ox = svg.classList.contains('tal-ox');
+    const stroke = ox ? '#C94B32' : '#8C96A3';
+    const groups = (n / 5) | 0, rest = n % 5;
+    for (let g = 0; g < groups + (rest ? 1 : 0); g++) {
+      const x0 = 8 + g * 42, count = g < groups ? 4 : Math.min(rest, 4);
+      for (let k = 0; k < count; k++)
+        mk('line', { x1: x0 + k * 8, y1: 8, x2: x0 + k * 8, y2: 33, stroke, 'stroke-width': 2.4, 'stroke-linecap': 'round', class: 'tk' }, svg);
+      if (g < groups)
+        mk('line', { x1: x0 - 4, y1: 29, x2: x0 + 28, y2: 11, stroke, 'stroke-width': 2.4, 'stroke-linecap': 'round', class: 'tk' }, svg);
+    }
+  });
+
+  function buildSpine(svg) {
+    const sec = svg.parentElement, h = sec.offsetHeight;
+    svg.setAttribute('viewBox', `0 0 60 ${h}`);
+    svg.setAttribute('preserveAspectRatio', 'none');
+    let d = 'M30 0', dir = 1;
+    for (let y = 150; y < h; y += 150) { d += ` L${30 + dir * (5 + (y / 150 * 7) % 8)} ${y}`; dir *= -1; }
+    d += ` L30 ${h}`;
+    svg.querySelector('path').setAttribute('d', d);
+  }
+
+  /* --- coreografía (solo cuando la página vive de verdad o en QA de secciones) --- */
+  if (!tlQA) {
+    const trg = (el, extra) => Object.assign({ trigger: el, start: 'top 76%', toggleActions: 'play none none reverse' }, extra || {});
+    const countTo = (tl, el, pos) => {
+      const to = parseFloat(el.dataset.to), dec = +(el.dataset.dec || 0), o = { v: 0 };
+      tl.to(o, { v: to, duration: 1.1, ease: 'power2.out', onUpdate: () => { el.textContent = o.v.toFixed(dec).replace('.', ','); } }, pos);
+    };
+
+    ['spineOx', 'spineCy'].forEach(id => {
+      const svg = document.getElementById(id); if (!svg) return;
+      buildSpine(svg);
+      const sec = svg.parentElement;
+      if (secQA) gsap.fromTo(svg, { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', duration: 2.2, ease: 'none' });
+      else gsap.fromTo(svg, { clipPath: 'inset(0% 0% 100% 0%)' }, { clipPath: 'inset(0% 0% 0% 0%)', ease: 'none', scrollTrigger: { trigger: sec, start: 'top 60%', end: 'bottom 75%', scrub: 1 } });
+    });
+
+    document.querySelectorAll('.acto').forEach(a => {
+      const tl = gsap.timeline({ scrollTrigger: trg(a) });
+      tl.from(a.querySelector('.rn'), { x: -36, autoAlpha: 0, duration: .9, ease: 'power3.out' }, 0)
+        .from(a.querySelectorAll('.acto-t > *'), { y: 26, autoAlpha: 0, duration: .7, stagger: .12, ease: 'power2.out' }, .15);
+    });
+
+    document.querySelectorAll('.viz').forEach(v => {
+      const tl = gsap.timeline({ scrollTrigger: trg(v) });
+      tl.from(v.querySelector('.viz-copy'), { y: 30, autoAlpha: 0, duration: .7, ease: 'power2.out' }, 0)
+        .from(v.querySelector('.viz-art'), { y: 40, autoAlpha: 0, duration: .8, ease: 'power2.out' }, .1);
+      v.querySelectorAll('.dt:not(.on)').forEach((d, i) => tl.from(d, { opacity: 0, duration: .25 }, .3 + (i % 50) * .006));
+      const ons = v.querySelectorAll('.dt.on');
+      if (ons.length) tl.from(ons, { scale: 0, transformOrigin: 'center', duration: .5, ease: 'back.out(2.5)', stagger: .045 }, .6);
+      v.querySelectorAll('.gsvg').forEach(g => tl.to(g._needle, { rotation: g._deg, svgOrigin: '105 115', duration: 1.6, ease: 'elastic.out(1,0.55)' }, .5));
+      const tks = v.querySelectorAll('.tk');
+      if (tks.length) { tks.forEach(setDraw); tl.to(tks, { strokeDashoffset: 0, duration: .3, stagger: .022, ease: 'power1.out' }, .4); }
+      v.querySelectorAll('.cnt2').forEach(c => countTo(tl, c, .5));
+      if (v.id === 'vz-curva') {
+        const curve = v.querySelector('#bellCurve'); setDraw(curve);
+        tl.to(curve, { strokeDashoffset: 0, duration: 1.5, ease: 'power2.inOut' }, .3)
+          .to('#bellArea', { opacity: .4, duration: .8 }, 1.3)
+          .to('#bell80', { opacity: 1, duration: .5 }, 1.5)
+          .fromTo('#bellFlag', { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: .5, ease: 'back.out(2)' }, 1.7);
+      }
+      if (v.id === 'vz-maquina') {
+        const p = v.querySelector('#revPath'); setDraw(p);
+        tl.to(p, { strokeDashoffset: 0, duration: 1.6, ease: 'power2.inOut' }, .3);
+        const num = v.querySelector('#revNum'), o = { v: 0 };
+        tl.to(o, { v: 1900, duration: 1.6, ease: 'power2.out', onUpdate: () => { num.textContent = 'US$ ' + Math.round(o.v).toLocaleString('es-AR') + ' M'; } }, .4);
+      }
+    });
+
+    const thesis = document.querySelector('.thesis');
+    if (thesis) gsap.timeline({ scrollTrigger: trg(thesis) })
+      .from(thesis, { y: 30, autoAlpha: 0, duration: .8, ease: 'power2.out' })
+      .call(() => thesis.querySelector('.tacho').classList.add('go'));
+
+    document.querySelectorAll('.station').forEach(st => {
+      const tl = gsap.timeline({ scrollTrigger: trg(st) });
+      tl.from(st.querySelector('.st-copy'), { y: 30, autoAlpha: 0, duration: .7, ease: 'power2.out' }, 0)
+        .from(st.querySelector('.st-art'), { y: 40, autoAlpha: 0, duration: .8, ease: 'power2.out' }, .12);
+      if (st.id === 'st-audit') {
+        gsap.set('#scanG', { y: 70 });
+        gsap.to('#scanG', { y: 300, duration: 2.4, ease: 'none', repeat: -1, yoyo: true });
+        tl.from(st.querySelectorAll('.co'), { scale: .2, autoAlpha: 0, transformOrigin: 'center', duration: .55, ease: 'back.out(2.2)', stagger: .3 }, .6)
+          .to('#auditScore', { opacity: 1, duration: .5 }, 1.6);
+      }
+      if (st.id === 'st-opt') {
+        st.querySelectorAll('#optSeams path').forEach(setDraw);
+        tl.to('#optCracks', { opacity: 0, duration: .8 }, .7)
+          .to('#optSeams', { opacity: 1, duration: .1 }, .7)
+          .to(st.querySelectorAll('#optSeams path'), { strokeDashoffset: 0, duration: .7, stagger: .18, ease: 'power2.inOut' }, .75);
+        st.querySelectorAll('.knob').forEach((k, i) => tl.to(k, { attr: { cx: +k.dataset.x }, duration: 1.1, ease: 'elastic.out(1,0.6)' }, .8 + i * .18));
+      }
+      if (st.id === 'st-chat') {
+        tl.from(st.querySelectorAll('.bub'), { x: i => (i % 2 ? 30 : -30), autoAlpha: 0, duration: .55, ease: 'power2.out', stagger: .16 }, .3);
+        st.querySelectorAll('.ibar').forEach((b, i) => tl.to(b, { attr: { x2: 210 + +b.dataset.w }, duration: .7, ease: 'power3.out' }, .8 + i * .16));
+        tl.fromTo(st.querySelector('.bub-go rect'), { attr: { 'stroke-width': 1.8 } }, { attr: { 'stroke-width': 3 }, duration: .4, yoyo: true, repeat: 3 }, 1.6);
+      }
+      if (st.id === 'st-result') {
+        const line = st.querySelector('#resLine'); setDraw(line);
+        tl.to(line, { strokeDashoffset: 0, duration: 1.4, ease: 'power2.inOut' }, .4)
+          .from(st.querySelectorAll('#resDots path'), { scale: 0, transformOrigin: 'center', duration: .4, ease: 'back.out(2.5)', stagger: .18 }, .6)
+          .to('#resHalo', { opacity: 1, scale: 1.5, transformOrigin: 'center', duration: .7, repeat: 2, yoyo: true }, 1.7)
+          .fromTo('#resStamp', { opacity: 0, scale: 1.8 }, { opacity: 1, scale: 1, duration: .4, ease: 'power4.out' }, 2.1);
+      }
+    });
+
+    document.querySelectorAll('.lrow').forEach(row => {
+      const tl = gsap.timeline({ scrollTrigger: trg(row, { start: 'top 82%' }) });
+      tl.from(row, { y: 24, autoAlpha: 0, duration: .6, ease: 'power2.out' }, 0);
+      const post = row.querySelector('.lb-post');
+      tl.to(post, { width: post.dataset.w, duration: 1.4, ease: 'power3.out' }, .3);
+      row.querySelectorAll('.cnt2').forEach(c => countTo(tl, c, .4));
+    });
+
+    document.querySelectorAll('.pq').forEach(q => gsap.from(q, { y: 30, autoAlpha: 0, duration: .8, ease: 'power2.out', scrollTrigger: trg(q, { start: 'top 84%' }) }));
+
+    const marq = document.getElementById('marqIn');
+    if (marq) { marq.innerHTML += marq.innerHTML; gsap.to(marq, { xPercent: -50, duration: 26, ease: 'none', repeat: -1 }); }
+
+    gsap.from('.plan', { y: 44, autoAlpha: 0, duration: .8, stagger: .14, ease: 'power2.out', scrollTrigger: trg('.plans', { start: 'top 80%' }) });
+
+    const hfin = document.querySelector('.hfin');
+    if (hfin) {
+      const seams = hfin.querySelectorAll('.hf');
+      seams.forEach(setDraw);
+      const tl = gsap.timeline({ scrollTrigger: trg(hfin, { start: 'top 70%' }) });
+      tl.to(seams[0], { strokeDashoffset: 0, duration: 1.4, ease: 'power2.inOut' }, 0);
+      for (let i = 1; i < seams.length; i++) tl.to(seams[i], { strokeDashoffset: 0, duration: .6, ease: 'power2.out' }, 1.1 + i * .14);
+      tl.fromTo('#heartFin', { scale: 1 }, { scale: 1.035, transformOrigin: 'center', duration: .45, yoyo: true, repeat: 1, ease: 'sine.inOut' }, 2.1)
+        .from(hfin.querySelectorAll('h2, .cta, .fmicro'), { y: 14, autoAlpha: 0, duration: .6, stagger: .15, ease: 'power2.out' }, 1.4);
+    }
+
+    addEventListener('load', () => ScrollTrigger.refresh());
+  }
+
+  addEventListener('resize', () => { sizeCanvas(); render(); });
+
+  /* ---------- hook de QA: ?tl=0..1 fija el progreso sin scroll ---------- */
+  const tlp = new URLSearchParams(location.search).get('tl');
+  const ov1 = overlays.find(o => o.id === 'ov1');
+  loadAll().then(() => {
+    if (tlp !== null) {
+      ScrollTrigger.getAll().forEach(st => st.kill());
+      loaderEl.style.display = 'none';
+      ov1.introDone = true;
+      progress = parseFloat(tlp);
+      render();
+      if (new URLSearchParams(location.search).get('debug')) {
+        let m = null, mx = 0;
+        document.querySelectorAll('body *').forEach(e => {
+          const w = e.getBoundingClientRect().width;
+          if (w > mx) { mx = w; m = e; }
+        });
+        document.querySelector('#ov7 .cta').textContent =
+          `iw=${innerWidth} max=${m.tagName}.${(m.className + '').split(' ')[0]} w=${Math.round(mx)}`;
+      }
+      return;
+    }
+    /* intro del hero: una sola vez, time-based, al terminar la carga */
+    if (progress * (TOTAL - 1) < ov1.in + REVEAL) {
+      ov1.introPlaying = true;
+      ov1.tl.timeScale(.55).play(0).eventCallback('onComplete', () => {
+        ov1.introPlaying = false;
+        ov1.introDone = true;
+      });
+      const iv = setInterval(() => {
+        if (!ov1.introPlaying) { clearInterval(iv); return; }
+        scrambleAt(ov1, ov1.tl.progress(), ov1.tl.progress() * 40);
+      }, 50);
+    } else {
+      ov1.introDone = true;
+    }
+  });
+})();
+</script>
+</body>
+</html>
