@@ -25,6 +25,18 @@ Fernando lo lee también; escriban para humanos, no para logs de máquina.
 
 ---
 
+### [2026-07-18 f] CORE - PEDIDO DE DISEÑO: las 4 pantallas de la app (dirección de arte tuya, wiring mío)
+- HICE: brief de diseño para `/app` (encargo directo de Fernando). Propuesta de modelo de trabajo: vos entregás prototipos HTML/CSS/JS por pantalla en una carpeta nueva `design/app/` (tu territorio, mismo workflow que la landing: estados simulados + hooks QA), yo los porteo a Next y los cableo a la API real. Todo bajo GUIA-VISUAL (set piece nombrable por pantalla, doctrina de detalle máximo, escenografía con entradas/salidas).
+- ESTADO: esperando tus entregas.
+- PRÓXIMO (mío, en paralelo): esqueleto Next de `/app` con Supabase Auth y máquina de estados contra la API, para que tus prototipos caigan en lugar preparado.
+- PARA EL OTRO - **el encargo, en orden de prioridad**:
+  1. **EL ESCÁNER (la pantalla más importante del funnel, 25-60s de espera).** Fullscreen. Estados reales que te da la API: `analyzing` con `progress {fotos_analizadas: 0, total: n}` (~10-15s) → salto a `{n, n}` = fase "sintetizando veredicto" (~10-30s) → `done` | `error`. El progreso NO es granular por foto: es 0/n → n/n (una sola llamada de visión); diseñá la tensión con eso (scanline recorriendo las fotos subidas, callouts especulativos, HUD con fase). Set piece obligatorio: que den ganas de grabar la pantalla.
+  2. **EL INFORME (resultado).** Diseñá contra datos REALES: el contrato completo está en `packages/contracts/fixtures/audit-result.json`. Capa gratis: `score_coherencia` (0-100, medidor con aguja + count-up), `arquetipo_detectado` (nombre + confianza, estampado), `lectura_200ms` (la frase Sin Anestesia, protagonista). Capa bloqueada (teaser del Kit US$19): `evidencia_por_foto` (se ve que existe, no el contenido), `plan_de_fotos`, `quick_wins`, `gap_analysis`. CTA Kit = captura de intención ("te avisamos"). Estados extra: `error` (reintentar, no quema cupo) y **`limit_reached`** (volvió por la segunda: pantalla de upsell).
+  3. **LA MESA DE EVIDENCIA (carga).** 4-9 fotos como pruebas numeradas `FOTO 01…09` (entrada con pop/estampado, reordenar, descartar), bio (textarea), arquetipo objetivo opcional (selector de los 8: viajero/intelectual/deportista/creativo/profesional/outdoor/social/hogareno; van a necesitar glifos propios estilo planes), región (rioplatense/chileno/mexicano/neutro), CTA. Estados: vacía, cargando, lista, error de validación (formato/peso/cantidad).
+  4. **EL INGRESO (login).** Google (1 tap) + código por email (OTP): input mail → "revisá tu correo" → input código. Enmarcado como apertura de expediente, no como formulario. Estados: idle, código enviado, código inválido.
+  - **Transversal:** shell de la app (¿HUD persistente como utilería continua?), transiciones ENTRE pantallas como cambios de escena (GUIA-VISUAL §4.2: salidas coreografiadas), mobile-first (el tráfico viene de TikTok: diseñá primero 390px), y por cada pantalla el registro escrito del set piece (§6.1.5). Errores de red genéricos con la voz de la marca.
+  - Si preferís otro formato de entrega distinto a `design/app/`, contraproponé. Dudas del contrato de datos: preguntame acá.
+
 ### [2026-07-18 e] CORE - PIVOTE DE PRODUCTO (Fernando): la auditoría vive DENTRO de la app con login. Interfaz /audit v2
 - HICE: Fernando decidió que no hay funnel anónimo por email: la experiencia es una APP con login (Supabase Auth: **Google + email OTP**, como ya preveía el spec §4.1) y **límite de 1 auditoría gratis por cuenta**. Backend v2 implementado, testeado (43/43 repo) y migración aplicada al proyecto real:
   - **Interfaz v2 (reemplaza la acordada; cambio por directiva de Fernando):**
