@@ -1,16 +1,17 @@
 import { randomUUID } from 'node:crypto';
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, preHandlerAsyncHookHandler } from 'fastify';
 import { z } from 'zod';
 import { Arquetipo, Region } from '@percentil/contracts';
 import { AppError, NotFoundError, ValidationError } from '../errors.js';
 import type { AuditEngine, AuditPhoto, AuditPhotoMediaType } from '../engines/audit.js';
-import type { AuditStore } from './store.js';
+import type { AuditRecord, AuditStore } from './store.js';
 
 /**
- * Rutas del flujo de auditoría gratuita (interfaz acordada con FRONT en AGENTS-LOG):
- * POST /audit (multipart: photos[] 4-9, bio, email, region, arquetipo_objetivo)
- *   → 202 {audit_id}
- * GET /audit/:id → {status, progress, result?}
+ * Flujo de auditoría DENTRO de la app (requiere login Supabase; pivote 18-jul):
+ * POST /audit   (auth, multipart: photos[] 4-9, bio, region, arquetipo_objetivo) → 202 {audit_id}
+ * GET  /audit/:id  (auth, solo dueño) → {status, progress, result?}
+ * GET  /me/audit   (auth) → {audit: <última del usuario> | null}
+ * Límite: AUDIT_FREE_LIMIT auditorías (analyzing|done) por cuenta; las fallidas no queman cupo.
  */
 
 const ALLOWED_MEDIA_TYPES = new Set<AuditPhotoMediaType>([
@@ -20,30 +21,54 @@ const ALLOWED_MEDIA_TYPES = new Set<AuditPhotoMediaType>([
 ]);
 
 const Fields = z.object({
-  email: z.string().email('email inválido'),
   bio: z.string().max(2000).default(''),
   region: Region.default('neutro'),
   arquetipo_objetivo: Arquetipo.nullable().default(null),
 });
 
+function publicView(record: AuditRecord) {
+  return {
+    audit_id: record.id,
+    status: record.status,
+    progress: record.progress,
+    ...(record.status === 'done' ? { result: record.result } : {}),
+    ...(record.status === 'error' ? { error: record.error } : {}),
+  };
+}
+
 export interface AuditRoutesDeps {
   store: AuditStore;
   engine: AuditEngine | undefined;
+  authenticate: preHandlerAsyncHookHandler;
   rateLimitMax: number;
+  freeLimit: number;
 }
 
 export function registerAuditRoutes(app: FastifyInstance, deps: AuditRoutesDeps): void {
-  const { store, engine } = deps;
+  const { store, engine, authenticate } = deps;
 
   app.post(
     '/audit',
-    { config: { rateLimit: { max: deps.rateLimitMax, timeWindow: '1 minute' } } },
+    {
+      preHandler: [authenticate],
+      config: { rateLimit: { max: deps.rateLimitMax, timeWindow: '1 minute' } },
+    },
     async (request, reply) => {
       if (!engine) {
         throw new AppError('engine_unavailable', 'Motor de auditoría no configurado (falta ANTHROPIC_API_KEY)', 503);
       }
       if (!request.isMultipart()) {
         throw new ValidationError('Se espera multipart/form-data');
+      }
+      const userId = request.userId;
+
+      const used = await store.countForUser(userId);
+      if (used >= deps.freeLimit) {
+        throw new AppError(
+          'limit_reached',
+          'Tu auditoría gratuita ya fue usada. La re-auditoría viene con el Kit.',
+          409,
+        );
       }
 
       const photos: AuditPhoto[] = [];
@@ -81,12 +106,12 @@ export function registerAuditRoutes(app: FastifyInstance, deps: AuditRoutesDeps)
       if (photos.length < 4 || photos.length > 9) {
         throw new ValidationError(`Se esperan de 4 a 9 fotos, llegaron ${photos.length}`);
       }
-      const { email, bio, region, arquetipo_objetivo } = parsedFields.data;
+      const { bio, region, arquetipo_objetivo } = parsedFields.data;
 
       const id = randomUUID();
       await store.create({
         id,
-        email,
+        userId,
         region,
         status: 'analyzing',
         progress: { fotos_analizadas: 0, total: photos.length },
@@ -123,15 +148,18 @@ export function registerAuditRoutes(app: FastifyInstance, deps: AuditRoutesDeps)
     },
   );
 
-  app.get('/audit/:id', async (request) => {
+  app.get('/audit/:id', { preHandler: [authenticate] }, async (request) => {
     const { id } = request.params as { id: string };
     const record = await store.get(id);
-    if (!record) throw new NotFoundError('Auditoría no encontrada');
-    return {
-      status: record.status,
-      progress: record.progress,
-      ...(record.status === 'done' ? { result: record.result } : {}),
-      ...(record.status === 'error' ? { error: record.error } : {}),
-    };
+    if (!record || record.userId !== request.userId) {
+      throw new NotFoundError('Auditoría no encontrada');
+    }
+    return publicView(record);
+  });
+
+  // Para que la app restaure estado al entrar (¿ya tiene auditoría? ¿en qué estado?)
+  app.get('/me/audit', { preHandler: [authenticate] }, async (request) => {
+    const record = await store.latestForUser(request.userId);
+    return { audit: record ? publicView(record) : null };
   });
 }

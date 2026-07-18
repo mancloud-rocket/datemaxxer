@@ -1,4 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
+import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
 import rateLimit from '@fastify/rate-limit';
 import { CONTRACTS_VERSION } from '@percentil/contracts';
@@ -48,6 +49,10 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
     limits: { fileSize: 8 * 1024 * 1024, files: 9, fields: 10 },
   });
 
+  await app.register(cors, {
+    origin: env.CORS_ORIGINS !== undefined ? env.CORS_ORIGINS.split(',') : true,
+  });
+
   app.setErrorHandler((err, request, reply) => {
     if (err instanceof AppError) {
       return reply
@@ -89,7 +94,9 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
   registerAuditRoutes(app, {
     store: auditStore,
     engine: resolveAuditEngine(env, deps),
+    authenticate,
     rateLimitMax: env.AUDIT_RATE_LIMIT_MAX,
+    freeLimit: env.AUDIT_FREE_LIMIT,
   });
 
   return app;

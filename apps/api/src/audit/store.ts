@@ -2,16 +2,17 @@ import type { AuditResult, Region } from '@percentil/contracts';
 import type { AuditProgress } from '../engines/audit.js';
 
 /**
- * Persistencia de auditorías del funnel gratuito detrás de interfaz:
- * InMemoryAuditStore para tests/dev, SupabaseAuditStore (percentil.free_audits)
- * en cuanto hay proyecto configurado. Las rutas no distinguen.
+ * Persistencia de auditorías POR USUARIO (la auditoría vive dentro de la app con login).
+ * InMemoryAuditStore para tests/dev; SupabaseAuditStore contra percentil.photo_sets
+ * (+ upsert de percentil.profiles). Las rutas no distinguen implementación.
  */
 
 export type AuditStatus = 'analyzing' | 'done' | 'error';
 
 export interface AuditRecord {
   id: string;
-  email: string;
+  userId: string;
+  /** Registro regional del usuario; en Supabase persiste en profiles.region. */
   region: Region;
   status: AuditStatus;
   progress: AuditProgress;
@@ -23,7 +24,10 @@ export interface AuditRecord {
 export interface AuditStore {
   create(record: AuditRecord): Promise<void>;
   get(id: string): Promise<AuditRecord | undefined>;
-  update(id: string, patch: Partial<Omit<AuditRecord, 'id'>>): Promise<void>;
+  update(id: string, patch: Partial<Omit<AuditRecord, 'id' | 'userId'>>): Promise<void>;
+  /** Auditorías que consumen cupo (analyzing|done; las fallidas no queman el gratis). */
+  countForUser(userId: string): Promise<number>;
+  latestForUser(userId: string): Promise<AuditRecord | undefined>;
 }
 
 export class InMemoryAuditStore implements AuditStore {
@@ -37,8 +41,24 @@ export class InMemoryAuditStore implements AuditStore {
     return this.records.get(id);
   }
 
-  async update(id: string, patch: Partial<Omit<AuditRecord, 'id'>>): Promise<void> {
+  async update(id: string, patch: Partial<Omit<AuditRecord, 'id' | 'userId'>>): Promise<void> {
     const current = this.records.get(id);
     if (current) this.records.set(id, { ...current, ...patch });
+  }
+
+  async countForUser(userId: string): Promise<number> {
+    let n = 0;
+    for (const r of this.records.values()) {
+      if (r.userId === userId && r.status !== 'error') n++;
+    }
+    return n;
+  }
+
+  async latestForUser(userId: string): Promise<AuditRecord | undefined> {
+    let latest: AuditRecord | undefined;
+    for (const r of this.records.values()) {
+      if (r.userId === userId && (!latest || r.createdAt > latest.createdAt)) latest = r;
+    }
+    return latest;
   }
 }

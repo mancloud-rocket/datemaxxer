@@ -15,6 +15,10 @@ const EnvSchema = z
     RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
     // Límite específico del endpoint de auditoría (caro: llama a Claude)
     AUDIT_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(5),
+    // Auditorías gratis por cuenta (decisión de producto: 1)
+    AUDIT_FREE_LIMIT: z.coerce.number().int().positive().default(1),
+    // Origins permitidos para la web app, separados por coma
+    CORS_ORIGINS: z.string().optional(),
   });
 // Nota: SUPABASE_* son opcionales para que la API bootee en dev sin proyecto Supabase;
 // las rutas autenticadas responden 503 hasta que se configure (src/auth.ts).

@@ -25,6 +25,18 @@ Fernando lo lee también; escriban para humanos, no para logs de máquina.
 
 ---
 
+### [2026-07-18 e] CORE - PIVOTE DE PRODUCTO (Fernando): la auditoría vive DENTRO de la app con login. Interfaz /audit v2
+- HICE: Fernando decidió que no hay funnel anónimo por email: la experiencia es una APP con login (Supabase Auth: **Google + email OTP**, como ya preveía el spec §4.1) y **límite de 1 auditoría gratis por cuenta**. Backend v2 implementado, testeado (43/43 repo) y migración aplicada al proyecto real:
+  - **Interfaz v2 (reemplaza la acordada; cambio por directiva de Fernando):**
+    - `POST /audit`: ahora requiere `Authorization: Bearer <jwt supabase>`. Multipart: `photos[]` 4-9, `bio`, `region`, `arquetipo_objetivo`. SIN campo email. → `202 {audit_id}`. Nuevos errores: `401`, `409 limit_reached` (cupo usado; las fallidas no queman cupo).
+    - `GET /audit/:id` (auth, solo dueño) → `{audit_id, status, progress, result?}`.
+    - **`GET /me/audit`** (auth) → `{audit: última|null}`: para que la app restaure estado al entrar.
+  - Persistencia en las tablas canónicas del spec: `photo_sets` (+ columnas `progress`/`error` por migración) con upsert de `profiles` (region). `free_audits` eliminada (murió sin uso).
+  - CORS configurable (`CORS_ORIGINS`), límite por env (`AUDIT_FREE_LIMIT=1`).
+- ESTADO: done backend. PENDIENTE de Fernando: activar Google como provider en Supabase Dashboard (Authentication → Providers → Google, requiere OAuth client de Google Cloud); email OTP ya viene activo.
+- PRÓXIMO: `/app` en apps/web: login (Google + OTP) → mesa de evidencia → escáner → informe, todo bajo GUIA-VISUAL. Te aviso cuando el esqueleto exista para tu dirección de arte.
+- PARA EL OTRO: impacto en tu territorio: el CTA de la landing (`/auditoria`) va a apuntar al flujo con login: cuando monte la ruta definitiva te confirmo el path final (probablemente `/app`) para que actualices los href. La UI de espera que planeaste sigue válida (progress idéntico); se suma pantalla de login y el estado `limit_reached` (usuario que vuelve por segunda auditoría → upsell del Kit).
+
 ### [2026-07-18 d] CORE - GUIA-VISUAL ampliada por directiva de Fernando: escenografía + detalle máximo + vara de diferenciación
 - HICE: Fernando profundizó la directiva visual. La guía suma tres bloques nuevos (renumerada, ahora 11 secciones):
   1. **§4 Escenografía**: el sitio es un teatro y el scroll el director. Elementos que ENTRAN desde los bastidores (costados/profundidad, nunca fade pelado en su lugar), salidas coreografiadas tan importantes como las entradas, re-ejecución al volver (pasear entre escenas como salas), umbrales/telones entre escenas, 2-3 planos de paralaje sutil, utilería persistente que cose el mundo (spine/HUD/grain), y sub-sitios: cada acto con gramática propia bajo la misma temática. Cada escena DEBE tener su idea escénica memorable.
