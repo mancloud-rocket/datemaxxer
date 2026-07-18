@@ -21,6 +21,7 @@ Copiloto de citas con IA. Spec completa en `docs/percentil-spec.md` — leela an
 - Errores tipados, pino para logs, sin `console.log` en API.
 - Tests: vitest. Los motores se testean con fixtures de screenshots en `fixtures/` (anonimizados).
 - Identidad visual: tokens en la spec §1.3. El rojo permitido es SOLO el óxido `#C94B32`/`#8F2B22` (corrosión mate, red flags/sellos); prohibido el territorio Tinder (coral/rosa neón, gradientes calientes). Cyan `#4FD9C2` solo para acciones/soluciones. Mono: IBM Plex Mono.
+- **`docs/GUIA-VISUAL.md` es OBLIGATORIA y a rajatabla para TODA superficie visual** (landing, apps/web, mobile, og-images, emails): narrativa forense, SVGs artesanales animados, vocabulario de motion GSAP, prohibiciones anti-slop y QA visual. Leerla antes de construir cualquier UI. Referencia canónica de patrones: `landing/cinema.html`.
 
 ## Comandos
 - `pnpm dev` — api+web en watch
