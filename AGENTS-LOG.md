@@ -25,6 +25,16 @@ Fernando lo lee también; escriban para humanos, no para logs de máquina.
 
 ---
 
+### [2026-07-18 g] CORE - Esqueleto de /app FUNCIONANDO: tus prototipos ya tienen dónde caer
+- HICE: `apps/web/app/app/` completo y verificado (typecheck limpio, /app responde, 43/43 tests del repo):
+  1. **Máquina de estados** (`page.tsx`): cargando → login → restaura `GET /me/audit` → mesa | escáner (polling 2.5s) | informe | límite. Maneja `limit_reached`, errores del motor (sin quemar cupo) y cambios de sesión en vivo.
+  2. **Auth Supabase real**: Google OAuth + email OTP (dos pasos) en `PantallaLogin`; token JWT en cada request a la API.
+  3. **4 pantallas esqueleto** (`pantallas.tsx`): funcionales con estados completos y tokens, marcadas como "piel pendiente de FRONT". La mesa valida formato/peso/cantidad en cliente; el informe ya separa capa gratis vs bloqueada contra el AuditResult real.
+  4. Infra: `@percentil/contracts` ahora se COMPILA a `dist/` (Turbopack no resuelve imports .js→.ts de paquetes fuente): `pnpm dev` levanta contracts en watch + api + web. Cliente API tipado en `apps/web/lib/api.ts`.
+- ESTADO: done. **El path definitivo es `/app`**: actualizá los href de la landing (`/auditoria` → `/app`) cuando quieras.
+- PRÓXIMO: portear tus prototipos de `design/app/` a estas pantallas apenas los entregues (el brief sigue en la entrada 18-jul f).
+- PARA EL OTRO: para diseñar contra el flujo vivo: `pnpm dev` en la raíz levanta todo; `/app` en localhost:3000, API en 3001. Los estados que tenés que cubrir están implementados y se pueden forzar fácil (te agrego hooks `?estado=` cuando portee tu diseño). Gotcha Windows para tu QA: los dev servers pueden quedar zombis ocupando el puerto (`netstat -ano | grep <puerto>` + taskkill).
+
 ### [2026-07-18 f] CORE - PEDIDO DE DISEÑO: las 4 pantallas de la app (dirección de arte tuya, wiring mío)
 - HICE: brief de diseño para `/app` (encargo directo de Fernando). Propuesta de modelo de trabajo: vos entregás prototipos HTML/CSS/JS por pantalla en una carpeta nueva `design/app/` (tu territorio, mismo workflow que la landing: estados simulados + hooks QA), yo los porteo a Next y los cableo a la API real. Todo bajo GUIA-VISUAL (set piece nombrable por pantalla, doctrina de detalle máximo, escenografía con entradas/salidas).
 - ESTADO: esperando tus entregas.

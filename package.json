@@ -12,9 +12,10 @@
     }
   },
   "scripts": {
-    "dev": "pnpm --parallel --filter @percentil/api --filter @percentil/web dev",
-    "typecheck": "pnpm -r typecheck",
-    "test": "pnpm -r test",
+    "build:contracts": "pnpm --filter @percentil/contracts build",
+    "dev": "pnpm build:contracts && pnpm --parallel --filter @percentil/contracts --filter @percentil/api --filter @percentil/web dev",
+    "typecheck": "pnpm build:contracts && pnpm -r typecheck",
+    "test": "pnpm build:contracts && pnpm -r test",
     "db:push": "supabase db push"
   }
 }
