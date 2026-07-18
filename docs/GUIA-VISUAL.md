@@ -70,7 +70,49 @@ Reglas duras:
 - Todo texto sobre arte lleva `text-shadow` scrim; si no alcanza, chip de vidrio
   (`backdrop-filter: blur` + borde translúcido) o scrim radial (`#ov7::before`).
 
-## 4. SVG artesanal: la regla de oro
+## 4. Escenografía: el sitio es un teatro, el scroll es el director
+
+Cada sección/pantalla es una **escena** con su propia puesta: decorado, utilería, actores
+y luz. El sitio completo es una antología de sub-sitios (cada acto puede cambiar densidad,
+ritmo y gramática de layout: la evidencia es editorial, el método son estaciones, la prueba
+es un libro mayor) pero TODOS bajo la misma temática, los mismos tokens y los mismos verbos.
+Variedad dentro del sistema; jamás una escena que parezca de otro sitio.
+
+### 4.1 Bastidores: los elementos ENTRAN, no aparecen
+- Nada se materializa en su lugar con un fade pelado. Todo elemento entra **desde fuera
+  del escenario**: utilería e instrumentos desde los costados (`x: ±60-120` con una
+  rotación leve de 2-4° que se endereza al asentarse), protagonistas desde la profundidad
+  (scale .85→1 con blur que se disipa) o desde abajo, texto desde abajo con el split.
+- La opacidad NUNCA viaja sola: siempre acompaña a un desplazamiento/transformación.
+  `autoAlpha` + transform es el mínimo; el fade-in a secas está prohibido en elementos
+  protagónicos.
+- Cada elemento entra **según su rol**: el copy prepara (entra primero), el instrumento
+  responde (entra después, offset .1-.3), los detalles rematan (callouts, sellos, motas).
+  La entrada de una escena es una frase con sujeto, verbo y remate, no un stagger uniforme.
+
+### 4.2 Las salidas importan tanto como las entradas
+- Los sitios genéricos solo animan entradas. Acá **la salida se coreografía**: al abandonar
+  una escena, sus elementos despejan el escenario (hacia el bastidor opuesto al de entrada,
+  o replegándose al punto de origen) antes de que la siguiente escena monte la suya.
+- Con scroll reversible, la coreografía se re-ejecuta: volver atrás re-monta la escena
+  (`toggleActions: 'play none none reverse'` o scrub puro). El usuario tiene que poder
+  "pasear" por las escenas como quien recorre salas: entrar, salir, volver a entrar.
+- Umbrales entre escenas: transiciones de telón cuando el cambio de capítulo lo amerita
+  (wipes por `clip-path`, cambio de luz del escenario, scrim que cierra y abre). El corte
+  seco entre escenas es una decisión, no un default.
+
+### 4.3 Profundidad y utilería persistente
+- 2-3 planos de paralaje SUTIL: fondo (spine, numerales fantasma, texturas) más lento que
+  el plano medio (instrumentos) y que el primer plano (copy). Diferencias chicas de
+  velocidad (yPercent 8-20): profundidad de cine, no parque de diversiones.
+- **Utilería persistente**: elementos que viajan entre escenas y cosen el mundo: la
+  grieta/sutura (spine), el HUD, los sellos, el grain y la vignette. Toda experiencia
+  larga necesita al menos un elemento continuo que atraviese las escenas y se transforme
+  con la narrativa (como la grieta óxido que se vuelve sutura cyan).
+- Cada escena debe tener **UNA idea escénica memorable** (su set piece). Si al describir
+  la escena no podés nombrar su momento firma, la escena no está terminada.
+
+## 5. SVG artesanal: la regla de oro
 
 **Cada dato importante merece un instrumento propio, dibujado a mano o generado por código.**
 Referencias vivas: matriz de 100 rombos, medidores con aguja, conteo carcelario, campana con
@@ -91,7 +133,40 @@ Reglas:
 6. Accesibilidad: SVG decorativo con `aria-hidden="true"`; si comunica, `role="img"` +
    `aria-label`. El wordmark es tipografía real seleccionable + SVG solo en las XX.
 
-## 5. Vocabulario de motion (los verbos del sistema)
+### 5.1 Doctrina de detalle máximo (no negociable)
+
+**Cada SVG se diseña al nivel de detalle máximo que el conocimiento del diseñador permita.
+Literalmente el máximo.** Un SVG de formas peladas es un boceto, no un instrumento; si un
+instrumento tomó diez minutos, no está terminado. La vara de referencia son las XX del
+wordmark (barras facetadas + gradiente + hebras con remate suelto + 8 ojales) y la campana
+de Gauss (curva + área con hatching en pattern + línea de promedio punteada + bandera con
+forma propia + anotación): esa densidad es el PISO, no el techo.
+
+Todo instrumento se construye en **cinco capas**, y uno terminado tiene al menos cuatro:
+
+1. **Estructura**: la geometría que comunica el dato (la curva, la aguja, la matriz).
+2. **Material**: lo que hace que parezca un objeto y no un diagrama: hatchings en
+   `<pattern>`, dasharrays con ritmo, gradientes sutiles, dobles trazos, facetados.
+3. **Carácter/desgaste**: las imperfecciones que venden la artesanía: rotaciones leves,
+   remates a mano, hebras sueltas, ojales, remaches, esquinas facetadas, irregularidad
+   controlada (nada perfectamente simétrico salvo que la simetría signifique algo).
+4. **Luz**: glows semánticos, rims, halos, sombras internas; la luz obedece la regla de
+   color (sección 2).
+5. **Información**: ticks de escala, unidades, labels, fuentes citadas, números tabulares.
+   Un instrumento sin escala es decoración.
+
+Reglas de construcción:
+- **El detalle se diseña para ser animado**: agrupar en `<g>` por capa y por momento de
+  entrada, con clases por rol. Un detalle que no puede animarse independiente está mal
+  agrupado. Los micro-detalles (motas, ojales, ticks) tienen su propio beat en la
+  coreografía: son el remate de la frase.
+- Antes de dar por terminado un SVG, la prueba del zoom: ampliado al doble, ¿sigue
+  habiendo detalle que descubrir? Si al acercarse se vacía, le falta una capa.
+- El nivel de detalle es parejo en todo el sistema: un instrumento pobre al lado de uno
+  rico rompe la ilusión de mundo. Si no hay tiempo para hacerlo bien, no se muestra
+  todavía; jamás se shipea la versión pelada "para después".
+
+## 6. Vocabulario de motion (los verbos del sistema)
 
 Usar SIEMPRE estos verbos antes de inventar uno nuevo:
 
@@ -125,7 +200,29 @@ entrada .4-.9s. **Nunca** easings default de CSS ni `all .3s ease`.
   o al cambiar de estado. Una pantalla de app entra como un `.viz`: copy → instrumento →
   detalle, con los mismos easings y staggers.
 
-## 6. Texturas y capa cinematográfica
+### 6.1 La vara de diferenciación (por qué existe todo esto)
+
+La animación acá NO es polish: es la ventaja competitiva. La vara concreta:
+
+1. **La prueba del template**: si una animación podría venir en un template de Framer/
+   Webflow o en un ejemplo de documentación, se rehace. El fade-up genérico con stagger
+   uniforme es el uniforme de todos los SaaS: nosotros no lo usamos como plato principal.
+2. **Los momentos héroe son timelines, no tweens**: cualquier momento importante (revelar
+   un score, sellar un veredicto, completar un análisis) se coreografía con 3+ elementos
+   en offsets escalonados que cuentan una secuencia causal. Un tween suelto de una
+   propiedad es para transiciones menores, nunca para el clímax.
+3. **Cada pantalla tiene su set piece**: una animación que alguien grabaría y compartiría
+   (el escáner, la aguja elástica, la sutura cosiéndose, el estampado del veredicto).
+   El set piece siempre cuenta la historia del producto, no decora: la animación ES el
+   argumento de venta hecho movimiento.
+4. **Micro-interacciones tematizadas**: hover, focus, click y error también hablan el
+   idioma (glow semántico que crece, knob elástico, tachado óxido en lo inválido). Un
+   `:hover` con cambio de color a secas es un hueco en el mundo.
+5. **La diferenciación se audita**: en el QA visual (sección 9) se responde por escrito
+   cuál es el set piece de la pantalla y qué la diferencia de un template. Sin respuesta,
+   no se shipea.
+
+## 7. Texturas y capa cinematográfica
 
 - **Grain** fijo (feTurbulence data-URI, opacity ~.05, steps(4)) animado por
   `background-position` con `inset: 0` (NUNCA inset negativo + transform: expande el
@@ -137,7 +234,7 @@ entrada .4-.9s. **Nunca** easings default de CSS ni `all .3s ease`.
   esquinas facetadas por `clip-path` (polygon 16px) y línea superior semántica.
 - Profundidad por glow y drop-shadow semánticos, no por sombras grises de material design.
 
-## 7. Performance y craft técnico (no negociable)
+## 8. Performance y craft técnico (no negociable)
 
 1. Animar SOLO `transform`, `opacity`, `stroke-dashoffset` y atributos SVG puntuales.
    Nada que dispare layout en loop.
@@ -152,7 +249,7 @@ entrada .4-.9s. **Nunca** easings default de CSS ni `all .3s ease`.
    La información nunca depende de la animación.
 8. Fuentes por `<link>` con preconnect, jamás `@import` en `<style>`.
 
-## 8. QA visual obligatorio
+## 9. QA visual obligatorio
 
 Ninguna superficie se declara lista sin:
 1. **Hooks de QA determinísticos** incorporados (`?tl=0..1`, `?sec=N`, `&debug=1` en la
@@ -163,7 +260,7 @@ Ninguna superficie se declara lista sin:
 4. Para video generado (Veo/Flow): checklist de SHOTLIST-V3 (toma única, monotónico,
    color en banda, último medio segundo quieto, sin motion blur pesado).
 
-## 9. Traducción a la APP (el estándar para /auditoria y el producto)
+## 10. Traducción a la APP (el estándar para /auditoria y el producto)
 
 La app NO es "un formulario con la paleta". Es la continuación del expediente:
 
@@ -182,11 +279,14 @@ La app NO es "un formulario con la paleta". Es la continuación del expediente:
 - CTAs: bloque cyan sólido, texto void, hover `translateY(-3px)` + glow que crece.
   Fichas/cards importantes: hover `translateY(-8px)`.
 
-## 10. Lista negra (resumen de lo prohibido)
+## 11. Lista negra (resumen de lo prohibido)
 
 Eyebrows mono como headers de sección · cards genéricas en grilla · librerías de charts ·
 íconos stock y emojis UI · spinners/skeletons genéricos · púrpura/rosa/coral/gradientes
 calientes · glow blanco genérico · `all .3s ease` · easings lineales en entradas ·
 `overflow-x: hidden` en body · `@import` de fuentes · grain con inset negativo ·
 animar propiedades de layout · cyan antes de la solución · texto ilegible sobre arte ·
+fade-in pelado sin desplazamiento en elementos protagónicos · entradas sin salida
+coreografiada · SVGs de formas peladas sin capas de material/carácter/luz/información ·
+escenas sin set piece nombrable · animaciones que podrían venir de un template ·
 cualquier pantalla que podría ser de otro SaaS.
