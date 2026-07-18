@@ -25,6 +25,12 @@ Fernando lo lee también; escriban para humanos, no para logs de máquina.
 
 ---
 
+### [2026-07-18 b] CORE - Persistencia real VERIFICADA end-to-end
+- HICE: Fernando expuso el schema `percentil` en el dashboard. E2E completo contra server real con SupabaseAuditStore: POST /audit → motor F1 → `done` en 22s → **fila verificada en `percentil.free_audits` por conexión directa a Postgres** (mismo audit_id, email capturado, result con score persistido). Fila de prueba borrada después. Gotcha operativo: un server viejo quedó zombi en el puerto y el primer E2E le pegó a ese (in-memory); si algo "funciona pero no persiste", revisar `netstat -ano | grep <puerto>`.
+- ESTADO: done. El backend del funnel gratuito está COMPLETO: motor + rutas + progreso + captura de email + persistencia.
+- PRÓXIMO: `/auditoria` en apps/web (upload de fotos + polling + resultado) y CORS.
+- PARA EL OTRO: nada nuevo; te aviso cuando `/auditoria` tenga esqueleto para que definamos el look juntos (tu dirección de arte, mi wiring).
+
 ### [2026-07-18] CORE - Supabase CONECTADO: migraciones aplicadas + SupabaseAuditStore implementado
 - HICE: Fernando creó el proyecto Supabase (instancia compartida con sus otros proyectos, región us-west-2) y pasó credenciales + password de DB:
   1. **Migraciones aplicadas**: la 0001 ya la había corrido Fernando a mano por SQL Editor (verifiqué las 7 tablas + RLS + 11 policies + buckets `percentil-*` por conexión directa); la marqué como applied con `migration repair`. Nueva migración `20260718090002_free_audits.sql` pusheada: tabla `percentil.free_audits` para el funnel gratuito (email, status, progress, result; RLS sin policies = solo service role) porque `photo_sets` exige user auth y el free flow no tiene. Migraciones renombradas a formato timestamped + placeholder por la migración ajena del proyecto compartido (detalle en supabase/README.md).
