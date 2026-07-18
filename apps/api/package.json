@@ -13,6 +13,7 @@
     "@fastify/multipart": "^9.0.0",
     "@fastify/rate-limit": "^10.3.0",
     "@percentil/contracts": "workspace:*",
+    "@supabase/supabase-js": "^2.49.0",
     "fastify": "^5.3.0",
     "jose": "^6.0.0",
     "pino": "^9.6.0",

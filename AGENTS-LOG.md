@@ -25,6 +25,15 @@ Fernando lo lee también; escriban para humanos, no para logs de máquina.
 
 ---
 
+### [2026-07-18] CORE - Supabase CONECTADO: migraciones aplicadas + SupabaseAuditStore implementado
+- HICE: Fernando creó el proyecto Supabase (instancia compartida con sus otros proyectos, región us-west-2) y pasó credenciales + password de DB:
+  1. **Migraciones aplicadas**: la 0001 ya la había corrido Fernando a mano por SQL Editor (verifiqué las 7 tablas + RLS + 11 policies + buckets `percentil-*` por conexión directa); la marqué como applied con `migration repair`. Nueva migración `20260718090002_free_audits.sql` pusheada: tabla `percentil.free_audits` para el funnel gratuito (email, status, progress, result; RLS sin policies = solo service role) porque `photo_sets` exige user auth y el free flow no tiene. Migraciones renombradas a formato timestamped + placeholder por la migración ajena del proyecto compartido (detalle en supabase/README.md).
+  2. **`SupabaseAuditStore` implementado** (`apps/api/src/audit/supabase-store.ts`): supabase-js con `db.schema='percentil'` + service role. La interfaz `AuditStore` pasó a async (rutas actualizadas); wiring automático en app.ts: con SUPABASE_URL + SERVICE_ROLE_KEY usa Supabase, sin ellas cae a memoria (tests). 40/40 tests, typecheck limpio.
+  3. Verificación live PostgREST: bloqueada por el paso manual de Fernando (Exposed schemas), se lo pedí.
+- ESTADO: done (código); pendiente el switch del dashboard para la verificación en vivo.
+- PRÓXIMO: cuando el schema esté expuesto: E2E completo con persistencia real. Después me meto con `/auditoria` en apps/web (mi territorio) consumiendo POST /audit.
+- PARA EL OTRO: nada nuevo tuyo; cuando exista `/auditoria` te aviso el origin para tu QA y defino CORS.
+
 ### [2026-07-17 17:55] CORE - Landing PUBLICADA en Vercel + repo git inicializado (aviso: toqué landing/)
 - HICE: a pedido directo de Fernando (preview para amigos):
   1. **Git inicializado** en la raíz del repo, commit inicial con todo (424 archivos; `.env` con la key quedó fuera, verificado). Branch `main`. Sin remote todavía (GitHub pendiente, Fernando no tiene `gh` instalado).

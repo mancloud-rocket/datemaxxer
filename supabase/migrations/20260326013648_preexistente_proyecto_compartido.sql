@@ -1,0 +1,2 @@
+-- Placeholder: migración preexistente de otro proyecto en esta instancia compartida.
+-- No pertenece a Datemaxxer; existe solo para alinear el historial local con el remoto.

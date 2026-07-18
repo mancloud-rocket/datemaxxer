@@ -84,7 +84,7 @@ export function registerAuditRoutes(app: FastifyInstance, deps: AuditRoutesDeps)
       const { email, bio, region, arquetipo_objetivo } = parsedFields.data;
 
       const id = randomUUID();
-      store.create({
+      await store.create({
         id,
         email,
         region,
@@ -94,19 +94,30 @@ export function registerAuditRoutes(app: FastifyInstance, deps: AuditRoutesDeps)
       });
 
       // Procesamiento async: la respuesta es 202 + polling
-      void engine
-        .run(
-          { photos, bio, region, arquetipoObjetivo: arquetipo_objetivo },
-          { onProgress: (progress) => store.update(id, { progress }) },
-        )
-        .then((result) => store.update(id, { status: 'done', result }))
-        .catch((err: unknown) => {
+      const process = async (): Promise<void> => {
+        try {
+          const result = await engine.run(
+            { photos, bio, region, arquetipoObjetivo: arquetipo_objetivo },
+            {
+              onProgress: (progress) => {
+                void store.update(id, { progress }).catch((err: unknown) => {
+                  request.log.warn({ err, auditId: id }, 'no se pudo actualizar progreso');
+                });
+              },
+            },
+          );
+          await store.update(id, { status: 'done', result });
+        } catch (err) {
           request.log.error({ err, auditId: id }, 'auditoría falló');
-          store.update(id, {
-            status: 'error',
-            error: err instanceof AppError ? err.message : 'Error interno del motor',
-          });
-        });
+          await store
+            .update(id, {
+              status: 'error',
+              error: err instanceof AppError ? err.message : 'Error interno del motor',
+            })
+            .catch(() => undefined);
+        }
+      };
+      void process();
 
       return reply.code(202).send({ audit_id: id });
     },
@@ -114,7 +125,7 @@ export function registerAuditRoutes(app: FastifyInstance, deps: AuditRoutesDeps)
 
   app.get('/audit/:id', async (request) => {
     const { id } = request.params as { id: string };
-    const record = store.get(id);
+    const record = await store.get(id);
     if (!record) throw new NotFoundError('Auditoría no encontrada');
     return {
       status: record.status,

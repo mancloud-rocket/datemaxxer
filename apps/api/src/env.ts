@@ -8,6 +8,7 @@ const EnvSchema = z
     // Verificación de JWT: JWKS del proyecto (SUPABASE_URL) o secret legacy HS256.
     SUPABASE_URL: z.string().url().optional(),
     SUPABASE_JWT_SECRET: z.string().min(16).optional(),
+    SUPABASE_SERVICE_ROLE_KEY: z.string().min(20).optional(),
     // Motores de IA: sin key la API bootea igual pero /audit responde 503
     ANTHROPIC_API_KEY: z.string().min(20).optional(),
     AUDIT_MODEL: z.string().min(1).optional(),

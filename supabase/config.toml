@@ -1,0 +1,2 @@
+# Config mínima para la CLI de Supabase (solo usamos migraciones remotas)
+project_id = "datemaxxer"

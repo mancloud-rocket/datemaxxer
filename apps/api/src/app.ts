@@ -5,6 +5,7 @@ import { CONTRACTS_VERSION } from '@percentil/contracts';
 import Fastify, { type FastifyInstance } from 'fastify';
 import { registerAuditRoutes } from './audit/routes.js';
 import { InMemoryAuditStore, type AuditStore } from './audit/store.js';
+import { SupabaseAuditStore } from './audit/supabase-store.js';
 import { makeAuthenticate } from './auth.js';
 import {
   buildAuditEngine,
@@ -80,8 +81,13 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
   }));
 
   // F1: auditoría gratuita (sin auth, con rate limit propio y captura de email)
+  const auditStore =
+    deps.auditStore ??
+    (env.SUPABASE_URL !== undefined && env.SUPABASE_SERVICE_ROLE_KEY !== undefined
+      ? new SupabaseAuditStore(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
+      : new InMemoryAuditStore());
   registerAuditRoutes(app, {
-    store: deps.auditStore ?? new InMemoryAuditStore(),
+    store: auditStore,
     engine: resolveAuditEngine(env, deps),
     rateLimitMax: env.AUDIT_RATE_LIMIT_MAX,
   });

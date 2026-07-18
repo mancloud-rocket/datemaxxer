@@ -2,13 +2,18 @@
 
 Migraciones en `migrations/`. Se aplican con `pnpm db:push` (requiere [Supabase CLI](https://supabase.com/docs/guides/cli) instalado y proyecto linkeado con `supabase link`).
 
-Setup inicial (una vez):
+Proyecto actual: `ixydxliuncnbikesfldx` (instancia COMPARTIDA con otros proyectos de Fernando;
+región us-west-2). La conexión directa `db.<ref>.supabase.co` es IPv6-only: usar el pooler.
+
+Aplicar migraciones (con la password de la DB):
 
 ```bash
-supabase login
-supabase link --project-ref <ref-del-proyecto>
-pnpm db:push
+supabase db push --yes --db-url "postgresql://postgres.<ref>:<PASSWORD-URLENCODED>@aws-0-us-west-2.pooler.supabase.com:5432/postgres"
 ```
+
+Notas del historial (compartido entre proyectos de la instancia):
+- `20260326013648` pertenece a otro proyecto (rio_seguros); hay un placeholder local vacío para alinear.
+- La 0001 de Percentil se aplicó a mano por SQL Editor y quedó marcada con `supabase migration repair --status applied`.
 
 **Después del primer push (paso manual obligatorio):** exponer el schema en
 Dashboard → Settings → API → **Exposed schemas** → agregar `percentil`.
