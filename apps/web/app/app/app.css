@@ -363,7 +363,7 @@
 .dmx-shell .apphud .chip{display:none}
 
 .dmx-sidebar{
-  position:relative;z-index:10;flex:none;width:248px;
+  position:sticky;top:0;align-self:flex-start;height:100dvh;z-index:10;flex:none;width:248px;
   display:flex;flex-direction:column;gap:1.8rem;
   padding:1.6rem 1.2rem 1.4rem;border-right:1px solid var(--line);
   background:var(--surface-2);
@@ -371,9 +371,15 @@
 .dmx-sidebar::after{content:'';position:absolute;top:0;right:-1px;bottom:0;width:1px;
   background:linear-gradient(180deg,transparent,rgba(79,217,194,.18) 18%,rgba(79,217,194,.18) 82%,transparent)}
 
-.dmx-sidebar-brand{display:flex;align-items:center;gap:.6rem}
-.dmx-sidebar-brand svg{width:22px;height:22px;flex:none}
-.dmx-sidebar-brand span{font-family:var(--font-display),sans-serif;font-size:.92rem;letter-spacing:-.01em;color:var(--ink)}
+/* wordmark real de la marca (landing/cinema.html): DATEMA + XX de sutura + ER,
+   NO un ícono suelto + texto - la doble X ES parte de la palabra. */
+.dmx-sidebar-brand .wordmark{display:flex;align-items:center;gap:.02em;transform:skewX(-7deg)}
+.dmx-sidebar-brand .wm-t{font-family:var(--font-display),sans-serif;letter-spacing:-.03em;color:var(--ink);line-height:1;font-size:1.05rem}
+.dmx-sidebar-brand .wm-xx{height:.85em;width:auto;overflow:visible;margin:0 .02em}
+.dmx-sidebar-brand .wm-xx .xbar{fill:url(#wmgSidebar);stroke:#1E8A78;stroke-width:1.5;stroke-linejoin:round}
+.dmx-sidebar-brand .wm-xx .thread{fill:none;stroke:#EAFBF6;stroke-width:2.6;stroke-linecap:round;opacity:.95}
+.dmx-sidebar-brand .wm-xx .tail{fill:none;stroke:#EAFBF6;stroke-width:2.4;stroke-linecap:round}
+.dmx-sidebar-brand .wm-xx .eyelet{fill:var(--surface-2);stroke:#EAFBF6;stroke-width:2}
 
 .dmx-sidebar-nav{display:flex;flex-direction:column;gap:.5rem}
 .dmx-sidebar-link{
@@ -412,7 +418,7 @@
 @media (max-width:860px){
   .dmx-shell{flex-direction:column}
   .dmx-sidebar{
-    width:100%;flex-direction:row;align-items:center;gap:1rem;
+    width:100%;height:auto;flex-direction:row;align-items:center;gap:1rem;
     padding:.9rem 1.1rem;border-right:0;border-bottom:1px solid var(--line);
   }
   .dmx-sidebar::after{display:none}

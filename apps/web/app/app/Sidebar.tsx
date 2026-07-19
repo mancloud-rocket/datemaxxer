@@ -50,22 +50,35 @@ export function Sidebar(props: { user: DisplayUser; children: React.ReactNode })
     <div className="dmx-shell">
       <aside className="dmx-sidebar" ref={root}>
         <div className="dmx-sidebar-brand">
-          <svg viewBox="0 0 200 200">
-            <defs>
-              <linearGradient id="wmgSidebar" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stopColor="#6FEBD4" /><stop offset="1" stopColor="#2FAE97" />
-              </linearGradient>
-            </defs>
-            <g transform="translate(35 29) scale(1.477)">
-              <path d="M6 0 L32 0 L80 96 L54 96 Z" fill="url(#wmgSidebar)" stroke="#1E8A78" strokeWidth="1.5" strokeLinejoin="round" />
-              <path d="M54 0 L80 0 L32 96 L6 96 Z" fill="url(#wmgSidebar)" stroke="#1E8A78" strokeWidth="1.5" strokeLinejoin="round" />
-              <path d="M29.5 21 C36 34 50 62 56.5 75" fill="none" stroke="#EAFBF6" strokeWidth="2.6" strokeLinecap="round" opacity=".95" />
-              <path d="M56.4 21 C50 34 36 62 29.6 75" fill="none" stroke="#EAFBF6" strokeWidth="2.6" strokeLinecap="round" opacity=".95" />
-              <circle cx="29.5" cy="21" r="4.6" fill="#101318" stroke="#EAFBF6" strokeWidth="2" /><circle cx="56.4" cy="21" r="4.6" fill="#101318" stroke="#EAFBF6" strokeWidth="2" />
-              <circle cx="29.6" cy="75" r="4.6" fill="#101318" stroke="#EAFBF6" strokeWidth="2" /><circle cx="56.5" cy="75" r="4.6" fill="#101318" stroke="#EAFBF6" strokeWidth="2" />
-            </g>
-          </svg>
-          <span>Datemaxxer</span>
+          <div className="wordmark" role="heading" aria-level={2} aria-label="Datemaxxer">
+            <span className="wm-t">DATEMA</span>
+            <svg className="wm-xx" viewBox="0 0 176 96" aria-hidden="true">
+              <defs>
+                <linearGradient id="wmgSidebar" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0" stopColor="#6FEBD4" /><stop offset="1" stopColor="#2FAE97" />
+                </linearGradient>
+              </defs>
+              <g>
+                <path className="xbar" d="M6 0 L32 0 L80 96 L54 96 Z" />
+                <path className="xbar" d="M54 0 L80 0 L32 96 L6 96 Z" />
+                <path className="thread" d="M29.5 21 C36 34 50 62 56.5 75" />
+                <path className="thread" d="M56.4 21 C50 34 36 62 29.6 75" />
+                <path className="tail" d="M29.5 21 C22 8 34 2 27 12" />
+                <circle className="eyelet" cx="29.5" cy="21" r="4.6" /><circle className="eyelet" cx="56.4" cy="21" r="4.6" />
+                <circle className="eyelet" cx="29.6" cy="75" r="4.6" /><circle className="eyelet" cx="56.5" cy="75" r="4.6" />
+              </g>
+              <g transform="translate(90 0)">
+                <path className="xbar" d="M6 0 L32 0 L80 96 L54 96 Z" />
+                <path className="xbar" d="M54 0 L80 0 L32 96 L6 96 Z" />
+                <path className="thread" d="M29.5 21 C36 34 50 62 56.5 75" />
+                <path className="thread" d="M56.4 21 C50 34 36 62 29.6 75" />
+                <path className="tail" d="M56.5 75 C64 88 50 94 58 84" />
+                <circle className="eyelet" cx="29.5" cy="21" r="4.6" /><circle className="eyelet" cx="56.4" cy="21" r="4.6" />
+                <circle className="eyelet" cx="29.6" cy="75" r="4.6" /><circle className="eyelet" cx="56.5" cy="75" r="4.6" />
+              </g>
+            </svg>
+            <span className="wm-t">ER</span>
+          </div>
         </div>
 
         <nav className="dmx-sidebar-nav">
