@@ -12,21 +12,40 @@ parte de la misma película.
 
 ---
 
-## 1. El principio rector: todo es una película forense
+## 1. El principio rector: sos el piloto, Datemaxxer es tu copiloto
 
-La marca no "tiene animaciones": la marca ES una narrativa que el usuario recorre.
-El universo es un expediente forense que documenta un corazón que se rompe (óxido)
-y se repara (sutura cyan). Toda pieza nueva se pregunta primero: **¿qué parte de esa
-historia estoy contando?**
+**Pivote de narrativa (19-jul-2026, decisión de Fernando, ver AGENTS-LOG entrada
+CORE "DIRECTIVA DE FERNANDO: pivote de narrativa").** El universo dejó de ser un
+expediente forense (vos como sospechoso, el producto arma un caso EN CONTRA tuyo,
+evidencia bajo custodia, veredicto). Ahora es una cabina de instrumentos: vos sos
+el piloto, Datemaxxer es el copiloto que te lee los instrumentos crudo porque VOS
+elegiste que te los lea así. Es una relación de igual a igual, en primera persona,
+sentado adentro - no un juicio que mirás desde afuera.
+
+Toda pieza nueva se pregunta primero: **¿qué instrumento del panel estoy
+mostrando, y qué lectura da?**
 
 Consecuencias prácticas:
 - Las secciones son **actos** (numerales romanos fantasma: stroke sin fill, `-webkit-text-stroke`).
-- El estado del sistema se muestra como instrumentación forense (HUD, contadores de frame,
-  sellos de expediente, barras de progreso semánticas óxido→cyan).
-- Los datos nunca se "muestran": se **presentan como evidencia** (numerados, con fuente
-  citada, con regla que se dibuja, con count-up).
-- La transición problema→solución SIEMPRE es grieta óxido → sutura cyan. Es el gesto
-  firma de la marca (spine de la landing, station 02, corazón final, wordmark XX).
+  Esto sobrevive intacto: es lenguaje de película, no de expediente.
+- El estado del sistema se muestra como instrumentación de cabina (HUD, contadores,
+  chips de sesión, barras de progreso semánticas óxido→cyan) - no como sellos de
+  expediente ni etiquetas de custodia legal.
+- Los datos nunca se "muestran": se **leen en un instrumento** (numerados, con
+  fuente citada, con regla que se dibuja, con count-up). La palabra rectora es
+  **lectura/diagnóstico**, no veredicto.
+- La transición problema→solución SIGUE siendo grieta óxido → sutura cyan: es el
+  gesto firma de la marca (spine de la landing, station 02, corazón final, wordmark
+  XX) y de hecho encaja MEJOR acá - óxido es corrosión/desgaste mecánico real, cyan
+  es la reparación de un sistema, sin el disfraz de "sellar evidencia" que traía
+  encima. Kintsugi (reparar algo roto, visible y con orgullo) siempre fue más
+  cabina que comisaría.
+- Vocabulario a evitar de acá en más: expediente, veredicto, custodia, sellado,
+  lacrado, prueba en el sentido de "exhibit legal". Vocabulario que lo reemplaza:
+  sesión/vuelo, lectura/diagnóstico, en análisis/procesado, bloqueado, acceso.
+  No hace falta forzar un sinónimo de cabina para cada palabra - a veces lo
+  correcto es simplificar directo (ej: "pruebas" como unidad de fotos → "fotos").
+  Detalle del vocabulario pantalla por pantalla en `design/app/SET-PIECES.md`.
 
 ## 2. Color: el color ES el argumento (no decoración)
 
@@ -39,15 +58,15 @@ Tokens (spec §1.3, ya en `apps/web/app/globals.css`):
 | `--line` | #262C36 | Bordes, ejes, rieles apagados |
 | `--steel` / `--steel-dim` | #5B6672 / #333C47 | Estado actual, neutro, apagado |
 | `--oxide` | #C94B32 | EL PROBLEMA: red flags, datos que duelen, grietas |
-| `--stamp` | #8F2B22 | Sellos y bordes de expediente |
+| `--stamp` | #8F2B22 | Bordes y marcos de alerta, zonas de riesgo del instrumento |
 | `--sodium` | #E8B04B | Severidad media (uso escaso) |
-| `--signal` | #4FD9C2 | LA SOLUCIÓN: solo CTAs, veredictos positivos, suturas, mejoras |
+| `--signal` | #4FD9C2 | LA SOLUCIÓN: solo CTAs, lecturas positivas, suturas, mejoras |
 | `--ink` / `--ink-mute` | #E6E9ED / #8C96A3 | Texto |
 
 Reglas duras:
 1. **El cyan se gana narrativamente**: aparece cuando aparece la solución, nunca antes.
    En una pantalla de app: los diagnósticos del problema van en óxido/steel; la mejora,
-   el CTA y el veredicto positivo van en cyan. Jamás cyan decorativo.
+   el CTA y la lectura positiva van en cyan. Jamás cyan decorativo.
 2. **Prohibido territorio Tinder**: coral, rosa, magenta, púrpura, gradientes calientes,
    llamas. El único rojo permitido es el óxido mate (corrosión, no pasión).
 3. Estado sin JS / estado inicial también cumple la regla (bloqueante histórico de las seams).
@@ -60,8 +79,8 @@ Reglas duras:
   Números gigantes de evidencia con `font-variant-numeric: tabular-nums` (los count-up no
   bailan). El skew -7° es EXCLUSIVO del wordmark.
 - **Inter Tight**: cuerpo (400/500/600) y también números de apoyo en instrumentos.
-- **IBM Plex Mono**: SOLO capa forense: HUD, sellos, chips, labels de expediente, CTAs
-  tipo terminal, loader. Uppercase + tracking ancho (.2-.3em).
+- **IBM Plex Mono**: SOLO capa de instrumento: HUD, sellos, chips de sesión, labels
+  de panel, CTAs tipo terminal, loader. Uppercase + tracking ancho (.2-.3em).
 - **PROHIBIDO** (regla directa de Fernando): eyebrows/kickers en mono uppercase microscópico
   como apertura de sección. El kicker estándar es **Inter Tight 600 legible + punto de color
   semántico** (`.kicker` con `i` circular cyan u óxido con glow).
@@ -178,8 +197,8 @@ Usar SIEMPRE estos verbos antes de inventar uno nuevo:
 | **Count-up** | proxy `{v}` + onUpdate, `power2.out`, tabular-nums, locale es-AR (coma decimal) | todo número que importa |
 | **Split de titular** | chars `yPercent 115, rotateZ 3` → 0, `power3.out`, stagger amount .45, agrupado por palabra (`.wd` nowrap) | headlines |
 | **Regla** | scaleX 0→1 desde el borde narrativo | subrayado de evidencia |
-| **Decode/scramble** | set `01%×#/·—▏▶`, revela por índice | SOLO textos mono forenses |
-| **Estampar** | scale 1.8→1 + rotación fija, `power4.out`, .4s | sellos, veredictos |
+| **Decode/scramble** | set `01%×#/·—▏▶`, revela por índice | SOLO textos mono de instrumento |
+| **Estampar** | scale 1.8→1 + rotación fija, `power4.out`, .4s | sellos, diagnósticos |
 | **Pulso** | scale/glow yoyo 1-3 repeticiones, `sine.inOut` | corazón, halos de éxito |
 | **Tachado** | width 0→104% rotado -1.5° | ideas que la marca destruye |
 | **Fade estructural** | `y: 24-40, autoAlpha: 0`, `power2.out`, .6-.8s, stagger .12-.16 | bloques de copy/arte |
@@ -208,11 +227,11 @@ La animación acá NO es polish: es la ventaja competitiva. La vara concreta:
    Webflow o en un ejemplo de documentación, se rehace. El fade-up genérico con stagger
    uniforme es el uniforme de todos los SaaS: nosotros no lo usamos como plato principal.
 2. **Los momentos héroe son timelines, no tweens**: cualquier momento importante (revelar
-   un score, sellar un veredicto, completar un análisis) se coreografía con 3+ elementos
+   un score, fijar un diagnóstico, completar un análisis) se coreografía con 3+ elementos
    en offsets escalonados que cuentan una secuencia causal. Un tween suelto de una
    propiedad es para transiciones menores, nunca para el clímax.
 3. **Cada pantalla tiene su set piece**: una animación que alguien grabaría y compartiría
-   (el escáner, la aguja elástica, la sutura cosiéndose, el estampado del veredicto).
+   (el escáner, la aguja elástica, la sutura cosiéndose, la lectura que se fija).
    El set piece siempre cuenta la historia del producto, no decora: la animación ES el
    argumento de venta hecho movimiento.
 4. **Micro-interacciones tematizadas**: hover, focus, click y error también hablan el
@@ -228,8 +247,8 @@ La animación acá NO es polish: es la ventaja competitiva. La vara concreta:
   `background-position` con `inset: 0` (NUNCA inset negativo + transform: expande el
   viewport en mobile real).
 - **Vignette** radial fija que oscurece bordes.
-- **Loader temático**: "CARGANDO EXPEDIENTE · N%" en mono + barra fina. Nunca spinner
-  genérico ni skeleton gris estándar.
+- **Loader temático**: "CALIBRANDO INSTRUMENTOS · N%" en mono + barra fina. Nunca
+  spinner genérico ni skeleton gris estándar.
 - Fondos de instrumento `#141922` con `border-radius: 16px`; fichas importantes con
   esquinas facetadas por `clip-path` (polygon 16px) y línea superior semántica.
 - Profundidad por glow y drop-shadow semánticos, no por sombras grises de material design.
@@ -254,28 +273,41 @@ La animación acá NO es polish: es la ventaja competitiva. La vara concreta:
 Ninguna superficie se declara lista sin:
 1. **Hooks de QA determinísticos** incorporados (`?tl=0..1`, `?sec=N`, `&debug=1` en la
    landing; la app expone estados forzables equivalentes, por ej. `?estado=analizando`).
-2. Screenshots verificados en al menos 5-6 momentos/estados clave, desktop y mobile 390px.
+2. Screenshots verificados en al menos 5-6 momentos/estados clave, mobile 390px Y
+   desktop ancho real (~1900px, no un desktop genérico de 1200px) - un layout
+   centrado con `justify-content:center` puede leer bien a 1200px y quedar
+   apilado arriba con espacio muerto abajo a 1900px si algún elemento oculto
+   (`visibility:hidden` en vez de `display:none`) sigue reservando espacio en el
+   flujo. Gotcha real, mordió a `escaner.html` (ver SET-PIECES.md).
 3. Gotchas conocidos del entorno: headless Edge ignora meta viewport (mín ~500px físicos,
    no sirve para QA mobile real), Windows al 125% distorsiona el mapeo de tamaño.
 4. Para video generado (Veo/Flow): checklist de SHOTLIST-V3 (toma única, monotónico,
    color en banda, último medio segundo quieto, sin motion blur pesado).
 
-## 10. Traducción a la APP (el estándar para /auditoria y el producto)
+## 10. Traducción a la APP (el estándar para /app y el producto)
 
-La app NO es "un formulario con la paleta". Es la continuación del expediente:
+La app NO es "un formulario con la paleta". Es la continuación de la cabina:
 
-- **Subida de fotos**: mesa de evidencia. Las fotos son pruebas numeradas
-  (`FOTO 01 … FOTO 09` en mono), entran con pop/estampado, el dropzone es un marco de
-  expediente, no un rectángulo punteado genérico.
-- **Pantalla de espera (25-60s, la pantalla más importante del funnel)**: el escáner de
-  `st-audit` a pantalla completa: scanline cyan recorriendo las fotos, callouts que van
-  apareciendo con pop, HUD con estado en mono ("ANALIZANDO EVIDENCIA · FOTO 3/6" →
-  "SINTETIZANDO VEREDICTO"), progreso semántico. El usuario tiene que QUERER esperar.
-- **Resultado**: un informe forense, no un dashboard. Score con count-up + medidor de
-  aguja; arquetipo revelado con estampado; evidencia por foto con callouts; veredictos
-  duros en óxido, quick wins y mejoras en cyan; sello de garantía.
+- **Subida de fotos - EL CHECKLIST**: tu checklist pre-vuelo. Las fotos son ítems
+  numerados (`FOTO 01 … FOTO 09` en mono) que entran con pop/estampado, el dropzone
+  es el marco del panel, no un rectángulo punteado genérico. 4/9 completado se lee
+  como "listo para despegar", no como "pruebas reunidas".
+- **Pantalla de espera (25-60s, la pantalla más importante del funnel) - EL
+  ESCÁNER**: a pantalla completa, la cinta de vuelo recorre un cabezal fijo: scanline
+  cyan, callouts que van apareciendo con pop, HUD con estado en mono ("LEYENDO
+  SEÑALES · FOTO 3/6" → "PROCESANDO TU LECTURA"), progreso semántico. El usuario
+  tiene que QUERER esperar.
+- **Resultado - EL INFORME**: la lectura de un instrumento, no un dashboard. Score
+  con count-up + medidor de aguja que se clava en su zona (zona de riesgo/óptima,
+  lenguaje de tacómetro, no de expediente); arquetipo confirmado con estampado;
+  lectura dura en óxido, quick wins y mejoras en cyan; contenido pago bloqueado con
+  la sutura kintsugi (se queda igual - reparar algo roto siempre fue más cabina que
+  comisaría).
+- **Ingreso**: la cabina se desbloquea, no se abre un expediente. Mismo candado que
+  gira y el check cyan que se dibuja - cambia que es "acceso al sistema", no un
+  lacre.
 - Formularios e inputs con el ADN del sistema: fondos surface, bordes `--line`, focus con
-  glow semántico, labels mono cuando son forenses.
+  glow semántico, labels mono cuando son de instrumento.
 - CTAs: bloque cyan sólido, texto void, hover `translateY(-3px)` + glow que crece.
   Fichas/cards importantes: hover `translateY(-8px)`.
 

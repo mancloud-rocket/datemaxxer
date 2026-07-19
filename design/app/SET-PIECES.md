@@ -1,29 +1,39 @@
 # design/app · Registro de set pieces y auditoría de diferenciación
 ### (obligatorio por GUIA-VISUAL §6.1.5 · una entrada por pantalla)
 
+> **Pivote de narrativa (19-jul-2026, decisión de Fernando vía CORE en AGENTS-LOG):**
+> se abandonó el marco forense (expediente/veredicto/custodia/sellado/lacrado - vos como
+> sospechoso) por el de cabina de instrumentos (sos el piloto, Datemaxxer es tu copiloto).
+> Las descripciones de abajo ya reflejan los nombres nuevos. Detalle de la decisión y el
+> razonamiento completo en `docs/GUIA-VISUAL.md` §1 y en el log. Cero cambios de animación:
+> mismos timelines, mismos verbos, mismos gestos - cambiaron nombres y un par de texturas.
+
 ## 1. EL ESCÁNER (`escaner.html`)
 
-**Set piece nombrable: "La mesa de luz".** Las fotos del usuario son fotogramas de un
-negativo (con perforaciones de película, esquineros de expediente, rayas de desgaste y
-etiqueta FOTO 0N) que AVANZA a través de un cabezal de escaneo fijo, como película por un
-proyector. El cabezal es un instrumento de 5 capas: cuerpo facetado con gradiente,
+**Set piece nombrable: "La cinta de vuelo".** Las fotos del usuario son fotogramas de una
+cinta (con perforaciones de arrastre, esquineros de archivo, rayas de desgaste y
+etiqueta FOTO 0N) que AVANZA a través de un cabezal de lectura fijo, como la cinta de un
+registrador de vuelo. El cabezal es un instrumento de 5 capas: cuerpo facetado con gradiente,
 tornillos con ranura, respiraderos, lente con iris de 6 láminas que respira, pupila cyan
 que late, LED de actividad y un cable con comba que se mece. Al pasar cada fotograma:
 haz cyan, retícula de análisis, crosshair con pop, callouts que se revelan, y el sello
-LEÍDA se estampa con su tilde dibujándose. Al terminar: salida coreografiada (el negativo
+LISTA se estampa con su tilde dibujándose. Al terminar: salida coreografiada (la cinta
 despeja hacia el bastidor izquierdo, el cabezal hacia el derecho) y entra desde la
 profundidad el anillo de síntesis (36 segmentos, 3 calientes persiguiéndose) con el
-corazón wireframe suturado latiendo al centro y las pruebas "en custodia" apiladas.
+corazón wireframe suturado latiendo al centro y las señales "procesadas" apiladas.
 
-**Prueba del template:** ningún template tiene un proyector de negativos con cabezal
+**Prueba del template:** ningún template tiene un lector de cinta con cabezal
 mecánico; la espera se convierte en la demo del producto (ver a la IA "leer" tus fotos).
-**Momento héroe (timeline causal):** haz → retícula → crosshair → callouts → sello LEÍDA
+**Momento héroe (timeline causal):** haz → retícula → crosshair → callouts → sello LISTA
 (5 elementos, offsets escalonados, por cada foto).
 **Estados forzables:** `?estado=analizando|sintetizando|error` · `?fotos=4..9` · `?qa=0..1`.
+**Cariño de desktop ancho (19-jul):** a partir de 1100px el instrumento crece de verdad
+(460×560 en vez de 380×430) y el ritmo vertical respira más - ver gotcha del `.errbox` abajo,
+que era la causa real del "espacio muerto" que se veía a resoluciones anchas.
 
 ## 2. EL INFORME (`informe.html`)
 
-**Set piece nombrable: "El estampado del veredicto".** Secuencia causal encadenada:
+**Set piece nombrable: "La lectura se fija".** Secuencia causal encadenada:
 (1) la aguja del medidor (zonas óxido/ámbar/cyan con ticks, números, contrapeso y tornillo
 en el pivote) barre con física elástica y SE CLAVA en 41 mientras el count-up corre y el
 área de riesgo se raya con hatching; (2) el clavarse dispara el sello de zona y el sello
@@ -31,24 +41,26 @@ circular del arquetipo (doble anillo punteado + glifo VIAJERO dibujándose: mont
 sol, sendero punteado, avión de papel) con su barra de confianza; (3) la lectura de
 200 ms se subraya en óxido a mano; (4) el contenido pago entra YA COSIDO: puntadas de
 sutura con ojales que se tensan una a una sobre cada ficha (que muestra su instrumento
-real desenfocado detrás: teaser honesto), sello SELLADO y el desbloqueo con ficha
+real desenfocado detrás: teaser honesto), sello BLOQUEADO y el desbloqueo con ficha
 facetada y línea cyan.
 
-**Prueba del template:** un dashboard mostraría un número; acá el veredicto se ESTAMPA
-y lo pago está literalmente cosido con el gesto firma de la marca (sutura kintsugi).
+**Prueba del template:** un dashboard mostraría un número; acá la lectura se ESTAMPA
+y lo pago está literalmente cosido con el gesto firma de la marca (sutura kintsugi -
+funciona MEJOR sin el disfraz forense: reparar algo roto siempre fue más cabina que
+comisaría).
 **Momento héroe:** aguja → count-up → hatching → sello zona → sello arquetipo → glifo
 dibujado → confianza (7 beats encadenados).
 **Estados forzables:** `?estado=done|error|limite` · `?qa=1`.
 
-## 3. LA MESA DE EVIDENCIA (`mesa.html`)
+## 3. EL CHECKLIST (`mesa.html`)
 
-**Set piece nombrable: "El depósito de pruebas".** Depositás fotos en la mesa forense y
+**Set piece nombrable: "El checklist pre-vuelo".** Depositas fotos en el panel y
 cada una CAE (drop desde arriba con inclinación determinística por índice, `back.out`) y
-se ESTAMPA como prueba numerada (`FOTO 0N` con `stampIn`). El contenedor es la carpeta del
-expediente: marco SVG con borde punteado + esquineros que se redibuja al alto real del
-contenido (`requestAnimationFrame(drawMarco)` al final de cada `paint`). Cada prueba es una
+se ESTAMPA como ítem numerado (`FOTO 0N` con `stampIn`). El contenedor es el panel del
+instrumento: marco SVG con borde punteado + esquineros que se redibuja al alto real del
+contenido (`requestAnimationFrame(drawMarco)` al final de cada `paint`). Cada foto es una
 ficha de archivo (esquineros en las 4 puntas, etiqueta FOTO, scrim para legibilidad,
-etiqueta de escena forense "Playa · viaje / Oficina / Gimnasio…" que vende la tesis de
+etiqueta de escena "Playa · viaje / Oficina / Gimnasio…" que vende la tesis de
 "señales que compiten"). La primera lleva sello **PORTADA** en ámbar (la carta de
 presentación pesa más); acción propia **"hacer portada"** (estrella) que reordena a la
 primera posición con pop, en vez de un drag genérico. Barra de conteo con pips (óxido→cyan
@@ -56,8 +68,9 @@ al llegar al mínimo) y CTA que se habilita en 4. Contexto: bio (textarea con co
 selector de arquetipo con los 8 glifos propios (`glifos.js`), selector de región.
 
 **Prueba del template:** un uploader genérico muestra thumbnails en grilla; acá el acto de
-cargar es depositar evidencia numerada en una carpeta que se arma frente a vos, con la
-jerarquía real del producto (la portada manda).
+cargar es completar un checklist con ítems numerados que se arma frente a vos, con la
+jerarquía real del producto (la portada manda) - 4/9 completado se lee como "listo para
+despegar", no como una barra de progreso genérica.
 **Momento héroe:** foto cae → se asienta con su inclinación → FOTO 0N se estampa (por cada
 depósito); pips viran óxido→cyan al desbloquear el mínimo.
 **Estados forzables:** `?estado=vacia|lista|error` · `?err=cantidad|peso|formato` · `?qa=0..1`.
@@ -67,22 +80,23 @@ queda para el port (acá el gesto clave es "hacer portada").
 
 ## 4. EL INGRESO (`ingreso.html`)
 
-**Set piece nombrable: "La apertura del expediente".** No es un formulario: es una carpeta
-lacrada que se abre. El sello central (doble anillo óxido + candado forense grabado) VIRA
+**Set piece nombrable: "La cabina se desbloquea".** No es un formulario: es el acceso a
+un sistema. El sello central (doble anillo óxido + candado grabado) VIRA
 de óxido a cyan al validar: los anillos cambian de color, el sello gira 190° (`svgOrigin`),
 la horquilla del candado salta (`back.out`), el cuerpo se desvanece y entra un check cyan
 DIBUJÁNDOSE (dashoffset). Dos pasos: método (Google 1 tap + email) → OTP de 6 casilleros
 (auto-avance, backspace inteligente, pegado, shake en error). El HUD narra el arco:
-EXPEDIENTE CERRADO → CÓDIGO ENVIADO → IDENTIDAD VERIFICADA.
+ACCESO CERRADO → CÓDIGO ENVIADO → IDENTIDAD VERIFICADA → ACCESO CONCEDIDO.
 
-**Prueba del template:** un login es una caja de texto y un botón; acá acceder es abrir un
-lacre — el mismo gesto óxido→cyan (crack→sutura) que firma toda la marca, aplicado al acto
-de autenticarte.
+**Prueba del template:** un login es una caja de texto y un botón; acá acceder es el mismo
+gesto óxido→cyan (crack→sutura) que firma toda la marca, aplicado al acto de autenticarte -
+la mecánica del candado sirve igual para "acceso concedido a un sistema" que para un lacre,
+solo cambió la historia detrás.
 **Momento héroe:** los 6 dígitos completan → el sello gira y vira a cyan → candado se abre →
-check se dibuja (5 beats) → telón hacia la mesa.
+check se dibuja (5 beats) → telón hacia el checklist.
 **Estados forzables:** `?estado=idle|codigo|invalido|abriendo` · `?qa=0..1`.
-**Nota de contrato:** el flujo real es Google OAuth (Supabase, pendiente activación) + OTP
-por email. Acá el código demo válido es `204172`. CORE cablea el auth real.
+**Nota de contrato:** el flujo real es Google OAuth (Supabase, activado por Fernando
+19-jul) + OTP por email. Acá el código demo válido es `204172`. CORE cablea el auth real.
 
 ## Transversal: umbral entre escenas + aviso de conexión (`shared.css` / `shared.js`)
 

@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Datemaxxer · Abrí tu expediente</title>
+<title>Datemaxxer · Accede a tu cuenta</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 <style>
-/* ============ EL INGRESO · set piece: "la apertura del expediente"
-   No es un formulario: es una carpeta forense que se abre. El sello del
-   expediente gira de óxido (cerrado) a cyan (validado) cuando el OTP entra.
+/* ============ EL INGRESO · set piece: "la cabina se desbloquea"
+   No es un formulario: es el acceso a un sistema. El sello central gira
+   de óxido (cerrado) a cyan (concedido) cuando el OTP entra.
    QA: ?estado=idle|codigo|invalido|abriendo · ?qa=0..1
    ============================================================= */
 body{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:74px 22px 40px;overflow-x:clip}
@@ -80,7 +80,7 @@ body{min-height:100dvh;display:flex;align-items:center;justify-content:center;pa
 
 <div class="apphud" id="hud">
   <span class="chip">Datemaxxer · Acceso</span>
-  <div class="fase"><b id="faseTxt">EXPEDIENTE CERRADO</b><small id="faseSub">identidad sin verificar</small></div>
+  <div class="fase"><b id="faseTxt">ACCESO CERRADO</b><small id="faseSub">identidad sin verificar</small></div>
   <div class="progress"><i id="hudBar"></i></div>
 </div>
 
@@ -89,7 +89,7 @@ body{min-height:100dvh;display:flex;align-items:center;justify-content:center;pa
     <span class="cuerda"></span>
     <div class="sello">
       <svg viewBox="0 0 140 140" id="selloSvg">
-        <!-- doble anillo del sello lacrado -->
+        <!-- doble anillo del sello -->
         <circle id="ringOut" cx="70" cy="70" r="60" fill="none" stroke="#8F2B22" stroke-width="2.4"/>
         <circle id="ringIn" cx="70" cy="70" r="50" fill="none" stroke="#8F2B22" stroke-width="1.4" stroke-dasharray="2 6"/>
         <!-- texto circular grabado (arcos + ticks) -->
@@ -97,7 +97,7 @@ body{min-height:100dvh;display:flex;align-items:center;justify-content:center;pa
           <path d="M70 16 A54 54 0 0 1 124 70" fill="none" stroke-dasharray="1.5 5.5"/>
           <path d="M70 124 A54 54 0 0 1 16 70" fill="none" stroke-dasharray="1.5 5.5"/>
         </g>
-        <!-- emblema central: candado forense que se vuelve check -->
+        <!-- emblema central: candado que se vuelve check -->
         <g id="emblema" transform="translate(70 70)">
           <g id="lockBody">
             <rect x="-16" y="-6" width="32" height="26" rx="4" fill="none" stroke="#C94B32" stroke-width="2.6"/>
@@ -112,8 +112,8 @@ body{min-height:100dvh;display:flex;align-items:center;justify-content:center;pa
   </div>
 
   <header class="head">
-    <p class="kicker k-ox" id="kick"><i></i><span id="kickTxt">Acceso al expediente</span></p>
-    <h1 class="display" id="title">Abre tu<br>expediente.</h1>
+    <p class="kicker k-ox" id="kick"><i></i><span id="kickTxt">Acceso al sistema</span></p>
+    <h1 class="display" id="title">Abre tu<br>cabina.</h1>
     <p id="lede">Tu auditoría queda guardada aquí, privada y bajo llave. Entra para abrirla cuando quieras.</p>
   </header>
 
@@ -146,7 +146,7 @@ body{min-height:100dvh;display:flex;align-items:center;justify-content:center;pa
     </div>
   </div>
 
-  <p class="foot">Al entrar aceptas los <a href="#">términos</a> y la <a href="#">privacidad</a>. Tus fotos son tuyas: puedes borrar el expediente cuando quieras.</p>
+  <p class="foot">Al entrar aceptas los <a href="#">términos</a> y la <a href="#">privacidad</a>. Tus fotos son tuyas: puedes borrar tu cuenta cuando quieras.</p>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
@@ -165,7 +165,7 @@ function showPaso(id){
 function setHud(main, sub){ $('#faseTxt').textContent=main; if(sub!==undefined)$('#faseSub').textContent=sub; }
 
 /* ---- paso email → código ---- */
-$('#gbtn').addEventListener('click', ()=> abrirExpediente('google'));
+$('#gbtn').addEventListener('click', ()=> abrirCabina('google'));
 $('#sendCode').addEventListener('click', irACodigo);
 $('#email').addEventListener('keydown', e=>{ if(e.key==='Enter') irACodigo(); });
 
@@ -214,8 +214,8 @@ function validar(){
   if(val===CODE){
     otpBox.classList.remove('bad'); otpBox.classList.add('good');
     otpMsg.className='otp-msg ok'; otpMsg.textContent='Identidad verificada';
-    setHud('IDENTIDAD VERIFICADA','abriendo expediente');
-    abrirExpediente('otp');
+    setHud('IDENTIDAD VERIFICADA','abriendo cabina');
+    abrirCabina('otp');
   } else {
     otpBox.classList.add('bad');
     otpMsg.className='otp-msg err'; otpMsg.textContent='Código incorrecto · revisa los 6 dígitos';
@@ -226,19 +226,19 @@ function validar(){
 
 $('#resend').addEventListener('click', ()=>{ otpMsg.className='otp-msg'; otpMsg.textContent='Código reenviado'; });
 $('#changeMail').addEventListener('click', ()=>{
-  showPaso('#pMetodo'); setHud('EXPEDIENTE CERRADO','identidad sin verificar');
-  $('#kickTxt').textContent='Acceso al expediente';
-  $('#title').innerHTML='Abrí tu<br>expediente.';
-  $('#lede').textContent='Tu auditoría queda guardada acá, privada y bajo llave. Entrá para abrirla cuando quieras.';
+  showPaso('#pMetodo'); setHud('ACCESO CERRADO','identidad sin verificar');
+  $('#kickTxt').textContent='Acceso al sistema';
+  $('#title').innerHTML='Abre tu<br>cabina.';
+  $('#lede').textContent='Tu auditoría queda guardada aquí, privada y bajo llave. Entra para abrirla cuando quieras.';
   hudProgress(0,false);
   otp.forEach(x=>{x.value='';x.classList.remove('filled');}); otpBox.className='otp';
 });
 
-/* ---- apertura del expediente: el sello gira óxido → cyan ---- */
-function abrirExpediente(via){
+/* ---- la cabina se desbloquea: el sello gira óxido → cyan ---- */
+function abrirCabina(via){
   hudProgress(1,true);
   document.querySelector('.kicker').classList.remove('k-ox');
-  $('#kickTxt').textContent='Expediente abierto';
+  $('#kickTxt').textContent='Acceso concedido';
   const go = ()=> telonHacia('mesa.html');
   if(QA){ pintarSelloAbierto(); return; }
 
@@ -273,11 +273,11 @@ function pintarSelloAbierto(){
     setHud('CÓDIGO INVÁLIDO','vuelve a intentar');
   } else if(estado==='abriendo'){
     document.querySelector('.kicker').classList.remove('k-ox');
-    $('#kickTxt').textContent='Expediente abierto';
-    $('#title').innerHTML='Abriendo tu<br>expediente.';
-    $('#lede').textContent='Identidad verificada. Te llevamos a la mesa.';
+    $('#kickTxt').textContent='Acceso concedido';
+    $('#title').innerHTML='Abriendo tu<br>cabina.';
+    $('#lede').textContent='Identidad verificada. Te llevamos al checklist.';
     document.querySelectorAll('.paso').forEach(p=>p.classList.remove('on'));
-    setHud('EXPEDIENTE ABIERTO','identidad verificada');
+    setHud('ACCESO CONCEDIDO','identidad verificada');
     hudProgress(1,true); pintarSelloAbierto();
   }
 })();

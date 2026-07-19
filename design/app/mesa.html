@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Datemaxxer · La mesa de evidencia</title>
+<title>Datemaxxer · El checklist</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 <style>
-/* ============ LA MESA DE EVIDENCIA · set piece: "el depósito de pruebas"
-   Depositás tus fotos en la mesa forense: cada una cae, se asienta con su
-   inclinación y se estampa como prueba numerada (FOTO 0N). El marco es la
-   carpeta del expediente (esquineros + borde punteado).
+/* ============ EL CHECKLIST · set piece: "el checklist pre-vuelo"
+   Depositas tus fotos en el panel: cada una cae, se asienta con su
+   inclinación y se estampa como ítem numerado (FOTO 0N). El marco es el
+   panel del instrumento (esquineros + borde punteado).
    QA: ?estado=vacia|lista|error · ?err=cantidad|peso|formato · ?qa=0..1
    ============================================================= */
 body{min-height:100dvh;padding:74px 0 128px;overflow-x:clip}
@@ -24,13 +24,13 @@ body{min-height:100dvh;padding:74px 0 128px;overflow-x:clip}
 .head h1{font-size:clamp(1.9rem,7vw,2.7rem)}
 .head p.sub{margin-top:.7rem;color:var(--ink-mute);font-weight:500;font-size:clamp(.92rem,2.4vw,1.02rem);max-width:30em;line-height:1.5}
 
-/* ---- el marco del expediente ---- */
+/* ---- el marco del panel ---- */
 .expediente{position:relative;padding:20px;margin-bottom:2.4rem}
 .expediente .marco{position:absolute;inset:0;pointer-events:none;overflow:visible}
 .expediente .marco line{stroke:var(--line);stroke-width:1.4;stroke-dasharray:2 7;stroke-linecap:round}
 .expediente .marco path{stroke:var(--steel);stroke-width:2;fill:none;stroke-linecap:round}
 
-/* barra de conteo del expediente */
+/* barra de conteo del panel */
 .tallybar{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:1rem;padding:0 2px}
 .tallybar .n{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.22em;color:var(--ink);text-transform:uppercase;font-variant-numeric:tabular-nums}
 .tallybar .n b{color:var(--sodium);font-weight:500}
@@ -40,7 +40,7 @@ body{min-height:100dvh;padding:74px 0 128px;overflow-x:clip}
 .tallybar .pips span.on{background:var(--sodium)}
 .tallybar .pips.ok span.on{background:var(--signal)}
 
-/* ---- grilla de pruebas ---- */
+/* ---- grilla de fotos ---- */
 .evgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:14px}
 .ev{position:relative;aspect-ratio:3/4;border-radius:6px;overflow:hidden;background:var(--surface-2);border:1px solid var(--line);cursor:default;will-change:transform}
 .ev .viz{position:absolute;inset:0}
@@ -92,7 +92,7 @@ body{min-height:100dvh;padding:74px 0 128px;overflow-x:clip}
 .aviso p{color:var(--ink);font-size:.9rem;font-weight:500;line-height:1.5}
 .aviso p b{color:var(--oxide);font-weight:600}
 
-/* ---- contexto del expediente ---- */
+/* ---- contexto del panel ---- */
 .ctx{display:flex;flex-direction:column;gap:2.2rem}
 .field > .lab{display:flex;align-items:baseline;gap:.7rem;margin-bottom:.8rem}
 .field > .lab .k{font-family:'Inter Tight';font-weight:700;font-size:1.08rem;color:var(--ink)}
@@ -149,15 +149,15 @@ textarea::placeholder{color:var(--steel)}
 <div class="telon cubierto"></div>
 
 <div class="apphud" id="hud">
-  <span class="chip">Datemaxxer · Expediente 001</span>
-  <div class="fase"><b id="faseTxt">ARMANDO EXPEDIENTE</b><small id="faseSub">0 de 9 pruebas</small></div>
+  <span class="chip">Datemaxxer · Vuelo 001</span>
+  <div class="fase"><b id="faseTxt">CALIBRANDO INSTRUMENTOS</b><small id="faseSub">0 de 9 fotos</small></div>
   <div class="progress"><i id="hudBar"></i></div>
 </div>
 
 <main class="wrap">
   <header class="head">
-    <p class="kicker k-ox"><i></i>Reúne la evidencia</p>
-    <h1 class="display">La mesa de<br>evidencia.</h1>
+    <p class="kicker k-ox"><i></i>Prepara tu checklist</p>
+    <h1 class="display">El checklist<br>pre-vuelo.</h1>
     <p class="sub">Deposita entre 4 y 9 fotos, las mismas que tienes en las apps. Las vamos a leer como las lee el algoritmo, y como las lee ella en 200 milisegundos.</p>
   </header>
 
@@ -165,7 +165,7 @@ textarea::placeholder{color:var(--steel)}
     <svg class="marco" id="marco" preserveAspectRatio="none"></svg>
 
     <div class="tallybar" id="tallybar" hidden>
-      <div class="n" id="tallyN"><b>0</b> de 9 pruebas · mínimo 4</div>
+      <div class="n" id="tallyN"><b>0</b> de 9 fotos · mínimo 4</div>
       <div class="pips" id="pips"></div>
     </div>
 
@@ -178,10 +178,10 @@ textarea::placeholder{color:var(--steel)}
         <path d="M24 12 L24 3 M24 3 L20 7 M24 3 L28 7" stroke-dasharray="0"/>
       </svg>
       <h3>Deposita tus fotos aquí</h3>
-      <p>Arrástralas a la mesa o <span class="pick">elígelas desde tu teléfono</span>. Entre 4 y 9, formato JPG o PNG, hasta 12&nbsp;MB cada una.</p>
+      <p>Arrástralas aquí o <span class="pick">elígelas desde tu teléfono</span>. Entre 4 y 9, formato JPG o PNG, hasta 12&nbsp;MB cada una.</p>
     </div>
 
-    <!-- grilla de pruebas (poblada) -->
+    <!-- grilla de fotos (poblada) -->
     <div class="evgrid" id="evgrid" hidden></div>
 
     <div class="aviso" id="aviso">
@@ -221,7 +221,7 @@ textarea::placeholder{color:var(--steel)}
 
 <div class="ctabar">
   <div class="inner">
-    <div class="count" id="count"><b>0</b> / 9 pruebas<small id="countSub">te faltan 4 para empezar</small></div>
+    <div class="count" id="count"><b>0</b> / 9 fotos<small id="countSub">te faltan 4 para empezar</small></div>
     <button class="btn" id="go" disabled>Iniciar auditoría</button>
   </div>
 </div>
@@ -253,7 +253,7 @@ const empty = $('#empty'), evgrid = $('#evgrid'), tallybar = $('#tallybar');
 const fileInput = $('#file'), aviso = $('#aviso'), avisoTxt = $('#avisoTxt');
 const goBtn = $('#go');
 
-/* ===================== marco del expediente (SVG) ===================== */
+/* ===================== marco del panel (SVG) ===================== */
 function drawMarco(){
   const svg = $('#marco'); svg.innerHTML='';
   const w = svg.clientWidth || svg.parentElement.clientWidth, h = svg.clientHeight || svg.parentElement.clientHeight;
@@ -269,7 +269,7 @@ function drawMarco(){
   mk('path',{d:`M${w-c} ${h-2} L${w-2} ${h-2} L${w-2} ${h-c}`},svg);
 }
 
-/* ===================== render de una prueba ===================== */
+/* ===================== render de una foto ===================== */
 function siluetaSVG(idx){
   const d = DEMO[idx % DEMO.length];
   return `<svg viewBox="0 0 120 160" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%">
@@ -307,7 +307,7 @@ function renderTile(p, i){
 function renderAddTile(){
   const el = document.createElement('button');
   el.className = 'addtile'; el.id='addtile';
-  el.innerHTML = `<svg class="plus" viewBox="0 0 48 48"><line x1="24" y1="12" x2="24" y2="36"/><line x1="12" y1="24" x2="36" y2="24"/></svg><span>Agregar prueba</span>`;
+  el.innerHTML = `<svg class="plus" viewBox="0 0 48 48"><line x1="24" y1="12" x2="24" y2="36"/><line x1="12" y1="24" x2="36" y2="24"/></svg><span>Agregar foto</span>`;
   el.addEventListener('click', ()=> fileInput.click());
   return el;
 }
@@ -327,7 +327,7 @@ function paint(animateNew){
   if (n < MAX) evgrid.appendChild(renderAddTile());
 
   // tally
-  $('#tallyN').innerHTML = `<b>${n}</b> de ${MAX} pruebas · mínimo ${MIN}`;
+  $('#tallyN').innerHTML = `<b>${n}</b> de ${MAX} fotos · mínimo ${MIN}`;
   $('#tallyN').classList.toggle('ok', n>=MIN);
   const pips = $('#pips'); pips.innerHTML=''; pips.classList.toggle('ok', n>=MIN);
   for(let i=0;i<MAX;i++){ const s=document.createElement('span'); if(i<n)s.classList.add('on'); pips.appendChild(s); }
@@ -335,13 +335,13 @@ function paint(animateNew){
   // CTA + HUD
   goBtn.disabled = n < MIN;
   const faltan = MIN - n;
-  $('#count').innerHTML = `<b>${n}</b> / ${MAX} pruebas<small id="countSub">${n<MIN?`te falta${faltan>1?'n':''} ${faltan} para empezar`:'listo para auditar'}</small>`;
-  $('#faseSub').textContent = `${n} de ${MAX} pruebas`;
+  $('#count').innerHTML = `<b>${n}</b> / ${MAX} fotos<small id="countSub">${n<MIN?`te falta${faltan>1?'n':''} ${faltan} para empezar`:'listo para auditar'}</small>`;
+  $('#faseSub').textContent = `${n} de ${MAX} fotos`;
   hudProgress(Math.min(n/MIN,1), n>=MIN);
   $('#hud').classList.toggle('fase-cyan', n>=MIN);
 
   bindTileActs();
-  requestAnimationFrame(drawMarco); // el marco se ajusta al alto real del expediente
+  requestAnimationFrame(drawMarco); // el marco se ajusta al alto real del panel
 
   // animación de "caída a la mesa" para la última prueba agregada
   if (animateNew && !QA && has){
@@ -371,10 +371,10 @@ function addFiles(files){
   const imgs = [...files];
   // cantidad
   if (state.pruebas.length + imgs.length > MAX){
-    return showAviso(`Son <b>${MAX} pruebas como máximo</b>. Ya tienes ${state.pruebas.length}: elige las mejores, no todas.`);
+    return showAviso(`Son <b>${MAX} fotos como máximo</b>. Ya tienes ${state.pruebas.length}: elige las mejores, no todas.`);
   }
   for (const f of imgs){
-    if (!/image\/(jpeg|png)/.test(f.type)) return showAviso(`<b>${f.name||'Ese archivo'}</b> no es JPG ni PNG. La mesa solo admite fotos.`);
+    if (!/image\/(jpeg|png)/.test(f.type)) return showAviso(`<b>${f.name||'Ese archivo'}</b> no es JPG ni PNG. El checklist solo admite fotos.`);
     if (f.size > 12*1024*1024) return showAviso(`<b>${f.name||'Una foto'}</b> pesa más de 12&nbsp;MB. Bájale el tamaño y vuelve a intentar.`);
   }
   imgs.forEach(f=>{
@@ -449,10 +449,10 @@ $('#regsel').querySelectorAll('.reg').forEach(b=>{
 goBtn.addEventListener('click', ()=>{
   if (state.pruebas.length < MIN) return;
   const destino = 'escaner.html?fotos='+state.pruebas.length;
-  /* ?net=1: simula una caída de conexión justo al enviar el expediente
+  /* ?net=1: simula una caída de conexión justo al enviar el checklist
      (demo de netError() en el punto donde más importa: el submit) */
   if (qsParam('net') === '1'){
-    netError('No pudimos enviar tu expediente. Revisa tu conexión y vuelve a intentar.', {
+    netError('No pudimos enviar tu checklist. Revisa tu conexión y vuelve a intentar.', {
       onRetry: ()=> telonHacia(destino),
     });
     return;
@@ -481,8 +481,8 @@ function loadDemo(count){
     paint(false);
     const err = qsParam('err')||'cantidad';
     if(err==='peso') showAviso(`<b>foto-gym-4.jpg</b> pesa más de 12&nbsp;MB. Bájale el tamaño y vuelve a intentar.`);
-    else if(err==='formato') showAviso(`<b>captura.heic</b> no es JPG ni PNG. La mesa solo admite fotos.`);
-    else showAviso(`Son <b>${MAX} pruebas como máximo</b>. Ya tienes 3: elige las mejores, no todas.`);
+    else if(err==='formato') showAviso(`<b>captura.heic</b> no es JPG ni PNG. El checklist solo admite fotos.`);
+    else showAviso(`Son <b>${MAX} fotos como máximo</b>. Ya tienes 3: elige las mejores, no todas.`);
   } else {
     paint(false);
   }

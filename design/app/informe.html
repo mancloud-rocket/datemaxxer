@@ -9,7 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 <style>
-/* ============ EL INFORME · set piece: "el estampado del veredicto" ====
+/* ============ EL INFORME · set piece: "la lectura se fija" ====
    La aguja barre y se clava → el sello del arquetipo se estampa → la
    lectura se subraya en óxido → lo pago queda cosido con sutura.
    QA: ?estado=done|error|limite · ?qa=1 (estado final instantáneo) ==== */
@@ -52,7 +52,7 @@ body{padding:5.5rem 0 4rem}
   background-size:calc(var(--w,0)*1%) 3px;
   padding-bottom:5px;box-decoration-break:slice;-webkit-box-decoration-break:slice}
 
-/* fichas selladas (teaser) */
+/* fichas bloqueadas (teaser del Kit) */
 .sellado{position:relative;overflow:hidden}
 .sellado .contenido{filter:blur(5px) saturate(.55);opacity:.5;pointer-events:none}
 .sellado .contenido svg{width:100%;height:auto}
@@ -87,15 +87,15 @@ body{padding:5.5rem 0 4rem}
 <div class="telon cubierto"></div>
 
 <div class="apphud">
-  <span class="chip">Datemaxxer · Expediente 001</span>
-  <div class="fase"><b id="faseTxt">VEREDICTO LISTO</b><small id="faseSub">informe completo</small></div>
+  <span class="chip">Datemaxxer · Vuelo 001</span>
+  <div class="fase"><b id="faseTxt">LECTURA LISTA</b><small id="faseSub">informe completo</small></div>
   <div class="progress"><i id="hudBar"></i></div>
 </div>
 
 <main class="doc" id="doc">
   <header class="doc-head" id="dochead">
-    <p class="kicker"><i></i>Tu expediente está completo</p>
-    <h1 class="display">El veredicto<br>de tu perfil.</h1>
+    <p class="kicker"><i></i>Tu lectura está completa</p>
+    <h1 class="display">El diagnóstico<br>de tu perfil.</h1>
     <div class="caso"><span class="selloe s-cy">AUD-2026-0718 · 6 FOTOS + BIO</span></div>
   </header>
 
@@ -175,7 +175,7 @@ body{padding:5.5rem 0 4rem}
     </div>
     <div class="velo">
       <svg class="sutura" preserveAspectRatio="none"></svg>
-      <span class="selloe s-cy">Sellado</span>
+      <span class="selloe s-cy">Bloqueado</span>
       <div class="queHay">La lectura foto por foto de tus 6 fotos<small>qué dice cada una y qué la traiciona</small></div>
     </div>
   </section>
@@ -198,7 +198,7 @@ body{padding:5.5rem 0 4rem}
     </div>
     <div class="velo">
       <svg class="sutura" preserveAspectRatio="none"></svg>
-      <span class="selloe s-cy">Sellado</span>
+      <span class="selloe s-cy">Bloqueado</span>
       <div class="queHay">Tu plan de fotos completo<small>cuáles conservar, cuáles reemplazar y el orden que convierte</small></div>
     </div>
   </section>
@@ -218,14 +218,14 @@ body{padding:5.5rem 0 4rem}
     </div>
     <div class="velo">
       <svg class="sutura" preserveAspectRatio="none"></svg>
-      <span class="selloe s-cy">Sellado</span>
+      <span class="selloe s-cy">Bloqueado</span>
       <div class="queHay">Quick wins + tu plan contra el objetivo<small>lo accionable, ordenado por impacto</small></div>
     </div>
   </section>
 
   <!-- 5 · desbloqueo -->
   <section class="unlock" id="unlock">
-    <h2 class="display">Abre el expediente<br>completo.</h2>
+    <h2 class="display">Desbloquea el<br>panel completo.</h2>
     <div class="precio">Kit · US$ 19 <small>una sola vez</small></div>
     <a class="btn" href="#" onclick="return false">Desbloquear con el Kit</a>
     <p class="micro">Garantía de 30 días: si tu match rate no mejora, te devolvemos el dinero.</p>
@@ -236,17 +236,17 @@ body{padding:5.5rem 0 4rem}
 <div class="estado-box" id="boxError">
   <span class="selloe">Error de lectura</span>
   <h1 class="display">El informe no llegó<br>a imprimirse.</h1>
-  <p>Algo se cortó al sintetizar tu veredicto. Tu cupo gratuito sigue intacto: los errores no lo queman.</p>
+  <p>Algo se cortó al procesar tu diagnóstico. Tu cupo gratuito sigue intacto: los errores no lo queman.</p>
   <div>
     <a class="btn" href="escaner.html?estado=analizando">Reintentar el análisis</a>
-    <a class="btn btn-ghost" href="mesa.html">Volver a la mesa</a>
+    <a class="btn btn-ghost" href="mesa.html">Volver al checklist</a>
   </div>
 </div>
 
 <!-- estado: límite (upsell) -->
 <div class="estado-box" id="boxLimite">
   <span class="selloe">Cupo gratuito usado</span>
-  <h1 class="display">Tu primera auditoría<br>ya está en el expediente.</h1>
+  <h1 class="display">Tu primera auditoría<br>ya quedó registrada.</h1>
   <p>La auditoría gratis es una sola por cuenta. Para volver a auditarte después de mejorar tu perfil, y desbloquear el plan completo de fotos, el Kit te cubre: incluye re-chequeo a los 30 días.</p>
   <div>
     <a class="btn" href="#" onclick="return false">Pasar al Kit · US$ 19</a>
@@ -329,7 +329,7 @@ telonEntrada();
     return;
   }
 
-  /* ---------- la secuencia causal del veredicto ---------- */
+  /* ---------- la secuencia causal de la lectura ---------- */
   hudProgress(1, true);
   const tl = gsap.timeline({ paused: QA });
 

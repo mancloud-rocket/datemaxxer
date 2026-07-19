@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Datemaxxer · Analizando tu evidencia</title>
+<title>Datemaxxer · Leyendo tus señales</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="shared.css">
 <style>
-/* ============ EL ESCÁNER · set piece: "la mesa de luz" ============
-   El negativo con tus fotos avanza a través de un cabezal fijo de
-   escaneo. QA: ?estado=analizando|sintetizando|error · ?fotos=4..9
-   · ?qa=0..1 (progreso determinístico del guion) ============ */
+/* ============ EL ESCÁNER · set piece: "la cinta de vuelo" ============
+   La cinta con tus fotos avanza a través de un cabezal fijo de lectura,
+   como la cinta de un registrador de vuelo. QA: ?estado=analizando|
+   sintetizando|error · ?fotos=4..9 · ?qa=0..1 (progreso determinístico) ============ */
 /* el padding reserva la franja del HUD: nada puede montarse sobre el chip/fase */
 body{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;overflow:hidden;padding:64px 0 28px}
 
@@ -41,8 +41,9 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:cente
 .sintesis{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden}
 .sintesis svg{width:min(300px,74vw);overflow:visible}
 
-/* error */
-.errbox{position:relative;z-index:6;text-align:center;margin-top:1.6rem;opacity:0;visibility:hidden}
+/* error: display:none en reposo - visibility:hidden por sí solo reserva altura en
+   el flujo del flex y descentra verticalmente todo lo demás (gotcha real, GUIA-VISUAL §9) */
+.errbox{position:relative;z-index:6;text-align:center;margin-top:1.6rem;opacity:0;visibility:hidden;display:none}
 .errbox .selloe{font-size:.8rem;margin-bottom:1.1rem}
 .errbox p{color:var(--ink-mute);max-width:26em;margin:0 auto 1.4rem;line-height:1.55}
 .errbox .btn{margin:0 .4rem .6rem}
@@ -59,6 +60,13 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:cente
 @media (min-width:700px){
   .mesa{width:380px}
 }
+/* cariño de desktop ancho: el instrumento no se queda en su tamaño mobile con el
+   sobrante de pantalla vacío alrededor - crece de verdad y el ritmo respira más */
+@media (min-width:1100px){
+  .mesa{width:460px;height:min(56dvh,560px)}
+  .head{margin-bottom:3rem}
+  .status{margin-top:3rem}
+}
 </style>
 </head>
 <body>
@@ -68,13 +76,13 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:cente
 <div class="telon cubierto"></div>
 
 <div class="apphud" id="hud">
-  <span class="chip">Datemaxxer · Expediente 001</span>
-  <div class="fase"><b id="faseTxt">PREPARANDO MESA DE LUZ</b><small id="faseSub">evidencia recibida</small></div>
+  <span class="chip">Datemaxxer · Vuelo 001</span>
+  <div class="fase"><b id="faseTxt">ENCENDIENDO EL PANEL</b><small id="faseSub">señales recibidas</small></div>
   <div class="progress"><i id="hudBar"></i></div>
 </div>
 
 <header class="head" id="head">
-  <p class="kicker"><i></i>Tu evidencia está en la mesa</p>
+  <p class="kicker"><i></i>Tus señales están en lectura</p>
   <h1 class="display">Leyendo tu perfil como<br>lo lee el algoritmo.</h1>
   <p class="eta" id="eta">Esto toma entre 25 y 60 segundos. Vale cada uno.</p>
 </header>
@@ -147,7 +155,7 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:cente
 </div>
 
 <div class="status" id="status">
-  <div class="mono" id="statusTxt">EVIDENCIA EN COLA</div>
+  <div class="mono" id="statusTxt">SEÑALES EN COLA</div>
   <div class="sub" id="statusSub">no cierres esta pantalla</div>
 </div>
 
@@ -155,7 +163,7 @@ body{display:flex;flex-direction:column;align-items:center;justify-content:cente
   <span class="selloe">Error de lectura</span>
   <p>Algo se cortó a mitad del análisis. Tu cupo gratuito sigue intacto: los errores no lo queman.</p>
   <button class="btn" onclick="location.search='?estado=analizando'">Reintentar el análisis</button>
-  <a class="btn btn-ghost" href="mesa.html">Volver a la mesa</a>
+  <a class="btn btn-ghost" href="mesa.html">Volver al checklist</a>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
@@ -206,7 +214,7 @@ telonEntrada();
     wrap.className = 'frame';
     const svg = mk('svg', { viewBox: '0 0 300 210' });
     wrap.appendChild(svg);
-    /* capa material: cartón del negativo + perforaciones de película */
+    /* capa material: cartón de la cinta + perforaciones de arrastre */
     mk('rect', { x: 0, y: 0, width: 300, height: 210, rx: 8, fill: '#151A22', stroke: '#262C36', 'stroke-width': 1.5 }, svg);
     for (let k = 0; k < 4; k++) {
       mk('rect', { x: 7, y: 18 + k * 48, width: 11, height: 17, rx: 3, fill: '#0D1117', stroke: '#242D38', 'stroke-width': 1.2 }, svg);
@@ -243,10 +251,10 @@ telonEntrada();
     const co2 = mk('g', { class: 'co' }, an);
     mk('line', { x1: 126, y1: cy0 + 14, x2: 84, y2: cy0 + 40, stroke: '#4FD9C2', 'stroke-width': 1.2 }, co2);
     mk('text', { x: 40, y: cy0 + 54, 'font-family': 'IBM Plex Mono,monospace', 'font-size': 11, fill: '#E6E9ED', class: 'coTxt' }, co2).textContent = `FONDO ${22 + (i * 29) % 55}`;
-    /* sello LEÍDA con tilde dibujada */
+    /* sello LISTA con tilde dibujada (confirmación de instrumento, no evidencia sellada) */
     const sello = mk('g', { class: 'leida', opacity: 0, transform: 'rotate(-4 236 30)' }, svg);
     mk('rect', { x: 200, y: 17, width: 72, height: 26, rx: 3, fill: 'rgba(16,19,24,.72)', stroke: '#4FD9C2', 'stroke-width': 1.6 }, sello);
-    mk('text', { x: 228, y: 34, 'text-anchor': 'middle', 'font-family': 'IBM Plex Mono,monospace', 'font-size': 11, 'letter-spacing': 2, fill: '#4FD9C2' }, sello).textContent = 'LEÍDA';
+    mk('text', { x: 228, y: 34, 'text-anchor': 'middle', 'font-family': 'IBM Plex Mono,monospace', 'font-size': 11, 'letter-spacing': 2, fill: '#4FD9C2' }, sello).textContent = 'LISTA';
     mk('path', { class: 'tilde', d: 'M255 30 L260 35 L268 23', fill: 'none', stroke: '#4FD9C2', 'stroke-width': 2.4, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, sello);
     return wrap;
   }
@@ -303,7 +311,7 @@ telonEntrada();
   [-7, 0, 7].forEach((rot, k) => {
     mk('rect', { x: 120, y: 208, width: 80, height: 54, rx: 4, fill: '#151A22', stroke: '#262C36', 'stroke-width': 1.4, transform: `rotate(${rot} 160 235)`, opacity: .85 - k * .18 }, stackG);
   });
-  mk('text', { x: 160, y: 296, 'text-anchor': 'middle', 'font-family': 'IBM Plex Mono,monospace', 'font-size': 11, 'letter-spacing': 3, fill: '#8C96A3' }, stackG).textContent = `${N} PRUEBAS EN CUSTODIA`;
+  mk('text', { x: 160, y: 296, 'text-anchor': 'middle', 'font-family': 'IBM Plex Mono,monospace', 'font-size': 11, 'letter-spacing': 3, fill: '#8C96A3' }, stackG).textContent = `${N} SEÑALES PROCESADAS`;
 
   /* ---------- el guion (master timeline determinística) ---------- */
   const tl = gsap.timeline({ paused: QA !== null });
@@ -318,7 +326,7 @@ telonEntrada();
     .to('#rail', { autoAlpha: 1, duration: .4 }, .5)
     .to('#cabezal', { x: 0, autoAlpha: 1, duration: .7, ease: 'back.out(1.4)' }, .55)
     .to('#status', { autoAlpha: 1, y: 0, duration: .5, ease: 'power2.out' }, .7)
-    .call(() => { decode(faseTxt, 'ANALIZANDO EVIDENCIA'); decode(statusTxt, 'EL CABEZAL ESTÁ CALIENTE'); }, null, .9);
+    .call(() => { decode(faseTxt, 'LEYENDO SEÑALES'); decode(statusTxt, 'EL CABEZAL ESTÁ CALIENTE'); }, null, .9);
 
   /* cada foto pasa por el cabezal */
   frames.forEach((f, i) => {
@@ -342,11 +350,11 @@ telonEntrada();
 
   /* salida coreografiada (§4.2) + fase síntesis */
   const tSal = 1.3 + N * 1.75 + .3;
-  tl.call(() => { decode(faseTxt, 'SINTETIZANDO VEREDICTO'); document.getElementById('faseSub').textContent = 'cruzando señales'; hudProgress(.86, true); decode(statusTxt, 'CRUZANDO SEÑALES CONTRA 294M DE SWIPES'); statusSub.textContent = '10 a 30 segundos · no cierres la pantalla'; }, null, tSal)
+  tl.call(() => { decode(faseTxt, 'PROCESANDO TU LECTURA'); document.getElementById('faseSub').textContent = 'cruzando señales'; hudProgress(.86, true); decode(statusTxt, 'CRUZANDO SEÑALES CONTRA 294M DE SWIPES'); statusSub.textContent = '10 a 30 segundos · no cierres la pantalla'; }, null, tSal)
     .to(frames, { x: -110, rotation: -4, autoAlpha: 0, duration: .5, stagger: .05, ease: 'power2.in' }, tSal)
     .to(['#cabezal', '#rail'], { x: 90, autoAlpha: 0, duration: .5, ease: 'power2.in' }, tSal + .15)
     .to('#head h1', { autoAlpha: 0, y: -18, duration: .4, ease: 'power2.in' }, tSal + .1)
-    .call(() => { document.querySelector('#head h1').innerHTML = 'Cruzando tus señales<br>contra el mercado.'; document.getElementById('eta').textContent = 'La IA está armando tu veredicto. Diez a treinta segundos.'; }, null, tSal + .55)
+    .call(() => { document.querySelector('#head h1').innerHTML = 'Cruzando tus señales<br>contra el mercado.'; document.getElementById('eta').textContent = 'La IA está armando tu diagnóstico. Diez a treinta segundos.'; }, null, tSal + .55)
     .to('#head h1', { autoAlpha: 1, y: 0, duration: .5, ease: 'power2.out' }, tSal + .6)
     .set('#sintesis', { visibility: 'visible' }, tSal + .55)
     .fromTo('#sintesis', { autoAlpha: 0, scale: .85 }, { autoAlpha: 1, scale: 1, duration: .7, ease: 'power2.out' }, tSal + .6)
@@ -364,16 +372,16 @@ telonEntrada();
   /* labels determinísticos por fase: los seek/progress de QA suprimen las calls */
   function labelsAt(t) {
     if (t >= tSal) {
-      faseTxt.textContent = 'SINTETIZANDO VEREDICTO';
+      faseTxt.textContent = 'PROCESANDO TU LECTURA';
       document.getElementById('faseSub').textContent = 'cruzando señales';
       statusTxt.textContent = 'CRUZANDO SEÑALES CONTRA 294M DE SWIPES';
       statusSub.textContent = '10 a 30 segundos · no cierres la pantalla';
       document.querySelector('#head h1').innerHTML = 'Cruzando tus señales<br>contra el mercado.';
-      document.getElementById('eta').textContent = 'La IA está armando tu veredicto. Diez a treinta segundos.';
+      document.getElementById('eta').textContent = 'La IA está armando tu diagnóstico. Diez a treinta segundos.';
       hudProgress(.86, true);
     } else if (t >= 1.3) {
       const i = Math.min(N - 1, Math.floor((t - 1.3) / 1.75));
-      faseTxt.textContent = 'ANALIZANDO EVIDENCIA';
+      faseTxt.textContent = 'LEYENDO SEÑALES';
       document.getElementById('faseSub').textContent = `foto ${i + 1} de ${N}`;
       statusTxt.textContent = 'EL CABEZAL ESTÁ CALIENTE';
       hudProgress(((i + 1) / N) * .68, false);
@@ -395,12 +403,12 @@ telonEntrada();
       /* QA estático: escena de error ya asentada */
       gsap.set('#mesa', { autoAlpha: .28, filter: 'saturate(.4)' });
       gsap.set(['#head', '#status'], { autoAlpha: 0 });
-      gsap.set('#errbox', { visibility: 'visible', autoAlpha: 1, y: 0 });
+      gsap.set('#errbox', { display: 'block', visibility: 'visible', autoAlpha: 1, y: 0 });
     } else {
       gsap.to('#mesa', { x: 6, duration: .06, yoyo: true, repeat: 5 });
       gsap.to('#mesa', { autoAlpha: .28, filter: 'saturate(.4)', duration: .5, delay: .4 });
       gsap.to(['#head', '#status'], { autoAlpha: 0, y: -14, duration: .4, delay: .3 });
-      gsap.set('#errbox', { visibility: 'visible' });
+      gsap.set('#errbox', { display: 'block', visibility: 'visible' });
       gsap.fromTo('#errbox', { autoAlpha: 0, y: 26 }, { autoAlpha: 1, y: 0, duration: .6, delay: .6, ease: 'power2.out' });
       const sello = document.querySelector('#errbox .selloe');
       gsap.fromTo(sello, { scale: 1.8, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: .4, delay: .75, ease: 'power4.out' });
