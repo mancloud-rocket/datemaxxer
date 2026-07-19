@@ -1,0 +1,3 @@
+{
+  "buildCommand": "pnpm --filter @percentil/contracts build && pnpm --filter @percentil/web build"
+}

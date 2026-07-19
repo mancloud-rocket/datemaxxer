@@ -129,7 +129,7 @@ export function Mesa(props: {
     setAviso(null);
     const imgs = Array.from(list);
     if (pruebas.length + imgs.length > MAX) {
-      setAviso(`Son <b>${MAX} pruebas como máximo</b>. Ya tenés ${pruebas.length}: elegí las mejores, no todas.`);
+      setAviso(`Son <b>${MAX} pruebas como máximo</b>. Ya tienes ${pruebas.length}: elige las mejores, no todas.`);
       return;
     }
     for (const f of imgs) {
@@ -138,7 +138,7 @@ export function Mesa(props: {
         return;
       }
       if (f.size > 12 * 1024 * 1024) {
-        setAviso(`<b>${f.name || 'Una foto'}</b> pesa más de 12&nbsp;MB. Bajale el tamaño y volvé a intentar.`);
+        setAviso(`<b>${f.name || 'Una foto'}</b> pesa más de 12&nbsp;MB. Bájale el tamaño y vuelve a intentar.`);
         return;
       }
     }
@@ -195,10 +195,10 @@ export function Mesa(props: {
 
       <main className="wrap">
         <header className="head">
-          <p className="kicker k-ox"><i />Reuní la evidencia</p>
+          <p className="kicker k-ox"><i />Reúne la evidencia</p>
           <h1 className="display">La mesa de<br />evidencia.</h1>
           <p className="sub">
-            Depositá entre 4 y 9 fotos, las mismas que tenés en las apps. Las vamos a leer como las lee
+            Deposita entre 4 y 9 fotos, las mismas que tienes en las apps. Las vamos a leer como las lee
             el algoritmo, y como las lee ella en 200 milisegundos.
           </p>
         </header>
@@ -228,8 +228,8 @@ export function Mesa(props: {
                 <path d="M7 32 L17 23 L25 30 L33 22 L41 30" />
                 <circle cx="17" cy="21" r="2.4" />
               </svg>
-              <h3>Depositá tus fotos acá</h3>
-              <p>Arrastralas a la mesa o <span className="pick">elegilas desde tu teléfono</span>. Entre 4 y 9, formato JPG o PNG, hasta 12&nbsp;MB cada una.</p>
+              <h3>Deposita tus fotos aquí</h3>
+              <p>Arrástralas a la mesa o <span className="pick">elígelas desde tu teléfono</span>. Entre 4 y 9, formato JPG o PNG, hasta 12&nbsp;MB cada una.</p>
             </div>
           ) : (
             <div
@@ -289,18 +289,18 @@ export function Mesa(props: {
           <div className="field">
             <div className="lab"><span className="k">Tu bio, tal cual</span><span className="opt">Opcional</span></div>
             <p className="hint">Pegala sin retocar. Si dice una cosa y las fotos dicen otra, eso es un hallazgo.</p>
-            <textarea maxLength={500} placeholder="Pegá acá la bio que tenés hoy en la app…" value={bio} onChange={(e) => setBio(e.target.value)} />
+            <textarea maxLength={500} placeholder="Pega aquí la bio que tienes hoy en la app…" value={bio} onChange={(e) => setBio(e.target.value)} />
             <div className="counter">{bio.length} / 500</div>
           </div>
 
           <div className="field">
-            <div className="lab"><span className="k">¿Qué querés proyectar?</span><span className="opt">Opcional</span></div>
-            <p className="hint">Elegí un arquetipo objetivo y medimos la distancia entre lo que querés y lo que hoy transmitís.</p>
+            <div className="lab"><span className="k">¿Qué quieres proyectar?</span><span className="opt">Opcional</span></div>
+            <p className="hint">Elige un arquetipo objetivo y medimos la distancia entre lo que quieres y lo que hoy transmites.</p>
             <div className="glifsel" ref={glifselRef} />
           </div>
 
           <div className="field">
-            <div className="lab"><span className="k">¿Cómo hablás?</span></div>
+            <div className="lab"><span className="k">¿Cómo hablas?</span></div>
             <p className="hint">Ajustamos el registro del informe a tu región.</p>
             <div className="regsel">
               {REGIONES.map((r) => (

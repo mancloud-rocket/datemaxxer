@@ -50,7 +50,7 @@ export function Login() {
     setError(null);
     const { error: err } = await getSupabase().auth.signInWithOtp({ email });
     setCargando(false);
-    if (err) setError('No pudimos mandar el código. Revisá el mail e intentá de nuevo.');
+    if (err) setError('No pudimos mandar el código. Revisa el mail e intenta de nuevo.');
     else setPaso('codigo');
   }
 
@@ -86,7 +86,7 @@ export function Login() {
     setCargando(false);
     if (err) {
       setOtpEstado('bad');
-      setOtpMsg('Código incorrecto · revisá los 6 dígitos');
+      setOtpMsg('Código incorrecto · revisa los 6 dígitos');
       if (!REDUCED) {
         setTimeout(() => {
           setOtp(['', '', '', '', '', '']);
@@ -161,16 +161,16 @@ export function Login() {
         </div>
 
         <header className="head">
-          <p className={`kicker${abriendo ? '' : ' k-ox'}`}><i />{abriendo ? 'Expediente abierto' : paso === 'codigo' ? 'Revisá tu correo' : 'Acceso al expediente'}</p>
+          <p className={`kicker${abriendo ? '' : ' k-ox'}`}><i />{abriendo ? 'Expediente abierto' : paso === 'codigo' ? 'Revisa tu correo' : 'Acceso al expediente'}</p>
           <h1 className="display">
-            {abriendo ? <>Abriendo tu<br />expediente.</> : paso === 'codigo' ? <>Ingresá el<br />código.</> : <>Abrí tu<br />expediente.</>}
+            {abriendo ? <>Abriendo tu<br />expediente.</> : paso === 'codigo' ? <>Ingresa el<br />código.</> : <>Abre tu<br />expediente.</>}
           </h1>
           <p>
             {abriendo
               ? 'Identidad verificada. Te llevamos a la mesa.'
               : paso === 'codigo'
-                ? 'Seis dígitos, recién horneados. Si no aparece, mirá en spam.'
-                : 'Tu auditoría queda guardada acá, privada y bajo llave. Entrá para abrirla cuando quieras.'}
+                ? 'Seis dígitos, recién horneados. Si no aparece, mira en spam.'
+                : 'Tu auditoría queda guardada aquí, privada y bajo llave. Entra para abrirla cuando quieras.'}
           </p>
         </header>
 
@@ -231,7 +231,7 @@ export function Login() {
           </div>
         )}
 
-        <p className="foot">Al entrar aceptás los términos y la privacidad. Tus fotos son tuyas: podés borrar el expediente cuando quieras.</p>
+        <p className="foot">Al entrar aceptas los términos y la privacidad. Tus fotos son tuyas: puedes borrar el expediente cuando quieras.</p>
       </main>
     </div>
   );
