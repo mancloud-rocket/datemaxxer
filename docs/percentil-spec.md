@@ -441,3 +441,42 @@ KPIs de funnel: CTR video→landing >1.5%, landing→auditoría >25%, auditoría
 
 ## 12. Seed de CLAUDE.md (copiar a la raíz del repo)
 Ver archivo adjunto `CLAUDE.md`.
+
+---
+
+## 13. Checklist de salida a producción (auditoría 2026-07-19)
+
+Distinto del roadmap de §10 (ese es orden de construcción; esto es el gate de salida sobre
+lo YA construido). Verificado con lectura de código y ejecución real, no solo documentación.
+Actualizar esta sección a medida que se cierren ítems - no crear checklists nuevas sueltas.
+
+### 🔴 Bloqueante (no debería salir sin esto)
+| # | Qué falta | Dueño |
+|---|---|---|
+| 1 | Checkout real del Kit (US$19) - hoy es solo un botón, sin backend de cobro | CORE + Fernando (proveedor) |
+| 2 | Términos y privacidad - no existen ni linkeados | Fernando (contenido) → FRONT maqueta |
+| 3 | Home de `apps/web` es el placeholder de Fase 0, no el landing real | CORE + Fernando (arquitectura de dominio) |
+| 4 | CORS abierto (`origin: true`) en la API si no se fija `CORS_ORIGINS` en prod | CORE |
+| 5 | Voseo colado en `Mesa.tsx`/`Login.tsx` (reportado en AGENTS-LOG 2026-07-18 entrada m, sin ack de CORE aún) | CORE o FRONT, esperando definición |
+| 6 | ~~CTA roto `/auditoria` en `landing/index.html`~~ | ✅ FRONT, 2026-07-19 |
+
+### 🟡 Fuerte recomendación antes de lanzar
+| # | Qué falta | Dueño |
+|---|---|---|
+| 7 | Sin pipeline de deploy - CI solo corre typecheck+test, nadie despliega automático | CORE + Fernando (hosting: Vercel/Railway/Fly) |
+| 8 | Sin analytics ni error tracking (cero visibilidad de qué pasa en producción) | CORE |
+| 9 | Rotar la API key de Anthropic - marcada "provisoria" en el `.env` local, no está en git pero mejor cerrarlo | Fernando |
+| 10 | SEO básico: sin favicon, sin imagen OG (links compartidos en WhatsApp se ven pelados), sin robots.txt/sitemap | FRONT (favicon + OG image) |
+| 11 | Respaldo real de los números del landing ("+2.500 usuarios", etc.) antes de correr pauta paga | Fernando |
+| 12 | `apps/web` sin ningún test | CORE |
+
+### 🟢 Puede esperar
+| # | Qué falta | Dueño |
+|---|---|---|
+| 13 | Probar en un teléfono real (headless no simula viewport real) | Fernando + FRONT |
+| 14 | ~~Activar Google como provider en Supabase Auth~~ | ✅ Fernando, 2026-07-19 - falta que CORE verifique login real en `Login.tsx` |
+| 15 | Assets de landing pesan 103MB en el repo - no bloquea nada, pero conviene tenerlo en el radar | Nadie urgente |
+
+Lo ya sólido y verificado (no solo documentado): rate limiting real y testeado, auth JWT real
+con chequeo de ownership, RLS completo en Supabase, 43/43 tests pasando, flujo completo
+Login → Mesa → Escáner → Informe corriendo contra la API real, no mockeado.

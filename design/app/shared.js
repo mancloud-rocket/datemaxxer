@@ -63,7 +63,7 @@ function hudProgress(p, cyan) {
   document.querySelector('.apphud').classList.toggle('fase-cyan', !!cyan);
 }
 
-/* telón de salida hacia otra pantalla (§4.2) */
+/* telón de salida hacia otra pantalla (§4.2): sube tapando desde abajo */
 function telonHacia(href) {
   const t = document.querySelector('.telon');
   if (!t || REDUCED) { location.href = href; return; }
@@ -72,3 +72,41 @@ function telonHacia(href) {
     onComplete: () => { location.href = href; },
   });
 }
+/* telón de entrada al llegar a una pantalla nueva (umbral §4.2, mismo gesto que la
+   salida): el HTML ya nace con .telon.cubierto (scaleY:1, sin flash); acá recede
+   revelando la escena. Llamar una vez, apenas cargan GSAP+shared.js. */
+function telonEntrada() {
+  const t = document.querySelector('.telon');
+  if (!t) return;
+  if (REDUCED || qsParam('qa') === '1') { gsap.set(t, { scaleY: 0 }); t.classList.remove('cubierto'); return; }
+  gsap.to(t, { scaleY: 0, transformOrigin: 'bottom', duration: .6, ease: 'power3.inOut', delay: .08 });
+}
+
+/* aviso de conexión (§11: nunca spinner/skeleton genérico): franja de alarma que
+   cualquier pantalla puede disparar cuando falla una llamada de red. Reutilizable:
+   netError('mensaje en voz de marca', { onRetry: fn }) · hideNetError() para cerrarla. */
+function netError(msg, opts = {}) {
+  let bar = document.getElementById('netdown');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'netdown'; bar.className = 'netdown';
+    bar.innerHTML = '<span class="dot"></span><p></p><button class="retry" type="button">Reintentar</button>';
+    document.body.appendChild(bar);
+  }
+  bar.querySelector('p').textContent = msg || 'Se cortó la conexión. No perdiste nada: puedes reintentar.';
+  const retryBtn = bar.querySelector('.retry');
+  retryBtn.style.display = opts.onRetry ? '' : 'none';
+  retryBtn.onclick = () => { hideNetError(); opts.onRetry && opts.onRetry(); };
+  bar.classList.add('show');
+  if (REDUCED || qsParam('qa') === '1') gsap.set(bar, { yPercent: 0 });
+  else gsap.fromTo(bar, { yPercent: -100 }, { yPercent: 0, duration: .5, ease: 'power3.out' });
+}
+function hideNetError() {
+  const bar = document.getElementById('netdown');
+  if (!bar) return;
+  if (REDUCED || qsParam('qa') === '1') { gsap.set(bar, { yPercent: -100 }); bar.classList.remove('show'); return; }
+  gsap.to(bar, { yPercent: -100, duration: .4, ease: 'power2.in', onComplete: () => bar.classList.remove('show') });
+}
+/* hook de QA transversal: ?net=1 en CUALQUIER pantalla dispara el aviso sin tocar
+   el estado propio de esa pantalla (?estado=... sigue funcionando igual) */
+if (qsParam('net') === '1') netError();

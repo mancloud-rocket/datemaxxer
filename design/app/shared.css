@@ -11,7 +11,14 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%}
 body{
-  background:var(--void); color:var(--ink);
+  background-color:var(--void); color:var(--ink);
+  /* pattern forense sutil: micro-grilla de puntos + retícula de plano técnico */
+  background-image:
+    radial-gradient(circle, rgba(91,102,114,.13) 1px, transparent 1.3px),
+    linear-gradient(rgba(91,102,114,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91,102,114,.07) 1px, transparent 1px);
+  background-size:26px 26px, 130px 130px, 130px 130px;
+  background-attachment:fixed;
   font-family:'Inter Tight',system-ui,sans-serif;
   overflow-x:clip; -webkit-font-smoothing:antialiased;
 }
@@ -52,8 +59,25 @@ body{
 .btn-ghost:hover{border-color:var(--steel);box-shadow:none}
 .micro{color:var(--steel);font-size:.85rem;font-weight:600}
 
-/* telón entre pantallas (umbral §4.2) */
+/* telón entre pantallas (umbral §4.2): .cubierto = tapando desde el primer pintado,
+   así la entrada de escena (telonEntrada en shared.js) recién descubre sin flash */
 .telon{position:fixed;inset:0;z-index:80;background:var(--void);pointer-events:none;transform:scaleY(0);transform-origin:top}
+.telon.cubierto{transform:scaleY(1);transform-origin:bottom}
+
+/* aviso de conexión: franja de alarma transversal a toda pantalla (§11: nunca snackbar
+   generico con pill+sombra; acá es una franja de instrumento, tono óxido de marca) */
+.netdown{position:fixed;top:0;left:0;right:0;z-index:70;display:none;align-items:center;
+  gap:.85rem;padding:.85rem 1.3rem;background:var(--stamp);color:var(--ink);
+  font-family:'Inter Tight',sans-serif;box-shadow:0 6px 24px rgba(6,8,11,.4)}
+.netdown.show{display:flex}
+.netdown .dot{flex:none;width:8px;height:8px;border-radius:50%;background:var(--ink);animation:netpulse 1.1s ease-in-out infinite}
+.netdown p{flex:1;margin:0;font-weight:600;font-size:.85rem;line-height:1.4}
+.netdown .retry{flex:none;background:rgba(16,19,24,.28);border:1px solid rgba(230,233,237,.4);
+  color:var(--ink);font-family:inherit;font-weight:700;font-size:.78rem;padding:.5rem 1.1rem;
+  border-radius:5px;cursor:pointer;transition:background .2s}
+.netdown .retry:hover{background:rgba(16,19,24,.48)}
+@keyframes netpulse{0%,100%{opacity:1}50%{opacity:.3}}
+@media (max-width:520px){.netdown{padding:.75rem 1rem}.netdown p{font-size:.78rem}}
 
 @media (prefers-reduced-motion:reduce){
   .grain{animation:none}
