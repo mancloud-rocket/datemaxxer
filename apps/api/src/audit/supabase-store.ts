@@ -110,4 +110,15 @@ export class SupabaseAuditStore implements AuditStore {
     if (!data) return undefined;
     return toRecord(data, data.profiles?.region ?? 'neutro');
   }
+
+  async listForUser(userId: string): Promise<AuditRecord[]> {
+    const { data, error } = await this.db
+      .from('photo_sets')
+      .select('*, profiles(region)')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false })
+      .returns<Array<PhotoSetRow & { profiles: { region: Region } | null }>>();
+    if (error) throw storeError('select list', error.message);
+    return (data ?? []).map((row) => toRecord(row, row.profiles?.region ?? 'neutro'));
+  }
 }

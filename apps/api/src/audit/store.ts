@@ -28,6 +28,8 @@ export interface AuditStore {
   /** Auditorías que consumen cupo (analyzing|done; las fallidas no queman el gratis). */
   countForUser(userId: string): Promise<number>;
   latestForUser(userId: string): Promise<AuditRecord | undefined>;
+  /** Historial completo, más reciente primero (para "mis auditorías"). */
+  listForUser(userId: string): Promise<AuditRecord[]>;
 }
 
 export class InMemoryAuditStore implements AuditStore {
@@ -60,5 +62,11 @@ export class InMemoryAuditStore implements AuditStore {
       if (r.userId === userId && (!latest || r.createdAt > latest.createdAt)) latest = r;
     }
     return latest;
+  }
+
+  async listForUser(userId: string): Promise<AuditRecord[]> {
+    return [...this.records.values()]
+      .filter((r) => r.userId === userId)
+      .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
   }
 }

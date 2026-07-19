@@ -1,4 +1,4 @@
-import type { AuditResult } from '@percentil/contracts';
+import type { AccountProfile, AccountProfileUpdate, AuditResult } from '@percentil/contracts';
 
 /** Cliente tipado de la API de Datemaxxer (contrato acordado en AGENTS-LOG, v2 con auth). */
 
@@ -57,4 +57,21 @@ export async function obtenerAuditoria(token: string, id: string): Promise<Audit
 export async function miAuditoria(token: string): Promise<AuditView | null> {
   const { audit } = await request<{ audit: AuditView | null }>('/me/audit', token);
   return audit;
+}
+
+export async function misAuditorias(token: string): Promise<AuditView[]> {
+  const { audits } = await request<{ audits: AuditView[] }>('/me/audits', token);
+  return audits;
+}
+
+export async function obtenerPerfil(token: string): Promise<AccountProfile> {
+  return request('/me', token);
+}
+
+export async function actualizarPerfil(token: string, patch: AccountProfileUpdate): Promise<AccountProfile> {
+  return request('/me', token, {
+    method: 'PATCH',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(patch),
+  });
 }

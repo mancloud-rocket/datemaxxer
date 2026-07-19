@@ -1,28 +1,27 @@
 'use client';
 
 /**
- * Shell de /app: sesión Supabase + máquina de estados contra la API.
- * Fases: cargando → login → (restaura /me/audit) → mesa | escaner | informe | limite.
+ * Home de /app (dentro de la casa del layout: sesión ya garantizada).
+ * Fases: cargando → (restaura /me/audit) → mesa | escaner | informe | limite.
  * El error de auditoría se muestra DENTRO del escáner (set piece del prototipo),
  * no rebota a la mesa: el usuario decide volver.
  *
- * QA (solo dev, sin sesión): ?estado=login|mesa|analizando|sintetizando|error|informe|limite
+ * QA (bypassea el layout entero, ver layout.tsx): ?estado=login|mesa|analizando|sintetizando|error|informe|limite
  *   · ?fotos=4..9 · ?leidas=0..N · ?qa=1 (estados finales instantáneos para captures)
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ApiError, crearAuditoria, miAuditoria, obtenerAuditoria, type AuditView } from '../../lib/api';
-import { getAccessToken, getSupabase } from '../../lib/supabase';
+import { getAccessToken } from '../../lib/supabase';
 import { Escaner, type EscanerEstado } from './Escaner';
 import { Informe } from './Informe';
 import { Login } from './Login';
 import { Mesa } from './Mesa';
 import { PantallaLimite } from './pantallas';
-import './app.css';
 
 type Fase =
   | { nombre: 'cargando' }
-  | { nombre: 'login' }
+  | { nombre: 'login' } // solo alcanzable vía QA: el layout gatekeepea el login real
   | { nombre: 'mesa'; error: string | null; enviando: boolean }
   | { nombre: 'escaner'; view: AuditView }
   | { nombre: 'informe'; view: AuditView }
@@ -63,7 +62,7 @@ function faseDeQa(params: URLSearchParams): Fase | null {
   }
 }
 
-export default function AppShell() {
+export default function AppHome() {
   const [fase, setFase] = useState<Fase>({ nombre: 'cargando' });
   const [qa, setQa] = useState(false);
   const qaActivo = useRef(false);
@@ -75,7 +74,10 @@ export default function AppShell() {
     try {
       const token = await getAccessToken();
       if (!token) {
-        setFase({ nombre: 'login' });
+        // El layout gatekeepea la sesión: esto solo pasaría en una carrera
+        // transitoria (token venciendo justo acá). El listener del layout
+        // va a reaccionar solo en cuanto Supabase confirme la sesión perdida.
+        setFase({ nombre: 'mesa', error: 'Tu sesión se interrumpió. Recargá la página.', enviando: false });
         return;
       }
       const audit = await miAuditoria(token);
@@ -98,18 +100,9 @@ export default function AppShell() {
       qaActivo.current = true;
       setQa(params.get('qa') !== null);
       setFase(forzada);
+    } else {
+      void restaurar();
     }
-  }, []);
-
-  // Sesión: al montar y en cada cambio de auth
-  useEffect(() => {
-    void restaurar();
-    const { data } = getSupabase().auth.onAuthStateChange((_evento, session) => {
-      if (qaActivo.current) return;
-      if (session) void restaurar();
-      else setFase({ nombre: 'login' });
-    });
-    return () => data.subscription.unsubscribe();
   }, [restaurar]);
 
   // Polling mientras el escáner corre
@@ -136,7 +129,7 @@ export default function AppShell() {
     setFase({ nombre: 'mesa', error: null, enviando: true });
     const token = await getAccessToken();
     if (!token) {
-      setFase({ nombre: 'login' });
+      setFase({ nombre: 'mesa', error: 'Tu sesión se interrumpió. Recargá la página.', enviando: false });
       return;
     }
     try {
@@ -163,37 +156,38 @@ export default function AppShell() {
     return view.progress.fotos_analizadas >= view.progress.total ? 'sintetizando' : 'analizando';
   };
 
-  return (
-    <div className="dmx">
-      <div className="grain" />
-      <div className="vignette" />
-      {fase.nombre === 'cargando' && (
-        <div className="dmx-simple" style={{ alignItems: 'center' }}>
-          <p className="mono" style={{ fontSize: '.7rem', color: 'var(--ink-mute)' }}>Abriendo expediente…</p>
-        </div>
-      )}
-      {fase.nombre === 'login' && <Login />}
-      {fase.nombre === 'mesa' && <Mesa error={fase.error} enviando={fase.enviando} onEnviar={(f) => void enviar(f)} />}
-      {fase.nombre === 'escaner' && (
-        <Escaner
-          total={fase.view.progress.total}
-          leidas={fase.view.progress.fotos_analizadas}
-          estado={escanerEstado(fase.view)}
-          qa={qa}
-          onVolver={() => setFase({ nombre: 'mesa', error: null, enviando: false })}
-        />
-      )}
-      {fase.nombre === 'informe' && fase.view.result && (
-        <Informe
-          score={fase.view.result.score_coherencia}
-          arquetipo={fase.view.result.arquetipo_detectado.nombre}
-          confianza={Math.round(fase.view.result.arquetipo_detectado.confianza * 100)}
-          lectura={fase.view.result.lectura_200ms}
-          nFotos={fase.view.result.evidencia_por_foto.length}
-          qa={qa}
-        />
-      )}
-      {fase.nombre === 'limite' && <PantallaLimite />}
-    </div>
-  );
+  if (fase.nombre === 'cargando') {
+    return (
+      <div className="dmx-simple" style={{ alignItems: 'center' }}>
+        <p className="mono" style={{ fontSize: '.7rem', color: 'var(--ink-mute)' }}>Abriendo expediente…</p>
+      </div>
+    );
+  }
+  if (fase.nombre === 'login') return <Login />; // solo QA
+  if (fase.nombre === 'mesa') return <Mesa error={fase.error} enviando={fase.enviando} onEnviar={(f) => void enviar(f)} />;
+  if (fase.nombre === 'escaner') {
+    return (
+      <Escaner
+        total={fase.view.progress.total}
+        leidas={fase.view.progress.fotos_analizadas}
+        estado={escanerEstado(fase.view)}
+        qa={qa}
+        onVolver={() => setFase({ nombre: 'mesa', error: null, enviando: false })}
+      />
+    );
+  }
+  if (fase.nombre === 'informe' && fase.view.result) {
+    return (
+      <Informe
+        score={fase.view.result.score_coherencia}
+        arquetipo={fase.view.result.arquetipo_detectado.nombre}
+        confianza={Math.round(fase.view.result.arquetipo_detectado.confianza * 100)}
+        lectura={fase.view.result.lectura_200ms}
+        nFotos={fase.view.result.evidencia_por_foto.length}
+        qa={qa}
+      />
+    );
+  }
+  if (fase.nombre === 'limite') return <PantallaLimite />;
+  return null;
 }

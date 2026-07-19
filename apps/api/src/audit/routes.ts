@@ -26,7 +26,7 @@ const Fields = z.object({
   arquetipo_objetivo: Arquetipo.nullable().default(null),
 });
 
-function publicView(record: AuditRecord) {
+export function publicView(record: AuditRecord) {
   return {
     audit_id: record.id,
     status: record.status,

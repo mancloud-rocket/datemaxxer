@@ -349,3 +349,57 @@
 
 /* car = capa de carácter de los glifos (detalle fino, se puede atenuar aparte) */
 .dmx-mesa .glif svg .car{opacity:.85}
+
+/* ============ CASA PERSISTENTE (sidebar + contenido) ============
+   Esqueleto funcional, piel pendiente de FRONT. Desktop: columna fija a
+   la izquierda. Mobile (<860px): colapsa a barra superior simple (NO es
+   drawer todavía - la app es mobile-first, esto es un placeholder
+   deliberadamente básico hasta que FRONT diseñe el patrón real).
+
+   GOTCHA CONOCIDO para quien reskinee escáner/informe/mesa: esas pantallas
+   usan `.apphud`/`.ctabar` con position:fixed que ocupan TODO el viewport
+   (pensadas para pantalla completa, de antes de que existiera el sidebar).
+   Con el sidebar activo van a superponerse en la esquina superior/inferior
+   izquierda. No lo resolví acá a propósito: FRONT ya está retocando el
+   layout de esas mismas pantallas (hallazgo de la entrada q del log) y
+   tocarlo yo ahora hubiera sido pisar ese trabajo en curso. */
+.dmx-shell{display:flex;min-height:100dvh}
+
+.dmx-sidebar{
+  position:relative;z-index:10;flex:none;width:220px;
+  display:flex;flex-direction:column;gap:1.6rem;
+  padding:1.6rem 1.2rem;border-right:1px solid var(--line);
+  background:rgba(23,27,34,.5);
+}
+.dmx-sidebar-brand{font-size:.68rem;color:var(--oxide);letter-spacing:.22em}
+
+.dmx-sidebar-nav{display:flex;flex-direction:column;gap:.3rem}
+.dmx-sidebar-link{
+  color:var(--ink-mute);text-decoration:none;font-weight:600;font-size:.92rem;
+  padding:.6rem .7rem;border-radius:6px;transition:background .2s,color .2s;
+}
+.dmx-sidebar-link:hover{background:rgba(255,255,255,.04);color:var(--ink)}
+.dmx-sidebar-link.on{background:rgba(79,217,194,.08);color:var(--ink)}
+
+.dmx-sidebar-user{display:flex;align-items:center;gap:.7rem;margin-top:auto}
+.dmx-avatar{width:36px;height:36px;border-radius:50%;flex:none;object-fit:cover;background:var(--surface-2)}
+.dmx-avatar-fallback{display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:var(--ink-mute);border:1px solid var(--line)}
+.dmx-sidebar-user-info{min-width:0}
+.dmx-sidebar-user-name{font-size:.85rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dmx-sidebar-user-email{font-size:.56rem;color:var(--steel);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dmx-sidebar-salir{width:100%;font-size:.82rem;padding:.7rem 1rem}
+
+.dmx-content{flex:1;min-width:0;padding:2.4rem 2rem}
+
+@media (max-width:860px){
+  .dmx-shell{flex-direction:column}
+  .dmx-sidebar{
+    width:100%;flex-direction:row;align-items:center;gap:1rem;
+    padding:.9rem 1.1rem;border-right:0;border-bottom:1px solid var(--line);
+  }
+  .dmx-sidebar-nav{flex-direction:row;gap:.2rem}
+  .dmx-sidebar-user{margin-top:0;margin-left:auto}
+  .dmx-sidebar-user-info{display:none}
+  .dmx-sidebar-salir{width:auto;padding:.6rem .9rem;font-size:.72rem}
+  .dmx-content{padding:1.4rem 1rem}
+}

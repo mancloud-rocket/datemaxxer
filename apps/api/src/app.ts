@@ -15,10 +15,13 @@ import {
 } from './engines/audit.js';
 import type { Env } from './env.js';
 import { AppError } from './errors.js';
+import { registerProfileRoutes } from './profile/routes.js';
+import { InMemoryProfileStore, SupabaseProfileStore, type ProfileStore } from './profile/store.js';
 
 export interface AppDeps {
   auditEngine?: AuditEngine;
   auditStore?: AuditStore;
+  profileStore?: ProfileStore;
 }
 
 function resolveAuditEngine(env: Env, deps: AppDeps): AuditEngine | undefined {
@@ -80,16 +83,12 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
     contracts: CONTRACTS_VERSION,
   }));
 
-  // Ruta protegida mínima: prueba el middleware de auth end-to-end.
-  app.get('/me', { preHandler: [authenticate] }, async (request) => ({
-    userId: request.userId,
-  }));
+  const hasSupabase = env.SUPABASE_URL !== undefined && env.SUPABASE_SERVICE_ROLE_KEY !== undefined;
 
-  // F1: auditoría gratuita (sin auth, con rate limit propio y captura de email)
   const auditStore =
     deps.auditStore ??
-    (env.SUPABASE_URL !== undefined && env.SUPABASE_SERVICE_ROLE_KEY !== undefined
-      ? new SupabaseAuditStore(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY)
+    (hasSupabase
+      ? new SupabaseAuditStore(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
       : new InMemoryAuditStore());
   registerAuditRoutes(app, {
     store: auditStore,
@@ -98,6 +97,13 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
     rateLimitMax: env.AUDIT_RATE_LIMIT_MAX,
     freeLimit: env.AUDIT_FREE_LIMIT,
   });
+
+  const profileStore =
+    deps.profileStore ??
+    (hasSupabase
+      ? new SupabaseProfileStore(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
+      : new InMemoryProfileStore());
+  registerProfileRoutes(app, { profileStore, auditStore, authenticate });
 
   return app;
 }
