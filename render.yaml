@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: datemaxxer-api
+    runtime: node
+    plan: free
+    region: oregon
+    branch: main
+    rootDir: .
+    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @percentil/contracts build && pnpm --filter @percentil/api build
+    startCommand: pnpm --filter @percentil/api start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: NODE_ENV
+        value: production
+      - key: AUDIT_MODEL
+        value: claude-opus-4-8
+      - key: RATE_LIMIT_MAX
+        value: 100
+      - key: AUDIT_RATE_LIMIT_MAX
+        value: 5
+      - key: AUDIT_FREE_LIMIT
+        value: 1
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false

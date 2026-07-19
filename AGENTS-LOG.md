@@ -25,6 +25,31 @@ Fernando lo lee también; escriban para humanos, no para logs de máquina.
 
 ---
 
+### [2026-07-19 n] FRONT - Google OAuth: credenciales generadas, activación en curso
+- Fernando ya generó el client OAuth de Google (`client_secret_...apps.googleusercontent.com.json` descargado). NO lo pego acá ni en ningún archivo del repo: este log es git-trackeado y un client secret ahí queda expuesto en el historial para siempre, lo lea quien lo lea después.
+- El alta correcta es directa en el **Dashboard de Supabase** (Authentication → Providers → Google, pegando ahí Client ID + Client Secret) - no requiere tocar `apps/api` ni `apps/web`, es 100% de Fernando y no pasa por código.
+- PARA EL OTRO: cuando Fernando confirme que lo activó en el Dashboard, podés dar por buena la rama `google()` de `Login.tsx:34-41` contra el provider real (hoy solo estaba probada la rama de email OTP). Avisen acá cuando lo prueben en vivo.
+
+### [2026-07-18 m] FRONT - REVIEW: Mesa.tsx + Login.tsx · transversal cerrado (umbral de entrada + aviso de red)
+- REVIEW de `apps/web/app/app/Mesa.tsx` y `Login.tsx` como pediste:
+  - **BLOQUEANTE - copy en voseo colado:** el porteo tomó una versión de mis prototipos ANTERIOR a mi fix de tú-neutro (entrada i ya avisaba de la regla, la apliqué a mesa/ingreso en la entrada j pero el copy viejo quedó en el porteo). Instancias concretas: `Mesa.tsx:132` "Ya tenés"/"elegí", `:141` "volvé", `:201` "tenés", `:232` "elegilas"/"arrastralas", `:292` "tenés", `:297-298` "querés"/"transmitís", `:303` "hablás". `Login.tsx:53` "Revisá el mail e intentá de nuevo" (este es tuyo, no viene de mi prototipo - lo escribiste al cablear el error real de Supabase), `:89` "revisá los 6 dígitos", `:164/166/172/173` "Revisá tu correo"/"Ingresá el código"/"mirá en spam"/"Entrá para abrirla", `:234` "aceptás"/"podés". Fix mecánico (buscar/reemplazar por persona), te dejo el mapeo si querés que lo haga yo directo en tus .tsx - avisame si tocarlos es tu territorio exclusivo o puedo entrar.
+  - **NIT:** el selector de región (`Mesa.tsx:305-311`) perdió el subtítulo descriptivo de cada pill (mi prototipo tenía "Vos / che", "Moderado", "Tú / moderado", "Tú" bajo cada botón) - contexto útil para quien no sabe qué implica elegir "rioplatense". No bloqueante, cosmético.
+  - **Positivo:** el sello de `Login.tsx` (`seal()`) mejora mi prototipo - usás `setDraw()` real (`getTotalLength()`) para el check en vez de mi `strokeDasharray:40` hardcodeado a ojo. Más correcto, lo adopto en mi referencia si vuelvo a tocar ese archivo. El manejo de `props.error` en `Mesa.tsx` (reusa el mismo banner `.aviso` para errores externos) es la integración correcta con mi patrón.
+- HICE (transversal, la última pieza del encargo original):
+  1. **Umbral de entrada entre escenas (§4.2)**, la mitad que faltaba: `telonHacia()` solo tapaba de salida; ahora las 4 pantallas nacen con `.telon.cubierto` (CSS puro, cubre desde el primer pintado, sin flash) y llaman `telonEntrada()` como primera línea de su script - la misma tela recede revelando la escena. Es un gesto continuo repartido en dos páginas, no un corte de navegador.
+  2. **`netError(msg, {onRetry})` / `hideNetError()`** en `shared.js`+`shared.css`: franja de alarma transversal para fallos de red, disparable desde cualquier pantalla (distinta del error de análisis del escáner o los avisos de validación de la mesa, que son estados de escena). Diseñada como instrumento de marca (franja óxido `--stamp`, punto que pulsa, nunca snackbar genérico prohibido por §11). Se crea sola, sin markup previo. Demo en contexto: `mesa.html` la dispara en el submit si hay `?net=1`. Hook global `?net=1` en cualquier pantalla la muestra sin tocar el `?estado=` propio.
+  3. Ambos documentados en `SET-PIECES.md` con sus estados forzables.
+- Gotcha nuevo (documentado en SET-PIECES.md): `--virtual-time-budget` de Edge headless NO es confiable para animaciones GSAP (rAF en reloj real, budget gobierna otra cosa) - un mismo valor capturó una pantalla resuelta y otra a mitad de tween sin patrón. Solución: usar SIEMPRE `?qa=1` para capturas (ya establecido en el proyecto, pero me mordió por no aplicarlo a mis propios componentes nuevos al probarlos - `netError()` originalmente solo respetaba `REDUCED`, no `qa`; corregido).
+- ESTADO: done. Con esto el encargo completo de pantallas + transversal queda cerrado de mi lado.
+- PRÓXIMO: nada propio pendiente. Disponible para lo que sigas viendo vos o para lo que defina Fernando.
+- PARA EL OTRO: (1) el fix de voseo de arriba es tuyo o mío, decime; (2) `telonEntrada()`/`netError()` viven en `shared.js`/`shared.css` (referencia), portealos a `motion.ts`/`app.css` cuando quieras - no son bloqueantes para nada de lo que ya cerraste; (3) sin más archivos tuyos tocados de mi lado.
+
+### [2026-07-19 a] CORE - Preparado el deploy de la API en Render (build de producción + blueprint)
+- HICE: `apps/api` ahora compila a `dist/` para producción (`tsconfig.build.json` + scripts `build`/`start` en `apps/api/package.json`, mismo patrón que `packages/contracts`). Verificado con smoke test real: `node dist/server.js` levanta y responde `/health` 200. `render.yaml` en la raíz del repo (Blueprint de Render): build en pnpm/monorepo, health check `/health`, envVars de infra con default y las 5 secretas (`SUPABASE_URL/JWT_SECRET/SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`, `CORS_ORIGINS`) marcadas `sync: false` para que Render las pida al importar el blueprint.
+- ESTADO: done de mi lado. Bloqueado en un paso que solo puede hacer Fernando: el repo no tiene remote de GitHub todavía y Render Blueprint necesita conectar un repo real.
+- PRÓXIMO: cuando Fernando cree el repo en GitHub y me pase la URL, hago el push y lo guío por el resto del Blueprint (env vars secretas + deploy).
+- PARA EL OTRO: nada bloqueante. Aviso: agregué `render.yaml` en la raíz y toqué `apps/api/package.json` (solo scripts nuevos, sin tocar rutas/lógica).
+
 ### [2026-07-18 l] CORE - Porteados LA MESA, EL INGRESO y los 8 glifos a la app real; funnel completo cerrado
 - HICE: cierro el porteo del funnel completo con tus últimas 3 entregas (entrada j).
   1. **`apps/web/lib/glifos.ts`** - tus 8 glifos tal cual (mismos paths), tipado, reutilizable desde cualquier componente vía `buildGlifo(slug, opts)`.
