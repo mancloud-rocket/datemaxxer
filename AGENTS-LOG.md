@@ -25,6 +25,21 @@ Fernando lo lee también; escriban para humanos, no para logs de máquina.
 
 ---
 
+### [2026-07-18 l] CORE - Porteados LA MESA, EL INGRESO y los 8 glifos a la app real; funnel completo cerrado
+- HICE: cierro el porteo del funnel completo con tus últimas 3 entregas (entrada j).
+  1. **`apps/web/lib/glifos.ts`** - tus 8 glifos tal cual (mismos paths), tipado, reutilizable desde cualquier componente vía `buildGlifo(slug, opts)`.
+  2. **`apps/web/app/app/GlifoIcon.tsx`** - wrapper React chico para usar un glifo suelto donde haga falta.
+  3. **`apps/web/app/app/Mesa.tsx`** - la mesa con manejo REAL de archivos (no demo): drag&drop, File API, object URLs, drop con inclinación y estampado de `back.out`, marco SVG que se redibuja al alto real de la grilla (tu gotcha de `requestAnimationFrame(drawMarco)` aplicado), tallybar/pips, selector de arquetipo con tus glifos, selector de región, aviso inline para los mismos 3 casos (cantidad/peso/formato). El submit arma el FormData real y llama `onEnviar` (mismo contrato que ya tenía la mesa esqueleto), no `telonHacia`.
+  4. **`apps/web/app/app/Login.tsx`** - el sello lacrado completo (candado que se abre, check cyan dibujándose, rotación de 190°) pero con auth REAL: Google OAuth + email OTP contra Supabase, no el código demo `204172`. Mismo flujo de pasos (método → OTP de 6 casilleros con auto-avance/backspace/paste) que tu prototipo.
+  5. **Informe.tsx mejorado**: el sello del arquetipo ahora dibuja el glifo REAL del arquetipo detectado (tus 8 glifos.ts) en vez del compass hardcodeado que dejé en el pase anterior. Centrado con `translate(32.4 32.4) scale(1.15)` dentro del sello de 120x120.
+  6. Shell (`page.tsx`) y `pantallas.tsx` limpiados: `PantallaLogin`/`PantallaMesa` esqueleto eliminadas, reemplazadas por `Login`/`Mesa`. `pantallas.tsx` ahora solo tiene `PantallaLimite`.
+  7. CSS de mesa e ingreso porteado a `app.css` bajo `.dmx-mesa`/`.dmx-ingreso` (mismo patrón de namespacing que escáner/informe).
+- QA: capturas de mesa vacía (8 glifos OK), sello del ingreso (candado óxido OK), informe con glifo dinámico (viajero OK). Typecheck limpio en las 3 workspaces, 43/43 tests.
+- Gotcha nuevo: tras matar y relanzar el dev server, `/app` devolvió 404 sostenido un par de intentos (no error de compilación, 404 limpio) - se resolvió borrando `apps/web/.next` antes de relanzar. Si les pasa lo mismo, no pierdan tiempo debugueando código: borren el cache primero.
+- ESTADO: done. El funnel completo (ingreso → mesa → escáner → informe → límite) corre en `/app` con datos y auth reales.
+- PRÓXIMO CORE: nada bloqueante propio. Disponible para la review que Fernando pida o para deploy (API + web) cuando arranque esa etapa.
+- PARA EL OTRO: tu REVIEW de mesa/ingreso/glifos queda pendiente iguales (te pido que la hagas sobre `apps/web/app/app/Mesa.tsx` y `Login.tsx`, no sobre los .html de design/app/, que son la referencia pero ya no lo que corre). Sin bloqueantes de mi lado para que sigas con transiciones entre pantallas o lo que sigas viendo vos.
+
 ### [2026-07-18 k] CORE - Porteados EL ESCÁNER y EL INFORME a la app real (apps/web/app/app)
 - HICE: tus dos primeros set pieces ya corren en Next con datos reales, no simulados.
   1. **`apps/web/app/app/app.css`** - porteo de `shared.css` + estilos de escáner/informe, scoped a `.dmx` (en Next el body es global). Tokens, HUD, grain, vignette, sellos, botones, estado-box: todo igual al prototipo.

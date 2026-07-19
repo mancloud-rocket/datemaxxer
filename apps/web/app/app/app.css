@@ -181,5 +181,171 @@
 
 @media (min-width:700px){ .dmx-informe .doc{width:600px} }
 
-/* ============ pantallas simples (login / mesa / límite, piel base) ==== */
+/* ============ pantallas simples (límite, piel base) ==== */
 .dmx-simple{min-height:100dvh;display:flex;flex-direction:column;justify-content:center;padding:5rem 1.2rem 3rem}
+
+/* ============ EL INGRESO · set piece: "la apertura del expediente" ==== */
+.dmx-ingreso{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:74px 22px 40px;overflow-x:clip}
+.dmx-ingreso .stage{width:min(430px,100%);position:relative}
+
+.dmx-ingreso .folder{position:relative;display:flex;justify-content:center;margin-bottom:2.1rem}
+.dmx-ingreso .sello{width:132px;height:132px}
+.dmx-ingreso .sello svg{width:100%;height:100%;overflow:visible}
+.dmx-ingreso .folder .cuerda{position:absolute;top:50%;left:0;right:0;height:1px;background:repeating-linear-gradient(90deg,var(--steel-dim) 0 6px,transparent 6px 12px);opacity:.5;z-index:-1}
+
+.dmx-ingreso .head{text-align:center;margin-bottom:2rem}
+.dmx-ingreso .head .kicker{justify-content:center;margin-bottom:.75rem}
+.dmx-ingreso .head h1{font-size:clamp(1.7rem,6.4vw,2.3rem)}
+.dmx-ingreso .head p{margin-top:.7rem;color:var(--ink-mute);font-weight:500;font-size:.95rem;line-height:1.5;max-width:26em;margin-left:auto;margin-right:auto}
+
+.dmx-ingreso .panel{position:relative}
+.dmx-ingreso .paso{display:flex;flex-direction:column;gap:.9rem}
+
+.dmx-ingreso .gbtn{display:flex;align-items:center;justify-content:center;gap:.8rem;width:100%;background:var(--surface);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-family:var(--font-body),sans-serif;font-weight:600;font-size:1rem;padding:1.05rem 1.4rem;cursor:pointer;transition:border-color .3s,background .3s}
+.dmx-ingreso .gbtn:hover{border-color:var(--steel);background:var(--surface-2)}
+.dmx-ingreso .gbtn svg{width:20px;height:20px;flex:none}
+
+.dmx-ingreso .sep{display:flex;align-items:center;gap:1rem;color:var(--steel);font-family:var(--font-mono),monospace;font-size:.58rem;letter-spacing:.24em;text-transform:uppercase;margin:.5rem 0}
+.dmx-ingreso .sep::before,.dmx-ingreso .sep::after{content:'';flex:1;height:1px;background:var(--line)}
+
+.dmx-ingreso .input{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-family:var(--font-body),sans-serif;font-size:1.02rem;padding:1.05rem 1.15rem;transition:border-color .3s}
+.dmx-ingreso .input:focus{outline:none;border-color:var(--steel)}
+.dmx-ingreso .input::placeholder{color:var(--steel)}
+.dmx-ingreso .field-note{font-size:.82rem;color:var(--ink-mute);font-weight:500;line-height:1.45;padding:0 .2rem}
+.dmx-ingreso .field-note b{color:var(--ink)}
+
+.dmx-ingreso .otp{display:flex;gap:.55rem;justify-content:center}
+.dmx-ingreso .otp input{width:100%;aspect-ratio:3/4;max-width:52px;text-align:center;background:var(--surface-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-family:var(--font-mono),monospace;font-size:1.5rem;font-weight:500;caret-color:var(--signal);transition:border-color .25s,background .25s}
+.dmx-ingreso .otp input:focus{outline:none;border-color:var(--steel)}
+.dmx-ingreso .otp input.filled{border-color:var(--steel);background:var(--surface)}
+.dmx-ingreso .otp.bad input{border-color:var(--stamp);animation:dmxShake .4s}
+.dmx-ingreso .otp.good input{border-color:rgba(79,217,194,.6);background:rgba(79,217,194,.05)}
+@keyframes dmxShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+
+.dmx-ingreso .otp-msg{text-align:center;font-family:var(--font-mono),monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;min-height:1em}
+.dmx-ingreso .otp-msg.err{color:var(--oxide)}
+.dmx-ingreso .otp-msg.ok{color:var(--signal)}
+
+.dmx-ingreso .mailto{text-align:center;font-size:.85rem;color:var(--ink-mute);font-weight:500}
+.dmx-ingreso .mailto b{color:var(--ink)}
+.dmx-ingreso .linkish{background:none;border:0;color:var(--signal);font-family:var(--font-body),sans-serif;font-weight:600;font-size:.85rem;cursor:pointer;text-decoration:underline;text-underline-offset:3px;padding:0}
+.dmx-ingreso .linkish.mute{color:var(--steel)}
+
+.dmx-ingreso .submit{width:100%;margin-top:.3rem}
+.dmx-ingreso .foot{text-align:center;margin-top:2rem;color:var(--steel);font-size:.78rem;line-height:1.5;font-weight:500}
+.dmx-ingreso .foot a{color:var(--ink-mute);text-decoration:underline;text-underline-offset:2px}
+.dmx-ingreso .reenvio{text-align:center;font-size:.82rem;color:var(--steel);font-weight:500}
+
+/* ============ LA MESA DE EVIDENCIA · set piece: "el depósito de pruebas" */
+.dmx-mesa{min-height:100dvh;padding:74px 0 128px;overflow-x:clip}
+.dmx-mesa .wrap{width:min(660px,92vw);margin:0 auto}
+
+.dmx-mesa .head{margin-bottom:1.9rem}
+.dmx-mesa .head .kicker{margin-bottom:.7rem}
+.dmx-mesa .head h1{font-size:clamp(1.9rem,7vw,2.7rem)}
+.dmx-mesa .head p.sub{margin-top:.7rem;color:var(--ink-mute);font-weight:500;font-size:clamp(.92rem,2.4vw,1.02rem);max-width:30em;line-height:1.5}
+
+.dmx-mesa .expediente{position:relative;padding:20px;margin-bottom:2.4rem}
+.dmx-mesa .expediente .marco{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.dmx-mesa .expediente .marco line{stroke:var(--line);stroke-width:1.4;stroke-dasharray:2 7;stroke-linecap:round}
+.dmx-mesa .expediente .marco path{stroke:var(--steel);stroke-width:2;fill:none;stroke-linecap:round}
+
+.dmx-mesa .tallybar{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:1rem;padding:0 2px}
+.dmx-mesa .tallybar .n{font-family:var(--font-mono),monospace;font-size:.72rem;letter-spacing:.22em;color:var(--ink);text-transform:uppercase;font-variant-numeric:tabular-nums}
+.dmx-mesa .tallybar .n b{color:var(--sodium);font-weight:500}
+.dmx-mesa .tallybar .n.ok b{color:var(--signal)}
+.dmx-mesa .tallybar .pips{display:flex;gap:5px}
+.dmx-mesa .tallybar .pips span{width:16px;height:3px;border-radius:2px;background:var(--steel-dim);transition:background .4s}
+.dmx-mesa .tallybar .pips span.on{background:var(--sodium)}
+.dmx-mesa .tallybar .pips.ok span.on{background:var(--signal)}
+
+.dmx-mesa .evgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:14px}
+.dmx-mesa .ev{position:relative;aspect-ratio:3/4;border-radius:6px;overflow:hidden;background:var(--surface-2);border:1px solid var(--line);cursor:default;will-change:transform}
+.dmx-mesa .ev .viz{position:absolute;inset:0}
+.dmx-mesa .ev .viz img{width:100%;height:100%;object-fit:cover;display:block;filter:contrast(1.02) saturate(.96)}
+.dmx-mesa .ev .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,19,24,.5) 0%,transparent 26%,transparent 62%,rgba(16,19,24,.82) 100%);pointer-events:none}
+.dmx-mesa .ev .corner{position:absolute;width:13px;height:13px;border:2px solid var(--steel);opacity:.75}
+.dmx-mesa .ev .corner.tl{top:7px;left:7px;border-right:0;border-bottom:0}
+.dmx-mesa .ev .corner.tr{top:7px;right:7px;border-left:0;border-bottom:0}
+.dmx-mesa .ev .corner.bl{bottom:7px;left:7px;border-right:0;border-top:0}
+.dmx-mesa .ev .corner.br{bottom:7px;right:7px;border-left:0;border-top:0}
+.dmx-mesa .ev .tag{position:absolute;top:9px;left:14px;font-family:var(--font-mono),monospace;font-size:.6rem;letter-spacing:.18em;color:var(--ink);text-transform:uppercase;text-shadow:0 1px 6px rgba(6,8,11,.9)}
+.dmx-mesa .ev .portada{position:absolute;bottom:10px;left:12px;display:none;font-family:var(--font-mono),monospace;font-size:.54rem;letter-spacing:.2em;color:var(--sodium);border:1px solid rgba(232,176,75,.5);padding:.3em .6em;border-radius:2px;text-transform:uppercase;transform:rotate(-3deg);background:rgba(16,19,24,.45)}
+.dmx-mesa .ev.first .portada{display:inline-block}
+.dmx-mesa .ev.first{border-color:rgba(232,176,75,.45)}
+.dmx-mesa .ev .acts{position:absolute;top:7px;right:7px;display:flex;gap:5px;opacity:0;transition:opacity .25s}
+.dmx-mesa .ev:hover .acts,.dmx-mesa .ev:focus-within .acts{opacity:1}
+.dmx-mesa .ev .act{width:26px;height:26px;border-radius:4px;border:1px solid var(--line);background:rgba(16,19,24,.72);backdrop-filter:blur(4px);color:var(--ink-mute);cursor:pointer;display:grid;place-items:center;padding:0;transition:color .2s,border-color .2s}
+.dmx-mesa .ev .act:hover{color:var(--ink);border-color:var(--steel)}
+.dmx-mesa .ev .act.desc:hover{color:var(--oxide);border-color:var(--stamp)}
+.dmx-mesa .ev .act svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+.dmx-mesa .addtile{position:relative;aspect-ratio:3/4;border-radius:6px;border:1.6px dashed var(--steel-dim);background:transparent;color:var(--ink-mute);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.7rem;transition:border-color .3s,color .3s}
+.dmx-mesa .addtile:hover{border-color:var(--signal);color:var(--ink)}
+.dmx-mesa .addtile .plus{width:34px;height:34px}
+.dmx-mesa .addtile .plus line{stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.dmx-mesa .addtile span{font-size:.72rem;font-weight:600;letter-spacing:.02em;padding:0 .6rem;text-align:center;line-height:1.3}
+.dmx-mesa .addtile.drag{border-color:var(--signal);color:var(--ink);background:rgba(79,217,194,.05)}
+
+.dmx-mesa .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3.2rem 1.4rem;gap:1rem;cursor:pointer;border-radius:6px;transition:background .3s}
+.dmx-mesa .empty.drag{background:rgba(79,217,194,.05)}
+.dmx-mesa .empty .icon{width:56px;height:56px;color:var(--steel)}
+.dmx-mesa .empty .icon line,.dmx-mesa .empty .icon path,.dmx-mesa .empty .icon rect{stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.dmx-mesa .empty h3{font-family:var(--font-body),sans-serif;font-weight:700;font-size:1.15rem;color:var(--ink)}
+.dmx-mesa .empty p{color:var(--ink-mute);font-size:.9rem;font-weight:500;max-width:24em;line-height:1.5}
+.dmx-mesa .empty .pick{color:var(--signal);text-decoration:underline;text-underline-offset:3px}
+
+.dmx-mesa .aviso{display:none;align-items:flex-start;gap:.75rem;margin-top:1.1rem;padding:.9rem 1.1rem;border:1px solid var(--stamp);border-radius:5px;background:rgba(201,75,50,.06)}
+.dmx-mesa .aviso.show{display:flex}
+.dmx-mesa .aviso .selloe{flex:none;margin-top:.1rem}
+.dmx-mesa .aviso p{color:var(--ink);font-size:.9rem;font-weight:500;line-height:1.5}
+.dmx-mesa .aviso p b{color:var(--oxide);font-weight:600}
+
+.dmx-mesa .ctx{display:flex;flex-direction:column;gap:2.2rem}
+.dmx-mesa .field > .lab{display:flex;align-items:baseline;gap:.7rem;margin-bottom:.8rem}
+.dmx-mesa .field > .lab .k{font-family:var(--font-body),sans-serif;font-weight:700;font-size:1.08rem;color:var(--ink)}
+.dmx-mesa .field > .lab .opt{font-family:var(--font-mono),monospace;font-size:.58rem;letter-spacing:.2em;color:var(--steel);text-transform:uppercase}
+.dmx-mesa .field > .hint{color:var(--ink-mute);font-size:.85rem;font-weight:500;margin:-.5rem 0 .85rem;line-height:1.45}
+
+.dmx-mesa textarea{width:100%;min-height:96px;resize:vertical;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-family:var(--font-body),sans-serif;font-size:.98rem;line-height:1.55;padding:.95rem 1.05rem;transition:border-color .3s}
+.dmx-mesa textarea:focus{outline:none;border-color:var(--steel)}
+.dmx-mesa textarea::placeholder{color:var(--steel)}
+.dmx-mesa .counter{text-align:right;margin-top:.45rem;font-family:var(--font-mono),monospace;font-size:.6rem;letter-spacing:.14em;color:var(--steel);font-variant-numeric:tabular-nums}
+
+.dmx-mesa .glifsel{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.dmx-mesa .glif{position:relative;display:flex;flex-direction:column;align-items:center;gap:.55rem;padding:.95rem .4rem .8rem;background:var(--surface-2);border:1px solid var(--line);border-radius:7px;cursor:pointer;color:var(--steel);transition:color .25s,border-color .25s,background .25s}
+.dmx-mesa .glif:hover{color:var(--ink-mute);border-color:var(--steel-dim)}
+.dmx-mesa .glif svg{width:34px;height:34px}
+.dmx-mesa .glif .gl{font-size:.68rem;font-weight:600;letter-spacing:.01em;color:var(--ink-mute);transition:color .25s}
+.dmx-mesa .glif.on{color:var(--signal);border-color:rgba(79,217,194,.5);background:rgba(79,217,194,.06)}
+.dmx-mesa .glif.on .gl{color:var(--ink)}
+.dmx-mesa .glif .check{position:absolute;top:6px;right:6px;width:14px;height:14px;opacity:0;transform:scale(.6);transition:opacity .2s,transform .2s;color:var(--signal)}
+.dmx-mesa .glif .check svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.dmx-mesa .glif.on .check{opacity:1;transform:scale(1)}
+
+.dmx-mesa .regsel{display:flex;flex-wrap:wrap;gap:9px}
+.dmx-mesa .reg{font-family:var(--font-body),sans-serif;font-weight:600;font-size:.9rem;color:var(--ink-mute);background:var(--surface-2);border:1px solid var(--line);border-radius:100px;padding:.6rem 1.15rem;cursor:pointer;transition:color .25s,border-color .25s,background .25s}
+.dmx-mesa .reg small{display:block;font-family:var(--font-mono),monospace;font-size:.54rem;letter-spacing:.12em;color:var(--steel);text-transform:uppercase;margin-top:.15rem}
+.dmx-mesa .reg:hover{color:var(--ink)}
+.dmx-mesa .reg.on{color:var(--ink);border-color:var(--steel);background:var(--surface)}
+.dmx-mesa .reg.on small{color:var(--ink-mute)}
+
+.dmx-mesa .ctabar{position:fixed;left:0;right:0;bottom:0;z-index:55;background:linear-gradient(180deg,transparent,rgba(16,19,24,.86) 34%,var(--void) 100%);padding:1.4rem 0 1.15rem;pointer-events:none}
+.dmx-mesa .ctabar .inner{width:min(660px,92vw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1.2rem}
+.dmx-mesa .ctabar .count{font-family:var(--font-mono),monospace;font-size:.68rem;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase;font-variant-numeric:tabular-nums;line-height:1.4}
+.dmx-mesa .ctabar .count b{color:var(--ink);font-weight:500}
+.dmx-mesa .ctabar .count small{display:block;color:var(--steel);font-size:.58rem;margin-top:.25rem}
+.dmx-mesa .ctabar .btn{pointer-events:auto;padding:1rem 2.1rem;font-size:.96rem}
+.dmx-mesa .ctabar .btn[disabled]{opacity:.4;pointer-events:none;filter:grayscale(.4)}
+
+@media (max-width:440px){
+  .dmx-mesa .evgrid{grid-template-columns:repeat(2,1fr);gap:11px}
+  .dmx-mesa .glifsel{grid-template-columns:repeat(4,1fr);gap:7px}
+  .dmx-mesa .glif{padding:.7rem .2rem .6rem}
+  .dmx-mesa .glif svg{width:28px;height:28px}
+  .dmx-mesa .glif .gl{font-size:.58rem}
+  .dmx-mesa .ctabar .btn{padding:.9rem 1.4rem;font-size:.9rem}
+}
+
+/* car = capa de carácter de los glifos (detalle fino, se puede atenuar aparte) */
+.dmx-mesa .glif svg .car{opacity:.85}

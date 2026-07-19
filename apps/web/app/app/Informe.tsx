@@ -9,6 +9,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
+import { GLIFOS } from '../../lib/glifos';
 import { gsap, mk, setDraw } from '../../lib/motion';
 
 const NOMBRES: Record<string, string> = {
@@ -124,7 +125,11 @@ export function Informe(props: {
       tl.fromTo(q('#zonaSello'), { scale: 1.8, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.38, ease: 'power4.out' }, 2.1)
         .to(q('#pArq'), { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 2.3)
         .fromTo(q('#arqSeal'), { scale: 1.9, autoAlpha: 0, transformOrigin: 'center' }, { scale: 1, autoAlpha: 1, duration: 0.45, ease: 'power4.out' }, 2.55);
-      const glyph = el.querySelectorAll('#arqGlyph path, #arqGlyph circle') as NodeListOf<SVGGeometryElement>;
+      /* glifo del arquetipo detectado: 48x48 centrado en el sello 120x120 */
+      const glyphG = q('#arqGlyph') as unknown as SVGGElement;
+      glyphG.innerHTML = '';
+      (GLIFOS[props.arquetipo] ?? GLIFOS.viajero!)(glyphG);
+      const glyph = glyphG.querySelectorAll('path, circle') as NodeListOf<SVGGeometryElement>;
       tl.call(() => glyph.forEach((p) => setDraw(p)), undefined, 2.6);
       glyph.forEach((p, i) => tl.to(p, { strokeDashoffset: 0, duration: 0.45, ease: 'power2.inOut' }, 2.7 + i * 0.12));
       const co = { v: 0 };
@@ -207,12 +212,15 @@ export function Informe(props: {
               <g id="arqSeal" transform="rotate(-5 60 60)">
                 <circle cx="60" cy="60" r="54" fill="rgba(16,19,24,.4)" stroke="#4FD9C2" strokeWidth="2.4" />
                 <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(79,217,194,.4)" strokeWidth="1.2" strokeDasharray="4 5" />
-                <g id="arqGlyph" fill="none" stroke="#4FD9C2" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M28 76 L46 50 L58 66 L70 44 L92 76 Z" />
-                  <circle cx="42" cy="38" r="7" />
-                  <path d="M30 84 C44 78 76 78 90 84" strokeDasharray="3 5" />
-                  <path d="M74 34 L88 30 L84 42 Z" fill="rgba(79,217,194,.25)" />
-                </g>
+                <g
+                  id="arqGlyph"
+                  transform="translate(32.4 32.4) scale(1.15)"
+                  fill="none"
+                  stroke="#4FD9C2"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </g>
             </svg>
             <div>

@@ -15,7 +15,9 @@ import { ApiError, crearAuditoria, miAuditoria, obtenerAuditoria, type AuditView
 import { getAccessToken, getSupabase } from '../../lib/supabase';
 import { Escaner, type EscanerEstado } from './Escaner';
 import { Informe } from './Informe';
-import { PantallaLimite, PantallaLogin, PantallaMesa } from './pantallas';
+import { Login } from './Login';
+import { Mesa } from './Mesa';
+import { PantallaLimite } from './pantallas';
 import './app.css';
 
 type Fase =
@@ -170,8 +172,8 @@ export default function AppShell() {
           <p className="mono" style={{ fontSize: '.7rem', color: 'var(--ink-mute)' }}>Abriendo expediente…</p>
         </div>
       )}
-      {fase.nombre === 'login' && <PantallaLogin />}
-      {fase.nombre === 'mesa' && <PantallaMesa error={fase.error} enviando={fase.enviando} onEnviar={(f) => void enviar(f)} />}
+      {fase.nombre === 'login' && <Login />}
+      {fase.nombre === 'mesa' && <Mesa error={fase.error} enviando={fase.enviando} onEnviar={(f) => void enviar(f)} />}
       {fase.nombre === 'escaner' && (
         <Escaner
           total={fase.view.progress.total}
