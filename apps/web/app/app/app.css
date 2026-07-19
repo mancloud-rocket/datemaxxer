@@ -1,0 +1,185 @@
+/* =====================================================================
+   DATEMAXXER · /app · porteo fiel de design/app/shared.css + pantallas.
+   Mobile-first (390px primario). GUIA-VISUAL a rajatabla.
+   Todo scoped a .dmx: en Next el body es global y /app convive con la home.
+   ===================================================================== */
+
+.dmx{
+  --surface-2:#141922;
+  position:relative;min-height:100dvh;background-color:var(--void);color:var(--ink);
+  /* pattern forense sutil: micro-grilla de puntos + retícula de plano técnico */
+  background-image:
+    radial-gradient(circle, rgba(91,102,114,.13) 1px, transparent 1.3px),
+    linear-gradient(rgba(91,102,114,.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(91,102,114,.07) 1px, transparent 1px);
+  background-size:26px 26px, 130px 130px, 130px 130px;
+  background-attachment:fixed;
+  font-family:var(--font-body),system-ui,sans-serif;
+  overflow-x:clip;-webkit-font-smoothing:antialiased;
+}
+.dmx ::selection{background:var(--oxide);color:var(--ink)}
+
+/* capa cinematográfica */
+.dmx .grain{position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  animation:dmxGrainShift 1.1s steps(4) infinite}
+@keyframes dmxGrainShift{0%{background-position:0 0}25%{background-position:-38px 22px}50%{background-position:24px -30px}75%{background-position:-16px -14px}100%{background-position:0 0}}
+.dmx .vignette{position:fixed;inset:0;z-index:59;pointer-events:none;
+  background:radial-gradient(ellipse 140% 105% at 50% 42%,transparent 52%,rgba(6,8,11,.7) 100%)}
+
+/* HUD de la app: utilería persistente entre pantallas */
+.dmx .apphud{position:fixed;inset:0;z-index:50;pointer-events:none;font-family:var(--font-mono),monospace;text-transform:uppercase}
+.dmx .apphud .chip{position:absolute;top:1rem;left:1rem;display:inline-block;font-size:.55rem;letter-spacing:.24em;color:var(--oxide);border:1px solid var(--stamp);padding:.5em 1em;border-radius:2px;transform:rotate(-1.6deg);background:rgba(16,19,24,.5);backdrop-filter:blur(3px)}
+.dmx .apphud .fase{position:absolute;top:1.1rem;right:1rem;text-align:right;font-size:.6rem;letter-spacing:.22em;color:var(--ink);font-variant-numeric:tabular-nums;text-shadow:0 1px 8px rgba(6,8,11,.9)}
+.dmx .apphud .fase small{display:block;margin-top:.35rem;font-size:.52rem;color:var(--ink-mute)}
+.dmx .apphud .progress{position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(38,44,54,.55)}
+.dmx .apphud .progress i{display:block;height:100%;width:100%;background:var(--oxide);transform-origin:left;transform:scaleX(0);transition:background .6s}
+.dmx .apphud.fase-cyan .progress i{background:var(--signal);box-shadow:0 0 10px rgba(79,217,194,.6)}
+
+/* tipografía del sistema */
+.dmx .display{font-family:var(--font-display),sans-serif;text-transform:uppercase;letter-spacing:-.03em;line-height:.94}
+.dmx .kicker{font-weight:600;font-size:clamp(.92rem,2.6vw,1.05rem);color:var(--ink);display:flex;align-items:center;gap:.6rem}
+.dmx .kicker i{flex:none;width:8px;height:8px;border-radius:50%;background:var(--signal);box-shadow:0 0 12px rgba(79,217,194,.8)}
+.dmx .kicker.k-ox i{background:var(--oxide);box-shadow:0 0 12px rgba(201,75,50,.8)}
+.dmx .mono{font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.2em}
+
+/* sellos: siempre rotados, entran estampándose */
+.dmx .selloe{display:inline-block;font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.22em;font-size:.62rem;color:var(--oxide);border:1.5px solid var(--stamp);padding:.55em 1.1em;border-radius:2px;transform:rotate(-3deg);background:rgba(16,19,24,.4)}
+.dmx .selloe.s-cy{color:var(--signal);border-color:rgba(79,217,194,.6)}
+
+/* botones */
+.dmx .btn{pointer-events:auto;display:inline-block;border:0;cursor:pointer;text-decoration:none;text-align:center;font-family:var(--font-body),sans-serif;font-weight:700;font-size:1rem;letter-spacing:.02em;color:var(--void);background:var(--signal);padding:1.15rem 2.6rem;border-radius:6px;box-shadow:0 0 28px rgba(79,217,194,.26);transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
+.dmx .btn:hover{transform:translateY(-3px);box-shadow:0 0 48px rgba(79,217,194,.45)}
+.dmx .btn:disabled{opacity:.5;cursor:default;transform:none}
+.dmx .btn-ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line);box-shadow:none}
+.dmx .btn-ghost:hover{border-color:var(--steel);box-shadow:none}
+.dmx .micro{color:var(--steel);font-size:.85rem;font-weight:600}
+
+/* campos de formulario (mesa/login, piel provisoria hasta el arte de FRONT) */
+.dmx .campo{width:100%;background:var(--surface);border:1px solid var(--line);border-radius:6px;color:var(--ink);padding:.8rem 1rem;font-size:1rem;font-family:var(--font-body),sans-serif}
+.dmx .campo:focus{outline:none;border-color:var(--steel)}
+
+/* telón entre pantallas (§4.2) */
+.dmx .telon{position:fixed;inset:0;z-index:80;background:var(--void);pointer-events:none;transform:scaleY(0);transform-origin:top}
+
+/* estados error / límite (informe) */
+.dmx .estado-box{min-height:70dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 7vw}
+.dmx .estado-box .selloe{font-size:.85rem;margin-bottom:1.2rem}
+.dmx .estado-box h1{font-size:clamp(1.6rem,6.4vw,2.5rem);margin-bottom:.8rem}
+.dmx .estado-box p{color:var(--ink-mute);max-width:28em;line-height:1.6;margin-bottom:1.6rem}
+.dmx .estado-box .btn{margin:.3rem .35rem}
+
+@media (prefers-reduced-motion:reduce){
+  .dmx .grain{animation:none}
+}
+
+/* ============ EL ESCÁNER · set piece: "la mesa de luz" ============ */
+/* el padding reserva la franja del HUD: nada puede montarse sobre el chip/fase */
+.dmx-escaner{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100dvh;overflow:hidden;padding:64px 0 28px}
+
+.dmx-escaner .head{position:relative;z-index:5;text-align:center;padding:0 6vw;margin-bottom:2.2rem}
+.dmx-escaner .head .kicker{justify-content:center;margin-bottom:.7rem}
+.dmx-escaner .head h1{font-size:clamp(1.5rem,5.4vw,2.4rem)}
+.dmx-escaner .head .eta{margin-top:.55rem;color:var(--ink-mute);font-weight:500;font-size:.92rem}
+
+/* la mesa: ventana del proyector */
+/* margin-right compensa el voladizo del cabezal: el CONJUNTO queda óptico-centrado */
+.dmx-escaner .mesa{position:relative;width:min(340px,86vw);height:min(46dvh,430px);margin-right:72px}
+.dmx-escaner .mesa .ventana{position:absolute;inset:0;overflow:hidden;border-radius:10px}
+.dmx-escaner .strip{position:absolute;left:50%;top:0;transform:translateX(-50%);display:flex;flex-direction:column;gap:14px;width:calc(100% - 56px)}
+.dmx-escaner .frame{position:relative;width:100%}
+.dmx-escaner .frame svg{width:100%;height:auto;display:block;overflow:visible}
+
+/* riel + cabezal fijos sobre la ventana */
+.dmx-escaner .rail{position:absolute;top:-6px;bottom:-6px;right:-14px;width:10px}
+.dmx-escaner .cabezal{position:absolute;right:-78px;top:50%;width:134px;transform:translateY(-50%)}
+.dmx-escaner .cabezal svg{width:100%;height:auto;overflow:visible}
+.dmx-escaner .beam{position:absolute;left:-6px;right:26px;top:50%;height:54px;transform:translateY(-50%);pointer-events:none;opacity:0}
+.dmx-escaner .beam .glowband{position:absolute;inset:0;background:linear-gradient(180deg,transparent, rgba(79,217,194,.22) 46%, rgba(79,217,194,.22) 54%, transparent)}
+.dmx-escaner .beam .core{position:absolute;left:0;right:0;top:50%;height:2px;transform:translateY(-50%);background:var(--signal);box-shadow:0 0 14px rgba(79,217,194,.9)}
+
+/* fase síntesis */
+.dmx-escaner .sintesis{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden}
+.dmx-escaner .sintesis svg{width:min(300px,74vw);overflow:visible}
+
+/* error */
+.dmx-escaner .errbox{position:relative;z-index:6;text-align:center;margin-top:1.6rem;opacity:0;visibility:hidden}
+.dmx-escaner .errbox .selloe{font-size:.8rem;margin-bottom:1.1rem}
+.dmx-escaner .errbox p{color:var(--ink-mute);max-width:26em;margin:0 auto 1.4rem;line-height:1.55}
+.dmx-escaner .errbox .btn{margin:0 .4rem .6rem}
+
+.dmx-escaner .status{position:relative;z-index:5;margin-top:2rem;text-align:center}
+.dmx-escaner .status .mono{font-size:.7rem;color:var(--ink);letter-spacing:.26em;font-variant-numeric:tabular-nums}
+.dmx-escaner .status .sub{margin-top:.5rem;color:var(--steel);font-size:.85rem;font-weight:600}
+
+@media (max-width:520px){
+  .dmx-escaner .cabezal{right:-46px;width:104px}
+  .dmx-escaner .rail{right:-8px}
+  .dmx-escaner .mesa{margin-right:40px}
+}
+@media (min-width:700px){
+  .dmx-escaner .mesa{width:380px}
+}
+
+/* ============ EL INFORME · set piece: "el estampado del veredicto" ==== */
+.dmx-informe{padding:5.5rem 0 4rem}
+.dmx-informe .doc{width:min(560px,92vw);margin:0 auto}
+.dmx-informe .doc-head{text-align:center;margin-bottom:2.6rem}
+.dmx-informe .doc-head .kicker{justify-content:center;margin-bottom:.7rem}
+.dmx-informe .doc-head h1{font-size:clamp(1.7rem,6vw,2.6rem)}
+.dmx-informe .doc-head .caso{margin-top:.8rem}
+
+.dmx-informe .panel{position:relative;background:var(--surface-2);border-radius:16px;padding:1.8rem 1.5rem;margin-bottom:1.4rem}
+.dmx-informe .panel .plabel{font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.24em;font-size:.6rem;color:var(--ink-mute);margin-bottom:1.1rem}
+
+/* medidor */
+.dmx-informe .medidor{text-align:center}
+.dmx-informe .medidor svg{width:min(360px,84vw);overflow:visible}
+.dmx-informe .scoreline{margin-top:.4rem;font-family:var(--font-display),sans-serif;font-size:clamp(3.2rem,12vw,4.6rem);letter-spacing:-.03em;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.dmx-informe .scoreline small{font-size:.38em;color:var(--steel);letter-spacing:0}
+.dmx-informe .zona{margin-top:.6rem}
+.dmx-informe .zona .selloe{font-size:.72rem}
+
+/* arquetipo */
+.dmx-informe .arq{display:flex;align-items:center;gap:1.4rem}
+.dmx-informe .arq svg{width:118px;flex:none;overflow:visible}
+.dmx-informe .arq h2{font-size:clamp(1.7rem,7vw,2.4rem)}
+.dmx-informe .conf{margin-top:.55rem}
+.dmx-informe .conf .track{position:relative;height:9px;border-radius:5px;background:#1A202A;margin-top:.45rem;overflow:hidden}
+.dmx-informe .conf .track i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:5px;background:var(--signal);box-shadow:0 0 12px rgba(79,217,194,.4)}
+.dmx-informe .conf .clabel{font-size:.85rem;color:var(--ink-mute);font-weight:600}
+
+/* lectura 200ms */
+.dmx-informe .lectura{padding:2rem 1.6rem 2.1rem}
+.dmx-informe .lectura .pq2{position:relative;font-size:clamp(1.25rem,5vw,1.7rem);line-height:1.42;font-weight:600;color:var(--ink)}
+.dmx-informe .lectura .pq2::before{content:'«';position:absolute;left:-.1em;top:-.52em;font-family:var(--font-display),sans-serif;font-size:2.9em;color:rgba(201,75,50,.22);line-height:1}
+.dmx-informe .lectura .sub2{position:relative;display:inline}
+/* subrayado multilínea por background: la cita PUEDE quebrar línea sin desbordar */
+.dmx-informe .lectura .sub2 u{text-decoration:none;
+  background-image:linear-gradient(var(--oxide),var(--oxide));
+  background-repeat:no-repeat;background-position:0 100%;
+  background-size:calc(var(--w,0)*1%) 3px;
+  padding-bottom:5px;box-decoration-break:slice;-webkit-box-decoration-break:slice}
+
+/* fichas selladas (teaser) */
+.dmx-informe .sellado{position:relative;overflow:hidden}
+.dmx-informe .sellado .contenido{filter:blur(5px) saturate(.55);opacity:.5;pointer-events:none}
+.dmx-informe .sellado .contenido svg{width:100%;height:auto}
+.dmx-informe .velo{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;background:rgba(13,17,22,.32);backdrop-filter:blur(1.5px)}
+.dmx-informe .velo svg.sutura{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px)}
+.dmx-informe .velo .selloe{position:relative;font-size:.7rem;background:rgba(16,19,24,.75)}
+.dmx-informe .velo .queHay{position:relative;font-weight:700;font-size:1.02rem;color:var(--ink);text-align:center;text-shadow:0 2px 12px rgba(6,8,11,.9);padding:0 1.4rem}
+.dmx-informe .velo .queHay small{display:block;margin-top:.3rem;font-weight:600;font-size:.82rem;color:var(--ink-mute)}
+
+/* CTA de desbloqueo */
+.dmx-informe .unlock{text-align:center;padding:2.4rem 1.4rem;background:linear-gradient(170deg,rgba(23,27,34,.9),rgba(16,19,24,.96));border-radius:16px;clip-path:polygon(0 16px,16px 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%)}
+.dmx-informe .unlock::before{content:'';display:block;height:3px;margin:-2.4rem -1.4rem 2.2rem;background:var(--signal);box-shadow:0 0 16px rgba(79,217,194,.6)}
+.dmx-informe .unlock h2{font-size:clamp(1.4rem,5.4vw,2rem);margin-bottom:.6rem}
+.dmx-informe .unlock .precio{font-family:var(--font-display),sans-serif;font-size:1.5rem;color:var(--signal);margin:.4rem 0 1.2rem}
+.dmx-informe .unlock .precio small{font-family:var(--font-body),sans-serif;font-weight:600;font-size:.85rem;color:var(--steel)}
+.dmx-informe .unlock .micro{margin-top:1rem}
+
+@media (min-width:700px){ .dmx-informe .doc{width:600px} }
+
+/* ============ pantallas simples (login / mesa / límite, piel base) ==== */
+.dmx-simple{min-height:100dvh;display:flex;flex-direction:column;justify-content:center;padding:5rem 1.2rem 3rem}
