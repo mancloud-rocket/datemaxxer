@@ -81,7 +81,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return (
       <div className="dmx">
         <div className="dmx-simple" style={{ alignItems: 'center' }}>
-          <p className="mono" style={{ fontSize: '.7rem', color: 'var(--ink-mute)' }}>Abriendo expediente…</p>
+          <p className="mono" style={{ fontSize: '.7rem', color: 'var(--ink-mute)' }}>Abriendo tu cabina…</p>
         </div>
       </div>
     );

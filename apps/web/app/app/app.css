@@ -350,46 +350,64 @@
 /* car = capa de carácter de los glifos (detalle fino, se puede atenuar aparte) */
 .dmx-mesa .glif svg .car{opacity:.85}
 
-/* ============ CASA PERSISTENTE (sidebar + contenido) ============
-   Esqueleto funcional, piel pendiente de FRONT. Desktop: columna fija a
-   la izquierda. Mobile (<860px): colapsa a barra superior simple (NO es
-   drawer todavía - la app es mobile-first, esto es un placeholder
-   deliberadamente básico hasta que FRONT diseñe el patrón real).
+/* ============ CASA PERSISTENTE · set piece "El panel de cabina" ============
+   Diseño real de FRONT (design/app/settings.html, SET-PIECES.md #5), porteado
+   1:1 sobre mis mismos nombres de clase .dmx-sidebar-*. Desktop: columna fija
+   a la izquierda con LEDs de estado + riel activo. Mobile (<860px): colapsa
+   a franja superior (nav se reduce a los LEDs, la placa de identidad al avatar).
 
-   GOTCHA CONOCIDO para quien reskinee escáner/informe/mesa: esas pantallas
-   usan `.apphud`/`.ctabar` con position:fixed que ocupan TODO el viewport
-   (pensadas para pantalla completa, de antes de que existiera el sidebar).
-   Con el sidebar activo van a superponerse en la esquina superior/inferior
-   izquierda. No lo resolví acá a propósito: FRONT ya está retocando el
-   layout de esas mismas pantallas (hallazgo de la entrada q del log) y
-   tocarlo yo ahora hubiera sido pisar ese trabajo en curso. */
+   Fix del gotcha .apphud/sidebar (propuesto por FRONT): el chip de marca+sesión
+   del HUD queda redundante con la sidebar activa, se oculta acá abajo. La
+   fase+progress del HUD (lado derecho) siguen sirviendo, no chocan. */
 .dmx-shell{display:flex;min-height:100dvh}
+.dmx-shell .apphud .chip{display:none}
 
 .dmx-sidebar{
-  position:relative;z-index:10;flex:none;width:220px;
-  display:flex;flex-direction:column;gap:1.6rem;
-  padding:1.6rem 1.2rem;border-right:1px solid var(--line);
-  background:rgba(23,27,34,.5);
+  position:relative;z-index:10;flex:none;width:248px;
+  display:flex;flex-direction:column;gap:1.8rem;
+  padding:1.6rem 1.2rem 1.4rem;border-right:1px solid var(--line);
+  background:var(--surface-2);
 }
-.dmx-sidebar-brand{font-size:.68rem;color:var(--oxide);letter-spacing:.22em}
+.dmx-sidebar::after{content:'';position:absolute;top:0;right:-1px;bottom:0;width:1px;
+  background:linear-gradient(180deg,transparent,rgba(79,217,194,.18) 18%,rgba(79,217,194,.18) 82%,transparent)}
 
-.dmx-sidebar-nav{display:flex;flex-direction:column;gap:.3rem}
+.dmx-sidebar-brand{display:flex;align-items:center;gap:.6rem}
+.dmx-sidebar-brand svg{width:22px;height:22px;flex:none}
+.dmx-sidebar-brand span{font-family:var(--font-display),sans-serif;font-size:.92rem;letter-spacing:-.01em;color:var(--ink)}
+
+.dmx-sidebar-nav{display:flex;flex-direction:column;gap:.5rem}
 .dmx-sidebar-link{
-  color:var(--ink-mute);text-decoration:none;font-weight:600;font-size:.92rem;
-  padding:.6rem .7rem;border-radius:6px;transition:background .2s,color .2s;
+  position:relative;display:flex;align-items:center;gap:.7rem;padding:.75rem .85rem;
+  border-radius:7px;background:var(--surface);border:1px solid var(--line);
+  text-decoration:none;color:var(--ink-mute);font-family:var(--font-body),sans-serif;font-weight:600;
+  font-size:.9rem;transition:background .25s,border-color .25s,color .25s;
 }
-.dmx-sidebar-link:hover{background:rgba(255,255,255,.04);color:var(--ink)}
-.dmx-sidebar-link.on{background:rgba(79,217,194,.08);color:var(--ink)}
+.dmx-sidebar-link:hover{color:var(--ink);border-color:var(--steel-dim)}
+.dmx-sidebar-link .led{flex:none;width:7px;height:7px;border-radius:50%;background:var(--steel-dim);transition:background .3s,box-shadow .3s}
+.dmx-sidebar-link.on{background:rgba(79,217,194,.07);border-color:rgba(79,217,194,.4);color:var(--ink)}
+.dmx-sidebar-link.on .led{background:var(--signal);box-shadow:0 0 9px rgba(79,217,194,.85)}
+.dmx-sidebar-link.on::before{content:'';position:absolute;left:-1.2rem;top:.5rem;bottom:.5rem;width:2px;
+  background:var(--signal);border-radius:2px;box-shadow:0 0 8px rgba(79,217,194,.6)}
 
 .dmx-sidebar-user{display:flex;align-items:center;gap:.7rem;margin-top:auto}
-.dmx-avatar{width:36px;height:36px;border-radius:50%;flex:none;object-fit:cover;background:var(--surface-2)}
-.dmx-avatar-fallback{display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:var(--ink-mute);border:1px solid var(--line)}
+.dmx-avatar-wrap{position:relative;flex:none;width:38px;height:38px}
+.dmx-avatar{width:100%;height:100%;border-radius:8px;object-fit:cover;display:block;background:var(--surface)}
+.dmx-avatar-fallback{display:flex;align-items:center;justify-content:center;font-family:var(--font-mono),monospace;font-weight:500;font-size:.72rem;color:var(--ink-mute);border:1px solid var(--line)}
+.dmx-avatar-corners{position:absolute;inset:-3px;pointer-events:none;overflow:visible}
+.dmx-avatar-corners path{fill:none;stroke:var(--steel);stroke-width:1.6;stroke-linecap:round}
 .dmx-sidebar-user-info{min-width:0}
-.dmx-sidebar-user-name{font-size:.85rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dmx-sidebar-user-email{font-size:.56rem;color:var(--steel);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dmx-sidebar-salir{width:100%;font-size:.82rem;padding:.7rem 1rem}
+.dmx-sidebar-user-name{font-size:.84rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dmx-sidebar-user-email{font-family:var(--font-mono),monospace;font-size:.56rem;letter-spacing:.02em;color:var(--steel);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:.15rem}
 
-.dmx-content{flex:1;min-width:0;padding:2.4rem 2rem}
+.dmx-sidebar-salir{display:flex;align-items:center;justify-content:center;gap:.55rem;width:100%;
+  padding:.7rem .8rem;border-radius:7px;background:transparent;border:1px solid var(--line);
+  color:var(--steel);font-family:var(--font-body),sans-serif;font-weight:600;font-size:.82rem;
+  cursor:pointer;transition:color .25s,border-color .25s,background .25s;
+}
+.dmx-sidebar-salir:hover{color:var(--oxide);border-color:var(--stamp);background:rgba(201,75,50,.06)}
+.dmx-sidebar-salir svg{width:15px;height:15px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+
+.dmx-content{flex:1;min-width:0;padding:3.2rem 3rem 4rem;display:flex;justify-content:center}
 
 @media (max-width:860px){
   .dmx-shell{flex-direction:column}
@@ -397,9 +415,65 @@
     width:100%;flex-direction:row;align-items:center;gap:1rem;
     padding:.9rem 1.1rem;border-right:0;border-bottom:1px solid var(--line);
   }
-  .dmx-sidebar-nav{flex-direction:row;gap:.2rem}
+  .dmx-sidebar::after{display:none}
+  .dmx-sidebar-nav{flex-direction:row;gap:.4rem}
+  .dmx-sidebar-link{padding:.5rem .7rem;font-size:.78rem}
+  .dmx-sidebar-link .lab{display:none}
+  .dmx-sidebar-link .led{width:6px;height:6px}
   .dmx-sidebar-user{margin-top:0;margin-left:auto}
   .dmx-sidebar-user-info{display:none}
-  .dmx-sidebar-salir{width:auto;padding:.6rem .9rem;font-size:.72rem}
-  .dmx-content{padding:1.4rem 1rem}
+  .dmx-sidebar-salir{width:auto;padding:.5rem .65rem}
+  .dmx-sidebar-salir .lab{display:none}
+  .dmx-content{padding:2.2rem 1.2rem 3rem}
 }
+
+/* ============ CONFIGURACIÓN · set piece "Los puertos de conexión" ============ */
+.dmx-settings{width:min(560px,100%)}
+.dmx-settings .chead{margin-bottom:2.4rem}
+.dmx-settings .chead .kicker{margin-bottom:.6rem}
+.dmx-settings .chead h1{font-size:clamp(1.8rem,6vw,2.4rem)}
+.dmx-settings .chead .plan{margin-top:.8rem}
+
+.dmx-settings .field{margin-bottom:2.2rem}
+.dmx-settings .field h2{font-family:var(--font-body),sans-serif;font-weight:700;font-size:1.02rem;color:var(--ink);margin-bottom:.35rem}
+.dmx-settings .field .hint{color:var(--ink-mute);font-size:.85rem;font-weight:500;margin-bottom:.9rem;line-height:1.45}
+
+.dmx-settings .input{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;
+  color:var(--ink);font-family:var(--font-body),sans-serif;font-size:.98rem;padding:.9rem 1.05rem;transition:border-color .3s}
+.dmx-settings .input:focus{outline:none;border-color:var(--steel)}
+.dmx-settings .input::placeholder{color:var(--steel)}
+
+.dmx-settings .regsel{display:flex;flex-wrap:wrap;gap:9px}
+.dmx-settings .reg{font-family:var(--font-body),sans-serif;font-weight:600;font-size:.9rem;color:var(--ink-mute);background:var(--surface-2);
+  border:1px solid var(--line);border-radius:100px;padding:.6rem 1.15rem;cursor:pointer;transition:color .25s,border-color .25s,background .25s}
+.dmx-settings .reg small{display:block;font-family:var(--font-mono),monospace;font-size:.54rem;letter-spacing:.12em;color:var(--steel);text-transform:uppercase;margin-top:.15rem}
+.dmx-settings .reg:hover{color:var(--ink)}
+.dmx-settings .reg.on{color:var(--ink);border-color:var(--steel);background:var(--surface)}
+.dmx-settings .reg.on small{color:var(--ink-mute)}
+
+.dmx-settings .ports{display:flex;flex-direction:column;gap:.7rem}
+.dmx-settings .port{display:flex;align-items:center;gap:1rem;padding:1rem 1.1rem;background:var(--surface-2);
+  border:1px solid var(--line);border-radius:9px}
+.dmx-settings .port .socket{flex:none;width:38px;height:38px;overflow:visible}
+.dmx-settings .port .socket .ring{fill:none;stroke:var(--line);stroke-width:2.2;transition:stroke .4s}
+.dmx-settings .port .socket .pin{fill:var(--steel-dim);transition:fill .4s}
+.dmx-settings .port .socket .core{fill:none;stroke:var(--steel-dim);stroke-width:1.6;stroke-dasharray:2 3;transition:stroke .4s}
+.dmx-settings .port.on .socket .ring{stroke:var(--signal);filter:drop-shadow(0 0 5px rgba(79,217,194,.55))}
+.dmx-settings .port.on .socket .pin{fill:var(--signal)}
+.dmx-settings .port.on .socket .core{stroke:rgba(79,217,194,.55);stroke-dasharray:0}
+.dmx-settings .port .plabel{flex:1;min-width:0}
+.dmx-settings .port .plabel b{display:block;font-weight:700;font-size:.96rem;color:var(--ink)}
+.dmx-settings .port .plabel small{display:block;font-family:var(--font-mono),monospace;font-size:.56rem;letter-spacing:.1em;color:var(--steel);margin-top:.2rem;text-transform:uppercase}
+.dmx-settings .port .act{flex:none}
+.dmx-settings .err-vinculo{color:var(--oxide);font-size:.85rem;margin-top:.7rem}
+
+.dmx-settings .saverow{display:flex;align-items:center;gap:1rem;margin-top:2.6rem}
+.dmx-settings .saveok{display:flex;align-items:center;gap:.5rem;color:var(--signal);font-weight:600;font-size:.92rem;opacity:0}
+.dmx-settings .saveok svg{width:16px;height:16px;overflow:visible}
+.dmx-settings .saveok path{fill:none;stroke:var(--signal);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.dmx-settings .err-general{color:var(--oxide);font-size:.9rem;margin-top:1rem}
+.dmx-settings .divider{border-top:1px solid var(--line);margin-top:2.8rem;padding-top:1.6rem}
+
+.dmx-settings .loading-row{display:flex;align-items:center;gap:.7rem;color:var(--ink-mute);font-family:var(--font-mono),monospace;font-size:.72rem;letter-spacing:.12em}
+.dmx-settings .loading-row .dot{width:6px;height:6px;border-radius:50%;background:var(--signal);animation:dmxLdot 1.1s ease-in-out infinite}
+@keyframes dmxLdot{0%,100%{opacity:.25}50%{opacity:1}}

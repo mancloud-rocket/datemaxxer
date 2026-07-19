@@ -95,6 +95,49 @@ solo cambió la historia detrás.
 **Momento héroe:** los 6 dígitos completan → el sello gira y vira a cyan → candado se abre →
 check se dibuja (5 beats) → telón hacia el checklist.
 **Estados forzables:** `?estado=idle|codigo|invalido|abriendo` · `?qa=0..1`.
+
+## 5. EL SHELL + CONFIGURACIÓN (`settings.html`)
+
+Pedido directo de Fernando (19-jul, vía CORE): la app deja de sentirse "one-shot" - sidebar
+persistente con identidad, nav y salida, más una pantalla de cuenta real. CORE armó toda la
+estructura y el wiring (`apps/web/app/app/Sidebar.tsx`, `Settings.tsx`, `layout.tsx` gatekeeper
+de sesión, `account.ts` contracts, rutas `/me` y `/me/audits`); esto es la piel, bajo el
+vocabulario de cabina ya vigente (nunca expediente).
+
+**Set piece del shell nombrable: "El panel de cabina".** La sidebar no es un nav gris de
+SaaS: marca (glifo XX + wordmark) arriba, botones de navegación retroiluminados (LED que se
+enciende cyan + riel lateral cyan cuando es la pantalla activa, en vez de un "highlight"
+genérico), placa de identidad del piloto abajo (avatar con esquineros de archivo en 2 puntas
+opuestas + nombre/mail en jerarquía establecida) y un interruptor de salida al final. Colapsa
+a franja superior en mobile (<860px): nav se reduce a los LEDs, la placa de identidad se
+reduce al avatar solo.
+
+**Set piece de Configuración nombrable: "Los puertos de conexión".** Las cuentas vinculadas
+(Google/email) NO son una lista de toggles: son puertos físicos - un socket circular con pines
+internos que se ilumina cyan y gana un glow cuando la identidad está conectada, apagado/gris
+con núcleo punteado cuando no. Selector de región reutiliza el patrón exacto de
+`mesa.html` (`.regsel`/`.reg`, mismos subtítulos descriptivos). Guardar dispara un check cyan
+dibujándose (mismo lenguaje visual que el candado del ingreso), no un toast genérico.
+
+**Prueba del template:** un settings genérico es una lista de `<select>` y toggles; acá la
+sidebar es una estructura física con LEDs de estado real y las cuentas vinculadas son puertos
+que se asientan, no checkboxes.
+**Momento héroe (entrada, time-based):** sidebar entra desde bastidores izquierdos (nav
+stagger → placa de identidad → salida) mientras el contenido entra desde abajo (header →
+campos en cascada) - dos coreografías simultáneas, cabina y documento, cada una con su propio
+timing.
+**Estados forzables:** `?dev=1` (sesión falsa, mismo hook que ya definió CORE en `layout.tsx`)
+· `?nav=auditoria|config` · `?estado=listo|error` · `?linked=none|google|email|both` · `?qa=0..1`.
+
+**Gotcha de integración para CORE:** tu `.apphud` (chip+fase+progress, `position:fixed` pensado
+para pantalla completa) y el nuevo `.sidebar` van a chocar en la esquina superior izquierda
+- lo viste vos mismo. La resolución que propongo: el chip de marca+sesión del `.apphud`
+(`Datemaxxer · Vuelo 001`) queda REDUNDANTE una vez que existe la sidebar (que ya carga marca
++ identidad persistente) - ocultalo cuando el shell está activo (`.dmx-shell .apphud .chip{
+display:none}` o equivalente). La `.fase`+`.progress` (lado derecho) SÍ siguen teniendo sentido
+en escáner/mesa/informe (fase real de un proceso en curso) y no chocan con la sidebar
+(está a la izquierda) - esos quedan como están. Configuración no usa `.apphud` en absoluto:
+no hay "fase" que narrar en una pantalla de ajustes estáticos, tiene su propio header.
 **Nota de contrato:** el flujo real es Google OAuth (Supabase, activado por Fernando
 19-jul) + OTP por email. Acá el código demo válido es `204172`. CORE cablea el auth real.
 

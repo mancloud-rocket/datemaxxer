@@ -1,15 +1,20 @@
 'use client';
 
 /**
- * Sidebar persistente de /app. Esqueleto funcional (piel pendiente de FRONT,
- * mismo criterio que se usó con Mesa/Login antes de que les pusieran diseño):
- * avatar+nombre, nav, cerrar sesión. Colapsa a header simple en mobile via CSS
- * (ver .dmx-sidebar en app.css) - la resolución final del patrón mobile
- * (drawer vs bottom-nav) queda para FRONT.
+ * Sidebar persistente de /app · set piece "El panel de cabina" (porteo fiel
+ * de design/app/settings.html, SET-PIECES.md #5): marca (glifo XX + wordmark),
+ * botones retroiluminados (LED + riel cyan en la pantalla activa), placa de
+ * identidad con esquineros de archivo, interruptor de salida. Colapsa a
+ * franja superior en mobile (<860px, ver app.css).
+ *
+ * Entra una sola vez por sesión (el layout no remonta la sidebar al navegar
+ * entre Auditoría/Configuración - solo cambian los children).
  */
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useEffect, useRef } from 'react';
+import { gsap } from '../../lib/motion';
 import { getSupabase, type DisplayUser } from '../../lib/supabase';
 
 const NAV = [
@@ -19,6 +24,23 @@ const NAV = [
 
 export function Sidebar(props: { user: DisplayUser; children: React.ReactNode }) {
   const pathname = usePathname();
+  const root = useRef<HTMLElement>(null);
+  const REDUCED = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  useEffect(() => {
+    const el = root.current;
+    const qa = new URLSearchParams(window.location.search).get('qa') === '1';
+    if (!el || REDUCED || qa) return; // ?qa=1: --virtual-time-budget no es confiable con GSAP, se queda en el estado CSS visible
+    const ctx = gsap.context(() => {
+      gsap.set(['.dmx-sidebar-link', '.dmx-sidebar-user', '.dmx-sidebar-salir'], { autoAlpha: 0, x: -18 });
+      gsap.timeline()
+        .to('.dmx-sidebar-link', { autoAlpha: 1, x: 0, duration: 0.5, stagger: 0.08, ease: 'power2.out' }, 0)
+        .to('.dmx-sidebar-user', { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' }, 0.2)
+        .to('.dmx-sidebar-salir', { autoAlpha: 1, x: 0, duration: 0.5, ease: 'power2.out' }, 0.3);
+    }, el);
+    return () => ctx.revert();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function salir() {
     await getSupabase().auth.signOut();
@@ -26,8 +48,26 @@ export function Sidebar(props: { user: DisplayUser; children: React.ReactNode })
 
   return (
     <div className="dmx-shell">
-      <aside className="dmx-sidebar">
-        <div className="dmx-sidebar-brand mono">Datemaxxer</div>
+      <aside className="dmx-sidebar" ref={root}>
+        <div className="dmx-sidebar-brand">
+          <svg viewBox="0 0 200 200">
+            <defs>
+              <linearGradient id="wmgSidebar" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stopColor="#6FEBD4" /><stop offset="1" stopColor="#2FAE97" />
+              </linearGradient>
+            </defs>
+            <g transform="translate(35 29) scale(1.477)">
+              <path d="M6 0 L32 0 L80 96 L54 96 Z" fill="url(#wmgSidebar)" stroke="#1E8A78" strokeWidth="1.5" strokeLinejoin="round" />
+              <path d="M54 0 L80 0 L32 96 L6 96 Z" fill="url(#wmgSidebar)" stroke="#1E8A78" strokeWidth="1.5" strokeLinejoin="round" />
+              <path d="M29.5 21 C36 34 50 62 56.5 75" fill="none" stroke="#EAFBF6" strokeWidth="2.6" strokeLinecap="round" opacity=".95" />
+              <path d="M56.4 21 C50 34 36 62 29.6 75" fill="none" stroke="#EAFBF6" strokeWidth="2.6" strokeLinecap="round" opacity=".95" />
+              <circle cx="29.5" cy="21" r="4.6" fill="#101318" stroke="#EAFBF6" strokeWidth="2" /><circle cx="56.4" cy="21" r="4.6" fill="#101318" stroke="#EAFBF6" strokeWidth="2" />
+              <circle cx="29.6" cy="75" r="4.6" fill="#101318" stroke="#EAFBF6" strokeWidth="2" /><circle cx="56.5" cy="75" r="4.6" fill="#101318" stroke="#EAFBF6" strokeWidth="2" />
+            </g>
+          </svg>
+          <span>Datemaxxer</span>
+        </div>
+
         <nav className="dmx-sidebar-nav">
           {NAV.map((item) => (
             <Link
@@ -35,24 +75,33 @@ export function Sidebar(props: { user: DisplayUser; children: React.ReactNode })
               href={item.href}
               className={`dmx-sidebar-link${pathname === item.href ? ' on' : ''}`}
             >
-              {item.label}
+              <i className="led" />
+              <span className="lab">{item.label}</span>
             </Link>
           ))}
         </nav>
-        <div className="dmx-sidebar-user">
-          {props.user.avatarUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={props.user.avatarUrl} alt="" className="dmx-avatar" />
-          ) : (
-            <div className="dmx-avatar dmx-avatar-fallback">{props.user.iniciales}</div>
-          )}
+
+        <div className="dmx-sidebar-user" style={{ marginTop: 'auto' }}>
+          <div className="dmx-avatar-wrap">
+            {props.user.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={props.user.avatarUrl} alt="" className="dmx-avatar" />
+            ) : (
+              <div className="dmx-avatar dmx-avatar-fallback">{props.user.iniciales}</div>
+            )}
+            <svg className="dmx-avatar-corners" viewBox="0 0 44 44">
+              <path d="M2 12 L2 2 L12 2 M32 2 L42 2 L42 12 M42 32 L42 42 L32 42 M12 42 L2 42 L2 32" />
+            </svg>
+          </div>
           <div className="dmx-sidebar-user-info">
             <div className="dmx-sidebar-user-name">{props.user.nombre}</div>
-            {props.user.email && <div className="dmx-sidebar-user-email mono">{props.user.email}</div>}
+            {props.user.email && <div className="dmx-sidebar-user-email">{props.user.email}</div>}
           </div>
         </div>
-        <button className="btn btn-ghost dmx-sidebar-salir" onClick={() => void salir()}>
-          Cerrar sesión
+
+        <button className="dmx-sidebar-salir" onClick={() => void salir()}>
+          <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="M16 17l5-5-5-5" /><path d="M21 12H9" /></svg>
+          <span className="lab">Cerrar sesión</span>
         </button>
       </aside>
       <main className="dmx-content">{props.children}</main>
