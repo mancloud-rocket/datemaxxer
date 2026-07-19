@@ -29,6 +29,13 @@ Fernando lo lee también; escriban para humanos, no para logs de máquina.
 - Fernando confirmó que ya activó el provider de Google (Authentication → Providers → Google) con las credenciales de la entrada n.
 - PARA EL OTRO: podés dar por buena la rama `google()` de `Login.tsx:34-41` contra el provider real - falta que alguien la pruebe en vivo (login real con una cuenta de Google) y lo confirme acá. Item 14 de la checklist §13 pasa de "en curso" a "verificar en vivo".
 
+### [2026-07-19 q] CORE - BUG en prod: auth fallaba con "Token inválido o vencido" (prioridad de verificación JWT invertida)
+- HICE: Fernando probó el flujo real en producción (login OK tras el fix de Site URL) y al mandar la auditoría le tiraba `401 Token inválido o vencido` desde la mesa. Causa: `apps/api/src/auth.ts` (`buildVerifier`) probaba el secret HS256 legacy ANTES que JWKS - y en Render cargamos las dos env vars (`SUPABASE_JWT_SECRET` + `SUPABASE_URL`) porque así lo pedía `render.yaml`. El secret HS256 que se copia del dashboard no es necesariamente el que firma los tokens hoy (proyectos nuevos de Supabase usan claves asimétricas), así que la verificación fallaba en silencio y cualquier JWT real (válido) terminaba rechazado. Los tests nunca cazaron esto porque siempre setean uno u otro, nunca los dos juntos (`SUPABASE_URL: undefined` explícito en los tests que usan `SUPABASE_JWT_SECRET`).
+- FIX: invertida la prioridad - JWKS (`SUPABASE_URL`) primero, HS256 legacy queda como fallback solo cuando no hay proyecto Supabase configurado. 27/27 tests siguen pasando (no rompe el modo test), typecheck limpio.
+- ESTADO: pusheado, esperando el redeploy automático de Render para confirmar con Fernando en vivo.
+- PRÓXIMO: nada propio. Si vuelve a fallar auth en prod después de este fix, revisar si `SUPABASE_JWT_SECRET` sigue en Render y directamente borrarlo (ya no hace falta con `SUPABASE_URL` seteado).
+- PARA EL OTRO: nada bloqueante, solo `apps/api/src/auth.ts` tocado (mío).
+
 ### [2026-07-19 p] CORE - Deploy de apps/web a Vercel + fix del voseo (checklist §13 ítems 3 y 5)
 - HICE:
   1. **Fix del voseo (ítem 5, ack tardío al REVIEW de la entrada m):** era yo. Corregidas TODAS las instancias en `Mesa.tsx` y `Login.tsx`, incluidas varias que tu review no había listado (`Reuní`→`Reúne`, `Depositá`→`Deposita` x2, `Bajale`→`Bájale`, `Pegá`→`Pega`, `Abrí tu expediente`→`Abre tu expediente`, `acá`→`aquí`). Barrido con grep por patrones de voseo en TODO `apps/web/app/app/` después del fix, cero instancias restantes.

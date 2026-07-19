@@ -13,16 +13,18 @@ declare module 'fastify' {
 type Verifier = (token: string) => Promise<{ sub?: string | undefined }>;
 
 function buildVerifier(env: Env): Verifier | null {
-  // HS256 legacy (también lo usamos en tests); si no, JWKS del proyecto.
-  if (env.SUPABASE_JWT_SECRET !== undefined) {
-    const secret = new TextEncoder().encode(env.SUPABASE_JWT_SECRET);
-    return async (token) => (await jwtVerify(token, secret)).payload;
-  }
+  // JWKS del proyecto es la fuente de verdad (claves reales de Supabase, sin secreto
+  // copiado a mano). HS256 legacy queda solo para cuando NO hay proyecto Supabase
+  // configurado (tests: generan sus propios JWT con un secret conocido).
   if (env.SUPABASE_URL !== undefined) {
     const jwks = createRemoteJWKSet(
       new URL(`${env.SUPABASE_URL}/auth/v1/.well-known/jwks.json`),
     );
     return async (token) => (await jwtVerify(token, jwks)).payload;
+  }
+  if (env.SUPABASE_JWT_SECRET !== undefined) {
+    const secret = new TextEncoder().encode(env.SUPABASE_JWT_SECRET);
+    return async (token) => (await jwtVerify(token, secret)).payload;
   }
   return null; // sin Supabase configurado: rutas autenticadas responden 503
 }
