@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datemaxxer · Tu informe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+/* ============ EL INFORME · set piece: "el estampado del veredicto" ====
+   La aguja barre y se clava → el sello del arquetipo se estampa → la
+   lectura se subraya en óxido → lo pago queda cosido con sutura.
+   QA: ?estado=done|error|limite · ?qa=1 (estado final instantáneo) ==== */
+body{padding:5.5rem 0 4rem}
+.doc{width:min(560px,92vw);margin:0 auto}
+.doc-head{text-align:center;margin-bottom:2.6rem}
+.doc-head .kicker{justify-content:center;margin-bottom:.7rem}
+.doc-head h1{font-size:clamp(1.7rem,6vw,2.6rem)}
+.doc-head .caso{margin-top:.8rem}
+
+.panel{position:relative;background:var(--surface-2);border-radius:16px;padding:1.8rem 1.5rem;margin-bottom:1.4rem}
+.panel .plabel{font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.24em;font-size:.6rem;color:var(--ink-mute);margin-bottom:1.1rem}
+
+/* medidor */
+.medidor{text-align:center}
+.medidor svg{width:min(360px,84vw);overflow:visible}
+.scoreline{margin-top:.4rem;font-family:'Archivo Black',sans-serif;font-size:clamp(3.2rem,12vw,4.6rem);letter-spacing:-.03em;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.scoreline small{font-size:.38em;color:var(--steel);letter-spacing:0}
+.zona{margin-top:.6rem}
+.zona .selloe{font-size:.72rem}
+
+/* arquetipo */
+.arq{display:flex;align-items:center;gap:1.4rem}
+.arq svg{width:118px;flex:none;overflow:visible}
+.arq h2{font-size:clamp(1.7rem,7vw,2.4rem)}
+.conf{margin-top:.55rem}
+.conf .track{position:relative;height:9px;border-radius:5px;background:#1A202A;margin-top:.45rem;overflow:hidden}
+.conf .track i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:5px;background:var(--signal);box-shadow:0 0 12px rgba(79,217,194,.4)}
+.conf .clabel{font-size:.85rem;color:var(--ink-mute);font-weight:600}
+
+/* lectura 200ms */
+.lectura{padding:2rem 1.6rem 2.1rem}
+.lectura .pq2{position:relative;font-size:clamp(1.25rem,5vw,1.7rem);line-height:1.42;font-weight:600;color:var(--ink)}
+.lectura .pq2::before{content:'«';position:absolute;left:-.1em;top:-.52em;font-family:'Archivo Black',sans-serif;font-size:2.9em;color:rgba(201,75,50,.22);line-height:1}
+.lectura .sub2{position:relative;display:inline}
+/* subrayado multilínea por background: la cita PUEDE quebrar línea sin desbordar */
+.lectura .sub2 u{text-decoration:none;
+  background-image:linear-gradient(var(--oxide),var(--oxide));
+  background-repeat:no-repeat;background-position:0 100%;
+  background-size:calc(var(--w,0)*1%) 3px;
+  padding-bottom:5px;box-decoration-break:slice;-webkit-box-decoration-break:slice}
+
+/* fichas selladas (teaser) */
+.sellado{position:relative;overflow:hidden}
+.sellado .contenido{filter:blur(5px) saturate(.55);opacity:.5;pointer-events:none}
+.sellado .contenido svg{width:100%;height:auto}
+.velo{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;background:rgba(13,17,22,.32);backdrop-filter:blur(1.5px)}
+.velo svg.sutura{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px)}
+.velo .selloe{position:relative;font-size:.7rem;background:rgba(16,19,24,.75)}
+.velo .queHay{position:relative;font-weight:700;font-size:1.02rem;color:var(--ink);text-align:center;text-shadow:0 2px 12px rgba(6,8,11,.9);padding:0 1.4rem}
+.velo .queHay small{display:block;margin-top:.3rem;font-weight:600;font-size:.82rem;color:var(--ink-mute)}
+
+/* CTA de desbloqueo */
+.unlock{text-align:center;padding:2.4rem 1.4rem;background:linear-gradient(170deg,rgba(23,27,34,.9),rgba(16,19,24,.96));border-radius:16px;clip-path:polygon(0 16px,16px 0,100% 0,100% calc(100% - 16px),calc(100% - 16px) 100%,0 100%)}
+.unlock::before{content:'';display:block;height:3px;margin:-2.4rem -1.4rem 2.2rem;background:var(--signal);box-shadow:0 0 16px rgba(79,217,194,.6)}
+.unlock h2{font-size:clamp(1.4rem,5.4vw,2rem);margin-bottom:.6rem}
+.unlock .precio{font-family:'Archivo Black',sans-serif;font-size:1.5rem;color:var(--signal);margin:.4rem 0 1.2rem}
+.unlock .precio small{font-family:'Inter Tight',sans-serif;font-weight:600;font-size:.85rem;color:var(--steel)}
+.unlock .micro{margin-top:1rem}
+
+/* estados error / límite */
+.estado-box{min-height:70dvh;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 7vw}
+.estado-box .selloe{font-size:.85rem;margin-bottom:1.2rem}
+.estado-box h1{font-size:clamp(1.6rem,6.4vw,2.5rem);margin-bottom:.8rem}
+.estado-box p{color:var(--ink-mute);max-width:28em;line-height:1.6;margin-bottom:1.6rem}
+.estado-box .btn{margin:.3rem .35rem}
+
+@media (min-width:700px){ .doc{width:600px} }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+<div class="vignette"></div>
+<div class="telon cubierto"></div>
+
+<div class="apphud">
+  <span class="chip">Datemaxxer · Expediente 001</span>
+  <div class="fase"><b id="faseTxt">VEREDICTO LISTO</b><small id="faseSub">informe completo</small></div>
+  <div class="progress"><i id="hudBar"></i></div>
+</div>
+
+<main class="doc" id="doc">
+  <header class="doc-head" id="dochead">
+    <p class="kicker"><i></i>Tu expediente está completo</p>
+    <h1 class="display">El veredicto<br>de tu perfil.</h1>
+    <div class="caso"><span class="selloe s-cy">AUD-2026-0718 · 6 FOTOS + BIO</span></div>
+  </header>
+
+  <!-- 1 · el medidor -->
+  <section class="panel medidor" id="pMedidor">
+    <div class="plabel">Score de coherencia · cómo te lee el algoritmo</div>
+    <svg viewBox="0 0 360 210" id="gaugeSvg">
+      <defs>
+        <pattern id="ghatch" width="7" height="7" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+          <line x1="0" y1="0" x2="0" y2="7" stroke="#C94B32" stroke-width="1" opacity=".5"/>
+        </pattern>
+      </defs>
+      <g id="gzones" fill="none" stroke-linecap="round"></g>
+      <g id="gticks"></g>
+      <g id="gnums" font-family="IBM Plex Mono,monospace" font-size="12" fill="#5B6672"></g>
+      <path d="M76 96 A118 118 0 0 1 148 58" fill="none" stroke="#7A8797" stroke-width="2" stroke-linecap="round" opacity=".5"/>
+      <g id="gneedle">
+        <path id="needlePath" d="M180 178 L174 168 L178 84 L180 76 L182 84 L186 168 Z" fill="#E6E9ED"/>
+        <circle cx="180" cy="178" r="13" fill="#171B22" stroke="#3A4350" stroke-width="2.4"/>
+        <circle cx="180" cy="178" r="4.6" fill="#0F141A" stroke="#5B6672" stroke-width="1.4"/>
+        <line x1="177" y1="175" x2="183" y2="181" stroke="#5B6672" stroke-width="1.4"/>
+      </g>
+      <path id="garcRisk" d="" fill="url(#ghatch)" opacity="0"/>
+    </svg>
+    <div class="scoreline"><span id="scoreNum">0</span><small> / 100</small></div>
+    <div class="zona"><span class="selloe" id="zonaSello" style="opacity:0">Zona de riesgo</span></div>
+  </section>
+
+  <!-- 2 · el arquetipo -->
+  <section class="panel" id="pArq">
+    <div class="plabel">Arquetipo detectado · lo que tu perfil dice que eres</div>
+    <div class="arq">
+      <svg viewBox="0 0 120 120" id="arqSvg">
+        <g id="arqSeal" transform="rotate(-5 60 60)">
+          <circle cx="60" cy="60" r="54" fill="rgba(16,19,24,.4)" stroke="#4FD9C2" stroke-width="2.4"/>
+          <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(79,217,194,.4)" stroke-width="1.2" stroke-dasharray="4 5"/>
+          <g id="arqGlyph" fill="none" stroke="#4FD9C2" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M28 76 L46 50 L58 66 L70 44 L92 76 Z"/>
+            <circle cx="42" cy="38" r="7"/>
+            <path d="M30 84 C44 78 76 78 90 84" stroke-dasharray="3 5"/>
+            <path d="M74 34 L88 30 L84 42 Z" fill="rgba(79,217,194,.25)"/>
+          </g>
+        </g>
+      </svg>
+      <div>
+        <h2 class="display" id="arqNombre">Viajero</h2>
+        <div class="conf">
+          <span class="clabel">Confianza de la lectura · <b id="confNum" style="color:var(--ink)">0</b>%</span>
+          <div class="track"><i id="confBar"></i></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 · la lectura -->
+  <section class="panel lectura" id="pLectura">
+    <div class="plabel">La lectura de 200 milisegundos · sin anestesia</div>
+    <p class="pq2"><span class="sub2">«<u id="lecturaTxt">Tres señales distintas compitiendo: viaje, oficina, gimnasio.</u>»</span></p>
+  </section>
+
+  <!-- 4 · lo sellado (teaser del Kit) -->
+  <section class="panel sellado" id="s1">
+    <div class="contenido">
+      <svg viewBox="0 0 500 190">
+        <rect x="20" y="20" width="120" height="150" rx="8" fill="#1A212B" stroke="#262C36" stroke-width="1.5"/>
+        <circle cx="80" cy="70" r="22" fill="#232C37"/><path d="M46 150 C58 116 102 116 114 150 Z" fill="#232C37"/>
+        <circle cx="80" cy="70" r="30" fill="none" stroke="#4FD9C2" stroke-width="1.4"/>
+        <line x1="112" y1="60" x2="170" y2="44" stroke="#4FD9C2" stroke-width="1.2"/>
+        <text x="174" y="48" font-family="IBM Plex Mono,monospace" font-size="12" fill="#E6E9ED">DICE: PROFESIONAL</text>
+        <line x1="106" y1="96" x2="170" y2="112" stroke="#C94B32" stroke-width="1.2"/>
+        <text x="174" y="116" font-family="IBM Plex Mono,monospace" font-size="12" fill="#C94B32">LUZ FRÍA · INTERIOR</text>
+        <rect x="330" y="30" width="150" height="26" rx="4" fill="#151A22" stroke="#262C36"/>
+        <rect x="330" y="66" width="150" height="26" rx="4" fill="#151A22" stroke="#262C36"/>
+        <rect x="330" y="102" width="150" height="26" rx="4" fill="#151A22" stroke="#262C36"/>
+        <text x="340" y="47" font-family="IBM Plex Mono,monospace" font-size="11" fill="#8C96A3">CALIDAD 62/100</text>
+      </svg>
+    </div>
+    <div class="velo">
+      <svg class="sutura" preserveAspectRatio="none"></svg>
+      <span class="selloe s-cy">Sellado</span>
+      <div class="queHay">La lectura foto por foto de tus 6 fotos<small>qué dice cada una y qué la traiciona</small></div>
+    </div>
+  </section>
+
+  <section class="panel sellado" id="s2">
+    <div class="contenido">
+      <svg viewBox="0 0 500 190">
+        <g font-family="IBM Plex Mono,monospace" font-size="11" fill="#8C96A3">
+          <rect x="24" y="30" width="90" height="120" rx="6" fill="#1A212B" stroke="#4FD9C2" stroke-width="1.6"/>
+          <text x="40" y="100">FOTO 4</text>
+          <rect x="140" y="30" width="90" height="120" rx="6" fill="#1A212B" stroke="#262C36" stroke-width="1.4"/>
+          <text x="156" y="100">FOTO 2</text>
+          <rect x="256" y="30" width="90" height="120" rx="6" fill="#1A212B" stroke="#262C36" stroke-width="1.4"/>
+          <text x="272" y="100">FOTO 6</text>
+          <rect x="372" y="30" width="90" height="120" rx="6" fill="#1A212B" stroke="#C94B32" stroke-width="1.6" stroke-dasharray="6 5"/>
+          <text x="388" y="100">FUERA</text>
+        </g>
+        <path d="M118 90 L136 90 M234 90 L252 90 M350 90 L368 90" stroke="#4FD9C2" stroke-width="2" marker-end=""/>
+      </svg>
+    </div>
+    <div class="velo">
+      <svg class="sutura" preserveAspectRatio="none"></svg>
+      <span class="selloe s-cy">Sellado</span>
+      <div class="queHay">Tu plan de fotos completo<small>cuáles conservar, cuáles reemplazar y el orden que convierte</small></div>
+    </div>
+  </section>
+
+  <section class="panel sellado" id="s3">
+    <div class="contenido">
+      <svg viewBox="0 0 500 150">
+        <g font-family="Inter Tight,sans-serif" font-size="14" fill="#E6E9ED">
+          <path d="M36 40 L43 48 L56 30" fill="none" stroke="#4FD9C2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="72" y="45">Quick win 01 · alto impacto, cero costo</text>
+          <path d="M36 84 L43 92 L56 74" fill="none" stroke="#4FD9C2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="72" y="89">Quick win 02 · antes de tu próxima semana</text>
+          <path d="M36 128 L43 136 L56 118" fill="none" stroke="#4FD9C2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <text x="72" y="133">Gap contra tu arquetipo objetivo</text>
+        </g>
+      </svg>
+    </div>
+    <div class="velo">
+      <svg class="sutura" preserveAspectRatio="none"></svg>
+      <span class="selloe s-cy">Sellado</span>
+      <div class="queHay">Quick wins + tu plan contra el objetivo<small>lo accionable, ordenado por impacto</small></div>
+    </div>
+  </section>
+
+  <!-- 5 · desbloqueo -->
+  <section class="unlock" id="unlock">
+    <h2 class="display">Abre el expediente<br>completo.</h2>
+    <div class="precio">Kit · US$ 19 <small>una sola vez</small></div>
+    <a class="btn" href="#" onclick="return false">Desbloquear con el Kit</a>
+    <p class="micro">Garantía de 30 días: si tu match rate no mejora, te devolvemos el dinero.</p>
+  </section>
+</main>
+
+<!-- estado: error -->
+<div class="estado-box" id="boxError">
+  <span class="selloe">Error de lectura</span>
+  <h1 class="display">El informe no llegó<br>a imprimirse.</h1>
+  <p>Algo se cortó al sintetizar tu veredicto. Tu cupo gratuito sigue intacto: los errores no lo queman.</p>
+  <div>
+    <a class="btn" href="escaner.html?estado=analizando">Reintentar el análisis</a>
+    <a class="btn btn-ghost" href="mesa.html">Volver a la mesa</a>
+  </div>
+</div>
+
+<!-- estado: límite (upsell) -->
+<div class="estado-box" id="boxLimite">
+  <span class="selloe">Cupo gratuito usado</span>
+  <h1 class="display">Tu primera auditoría<br>ya está en el expediente.</h1>
+  <p>La auditoría gratis es una sola por cuenta. Para volver a auditarte después de mejorar tu perfil, y desbloquear el plan completo de fotos, el Kit te cubre: incluye re-chequeo a los 30 días.</p>
+  <div>
+    <a class="btn" href="#" onclick="return false">Pasar al Kit · US$ 19</a>
+    <a class="btn btn-ghost" href="#" onclick="return false">Ver mi informe anterior</a>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="shared.js"></script>
+<script>
+telonEntrada();
+(() => {
+  const RESULT = {
+    score: 41, arquetipo: 'Viajero', confianza: 72,
+    lectura: 'Tres señales distintas compitiendo: viaje, oficina, gimnasio.',
+  };
+  const ESTADO = qsParam('estado') || 'done';
+  const QA = qsParam('qa') !== null;
+
+  /* ---------- medidor: zonas, ticks, números ---------- */
+  const CX = 180, CYg = 178, R = 128;
+  const pt = (deg, r) => { const a = Math.PI - (deg / 100) * Math.PI; return [CX + r * Math.cos(a), CYg - r * Math.sin(a)]; };
+  const zonas = [[0, 40, '#C94B32'], [40, 70, '#E8B04B'], [70, 100, '#4FD9C2']];
+  const gz = document.getElementById('gzones');
+  zonas.forEach(([a, b, col]) => {
+    const [x0, y0] = pt(a + 1.2, R), [x1, y1] = pt(b - 1.2, R);
+    mk('path', { d: `M${x0} ${y0} A${R} ${R} 0 0 1 ${x1} ${y1}`, stroke: col, 'stroke-width': 7, opacity: .85 }, gz);
+  });
+  const gt = document.getElementById('gticks');
+  for (let v = 0; v <= 100; v += 5) {
+    const major = v % 25 === 0;
+    const [x0, y0] = pt(v, R - 12), [x1, y1] = pt(v, R - (major ? 26 : 19));
+    mk('line', { x1: x0, y1: y0, x2: x1, y2: y1, stroke: major ? '#5B6672' : '#333C47', 'stroke-width': major ? 2.2 : 1.3 }, gt);
+  }
+  const gn = document.getElementById('gnums');
+  [0, 25, 50, 75, 100].forEach(v => {
+    const [x, y] = pt(v, R - 40);
+    mk('text', { x, y: y + 4, 'text-anchor': 'middle' }, gn).textContent = v;
+  });
+  /* área de riesgo hatchada bajo la zona donde cayó el score */
+  const [rx0, ry0] = pt(0, R - 6), [rx1, ry1] = pt(40, R - 6);
+  document.getElementById('garcRisk').setAttribute('d',
+    `M${CX} ${CYg} L${rx0} ${ry0} A${R - 6} ${R - 6} 0 0 1 ${rx1} ${ry1} Z`);
+
+  const needleDeg = v => -90 + (v / 100) * 180;
+  /* svgOrigin, no transformOrigin: el pivote debe ser el centro del arco en coords SVG */
+  gsap.set('#gneedle', { rotation: needleDeg(0), svgOrigin: '180 178' });
+
+  /* ---------- suturas de las fichas selladas ---------- */
+  document.querySelectorAll('.sellado').forEach(sec => {
+    const svg = sec.querySelector('.sutura');
+    const w = sec.offsetWidth, h = sec.offsetHeight;
+    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+    const g = mk('g', { fill: 'none', stroke: '#4FD9C2', 'stroke-width': 2.4, 'stroke-linecap': 'round', opacity: .55 }, svg);
+    const st = [];
+    const paso = Math.max(96, (w - 60) / 4), cruz = 46;
+    for (let x = 30; x < w - cruz - 12; x += paso) {
+      st.push(mk('path', { d: `M${x} 10 L${x + cruz} ${h - 10}`, class: 'stx' }, g));
+      st.push(mk('path', { d: `M${x + cruz} 10 L${x} ${h - 10}`, class: 'stx' }, g));
+      mk('circle', { cx: x, cy: 10, r: 3, fill: '#101318', stroke: '#4FD9C2', 'stroke-width': 1.5 }, g);
+      mk('circle', { cx: x + cruz, cy: h - 10, r: 3, fill: '#101318', stroke: '#4FD9C2', 'stroke-width': 1.5 }, g);
+    }
+    sec._stitches = st;
+  });
+
+  /* ---------- estados ---------- */
+  if (ESTADO === 'error' || ESTADO === 'limite') {
+    document.getElementById('doc').style.display = 'none';
+    const box = document.getElementById(ESTADO === 'error' ? 'boxError' : 'boxLimite');
+    box.style.display = 'flex';
+    document.getElementById('faseTxt').textContent = ESTADO === 'error' ? 'LECTURA INTERRUMPIDA' : 'CUPO USADO';
+    document.getElementById('faseSub').textContent = ESTADO === 'error' ? 'cupo intacto' : 'el kit te cubre';
+    hudProgress(ESTADO === 'error' ? .4 : 1, ESTADO !== 'error');
+    if (QA) {
+      gsap.set(box.children, { autoAlpha: 1 });
+    } else {
+      gsap.from(box.children, { y: 26, autoAlpha: 0, duration: .6, stagger: .14, ease: 'power2.out' });
+      gsap.fromTo(box.querySelector('.selloe'), { scale: 1.8 }, { scale: 1, duration: .4, ease: 'power4.out' });
+    }
+    return;
+  }
+
+  /* ---------- la secuencia causal del veredicto ---------- */
+  hudProgress(1, true);
+  const tl = gsap.timeline({ paused: QA });
+
+  gsap.set(['#dochead', '#pMedidor', '#pArq', '#pLectura', '#s1', '#s2', '#s3', '#unlock'], { autoAlpha: 0, y: 30 });
+  tl.to('#dochead', { autoAlpha: 1, y: 0, duration: .6, ease: 'power2.out' }, 0)
+    .to('#pMedidor', { autoAlpha: 1, y: 0, duration: .65, ease: 'power2.out' }, .25);
+
+  /* 1: la aguja barre con física y se clava en el score */
+  tl.to('#gneedle', { rotation: needleDeg(RESULT.score), svgOrigin: '180 178', duration: 1.7, ease: 'elastic.out(1, .48)' }, .8);
+  const so = { v: 0 };
+  tl.to(so, { v: RESULT.score, duration: 1.2, ease: 'power2.out', onUpdate: () => { document.getElementById('scoreNum').textContent = Math.round(so.v); } }, .8)
+    .to('#garcRisk', { opacity: .5, duration: .5 }, 1.5);
+  /* 2: el clavarse dispara el sello de zona y el arquetipo */
+  tl.fromTo('#zonaSello', { scale: 1.8, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: .38, ease: 'power4.out' }, 2.1)
+    .to('#pArq', { autoAlpha: 1, y: 0, duration: .6, ease: 'power2.out' }, 2.3)
+    .fromTo('#arqSeal', { scale: 1.9, autoAlpha: 0, transformOrigin: 'center' }, { scale: 1, autoAlpha: 1, duration: .45, ease: 'power4.out' }, 2.55);
+  const glyph = document.querySelectorAll('#arqGlyph path, #arqGlyph circle');
+  tl.call(() => glyph.forEach(p => { if (p.getTotalLength) setDraw(p); }), null, 2.6);
+  glyph.forEach((p, i) => tl.to(p, { strokeDashoffset: 0, duration: .45, ease: 'power2.inOut' }, 2.7 + i * .12));
+  const co = { v: 0 };
+  tl.to(co, { v: RESULT.confianza, duration: .9, ease: 'power2.out', onUpdate: () => { document.getElementById('confNum').textContent = Math.round(co.v); } }, 2.8)
+    .to('#confBar', { width: RESULT.confianza + '%', duration: .9, ease: 'power3.out' }, 2.8);
+  /* 3: la lectura se escribe y se subraya en óxido */
+  tl.to('#pLectura', { autoAlpha: 1, y: 0, duration: .6, ease: 'power2.out' }, 3.4)
+    .to('#lecturaTxt', { '--w': 100, duration: .9, ease: 'power2.inOut' }, 3.8);
+  /* 4: lo pago entra ya cosido; las puntadas se tensan una a una */
+  ['#s1', '#s2', '#s3'].forEach((id, k) => {
+    const at = 4.1 + k * .35;
+    tl.to(id, { autoAlpha: 1, y: 0, duration: .6, ease: 'power2.out' }, at);
+    const sec = document.querySelector(id);
+    tl.call(() => sec._stitches.forEach(setDraw), null, at + .05);
+    tl.to(sec._stitches, { strokeDashoffset: 0, duration: .5, stagger: .03, ease: 'power2.inOut' }, at + .15);
+  });
+  tl.to('#unlock', { autoAlpha: 1, y: 0, duration: .7, ease: 'power2.out' }, 5.4);
+
+  if (QA) {
+    tl.progress(1);
+    document.getElementById('scoreNum').textContent = RESULT.score;
+    document.getElementById('confNum').textContent = RESULT.confianza;
+  } else {
+    tl.play(0);
+  }
+})();
+</script>
+</body>
+</html>

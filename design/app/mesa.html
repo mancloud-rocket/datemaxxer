@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datemaxxer · La mesa de evidencia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=IBM+Plex+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="shared.css">
+<style>
+/* ============ LA MESA DE EVIDENCIA · set piece: "el depósito de pruebas"
+   Depositás tus fotos en la mesa forense: cada una cae, se asienta con su
+   inclinación y se estampa como prueba numerada (FOTO 0N). El marco es la
+   carpeta del expediente (esquineros + borde punteado).
+   QA: ?estado=vacia|lista|error · ?err=cantidad|peso|formato · ?qa=0..1
+   ============================================================= */
+body{min-height:100dvh;padding:74px 0 128px;overflow-x:clip}
+[hidden]{display:none!important}
+.wrap{width:min(660px,92vw);margin:0 auto}
+
+.head{margin-bottom:1.9rem}
+.head .kicker{margin-bottom:.7rem}
+.head h1{font-size:clamp(1.9rem,7vw,2.7rem)}
+.head p.sub{margin-top:.7rem;color:var(--ink-mute);font-weight:500;font-size:clamp(.92rem,2.4vw,1.02rem);max-width:30em;line-height:1.5}
+
+/* ---- el marco del expediente ---- */
+.expediente{position:relative;padding:20px;margin-bottom:2.4rem}
+.expediente .marco{position:absolute;inset:0;pointer-events:none;overflow:visible}
+.expediente .marco line{stroke:var(--line);stroke-width:1.4;stroke-dasharray:2 7;stroke-linecap:round}
+.expediente .marco path{stroke:var(--steel);stroke-width:2;fill:none;stroke-linecap:round}
+
+/* barra de conteo del expediente */
+.tallybar{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:1rem;padding:0 2px}
+.tallybar .n{font-family:'IBM Plex Mono',monospace;font-size:.72rem;letter-spacing:.22em;color:var(--ink);text-transform:uppercase;font-variant-numeric:tabular-nums}
+.tallybar .n b{color:var(--sodium);font-weight:500}
+.tallybar .n.ok b{color:var(--signal)}
+.tallybar .pips{display:flex;gap:5px}
+.tallybar .pips span{width:16px;height:3px;border-radius:2px;background:var(--steel-dim);transition:background .4s}
+.tallybar .pips span.on{background:var(--sodium)}
+.tallybar .pips.ok span.on{background:var(--signal)}
+
+/* ---- grilla de pruebas ---- */
+.evgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:14px}
+.ev{position:relative;aspect-ratio:3/4;border-radius:6px;overflow:hidden;background:var(--surface-2);border:1px solid var(--line);cursor:default;will-change:transform}
+.ev .viz{position:absolute;inset:0}
+.ev .viz img{width:100%;height:100%;object-fit:cover;display:block;filter:contrast(1.02) saturate(.96)}
+.ev .scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,19,24,.5) 0%,transparent 26%,transparent 62%,rgba(16,19,24,.82) 100%);pointer-events:none}
+/* esquineros de archivo */
+.ev .corner{position:absolute;width:13px;height:13px;border:2px solid var(--steel);opacity:.75}
+.ev .corner.tl{top:7px;left:7px;border-right:0;border-bottom:0}
+.ev .corner.tr{top:7px;right:7px;border-left:0;border-bottom:0}
+.ev .corner.bl{bottom:7px;left:7px;border-right:0;border-top:0}
+.ev .corner.br{bottom:7px;right:7px;border-left:0;border-top:0}
+/* etiqueta FOTO 0N */
+.ev .tag{position:absolute;top:9px;left:14px;font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.18em;color:var(--ink);text-transform:uppercase;text-shadow:0 1px 6px rgba(6,8,11,.9)}
+/* sello PORTADA en la primera */
+.ev .portada{position:absolute;bottom:10px;left:12px;display:none;font-family:'IBM Plex Mono',monospace;font-size:.54rem;letter-spacing:.2em;color:var(--sodium);border:1px solid rgba(232,176,75,.5);padding:.3em .6em;border-radius:2px;text-transform:uppercase;transform:rotate(-3deg);background:rgba(16,19,24,.45)}
+.ev.first .portada{display:inline-block}
+.ev.first .escena{display:none}
+.ev.first{border-color:rgba(232,176,75,.45)}
+/* acciones */
+.ev .acts{position:absolute;top:7px;right:7px;display:flex;gap:5px;opacity:0;transition:opacity .25s}
+.ev:hover .acts,.ev:focus-within .acts{opacity:1}
+.ev .act{width:26px;height:26px;border-radius:4px;border:1px solid var(--line);background:rgba(16,19,24,.72);backdrop-filter:blur(4px);color:var(--ink-mute);cursor:pointer;display:grid;place-items:center;padding:0;transition:color .2s,border-color .2s}
+.ev .act:hover{color:var(--ink);border-color:var(--steel)}
+.ev .act.desc:hover{color:var(--oxide);border-color:var(--stamp)}
+.ev .act svg{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.ev .escena{position:absolute;bottom:10px;right:12px;font-family:'IBM Plex Mono',monospace;font-size:.52rem;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase;text-shadow:0 1px 6px rgba(6,8,11,.9)}
+
+/* tile para agregar */
+.addtile{position:relative;aspect-ratio:3/4;border-radius:6px;border:1.6px dashed var(--steel-dim);background:transparent;color:var(--ink-mute);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.7rem;transition:border-color .3s,color .3s}
+.addtile:hover{border-color:var(--signal);color:var(--ink)}
+.addtile .plus{width:34px;height:34px}
+.addtile .plus line{stroke:currentColor;stroke-width:2;stroke-linecap:round}
+.addtile span{font-size:.72rem;font-weight:600;letter-spacing:.02em;padding:0 .6rem;text-align:center;line-height:1.3}
+.addtile.drag{border-color:var(--signal);color:var(--ink);background:rgba(79,217,194,.05)}
+
+/* estado vacío: el marco es la zona de depósito completa */
+.empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3.2rem 1.4rem;gap:1rem;cursor:pointer;border-radius:6px;transition:background .3s}
+.empty.drag{background:rgba(79,217,194,.05)}
+.empty .icon{width:56px;height:56px;color:var(--steel)}
+.empty .icon line,.empty .icon path,.empty .icon rect{stroke:currentColor;stroke-width:2;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.empty h3{font-family:'Inter Tight';font-weight:700;font-size:1.15rem;color:var(--ink)}
+.empty p{color:var(--ink-mute);font-size:.9rem;font-weight:500;max-width:24em;line-height:1.5}
+.empty .pick{color:var(--signal);text-decoration:underline;text-underline-offset:3px}
+
+/* aviso de validación inline */
+.aviso{display:none;align-items:flex-start;gap:.75rem;margin-top:1.1rem;padding:.9rem 1.1rem;border:1px solid var(--stamp);border-radius:5px;background:rgba(201,75,50,.06)}
+.aviso.show{display:flex}
+.aviso .selloe{flex:none;margin-top:.1rem}
+.aviso p{color:var(--ink);font-size:.9rem;font-weight:500;line-height:1.5}
+.aviso p b{color:var(--oxide);font-weight:600}
+
+/* ---- contexto del expediente ---- */
+.ctx{display:flex;flex-direction:column;gap:2.2rem}
+.field > .lab{display:flex;align-items:baseline;gap:.7rem;margin-bottom:.8rem}
+.field > .lab .k{font-family:'Inter Tight';font-weight:700;font-size:1.08rem;color:var(--ink)}
+.field > .lab .opt{font-family:'IBM Plex Mono',monospace;font-size:.58rem;letter-spacing:.2em;color:var(--steel);text-transform:uppercase}
+.field > .hint{color:var(--ink-mute);font-size:.85rem;font-weight:500;margin:-.5rem 0 .85rem;line-height:1.45}
+
+textarea{width:100%;min-height:96px;resize:vertical;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-family:'Inter Tight';font-size:.98rem;line-height:1.55;padding:.95rem 1.05rem;transition:border-color .3s}
+textarea:focus{outline:none;border-color:var(--steel)}
+textarea::placeholder{color:var(--steel)}
+.counter{text-align:right;margin-top:.45rem;font-family:'IBM Plex Mono',monospace;font-size:.6rem;letter-spacing:.14em;color:var(--steel);font-variant-numeric:tabular-nums}
+
+/* selector de arquetipos con glifos */
+.glifsel{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.glif{position:relative;display:flex;flex-direction:column;align-items:center;gap:.55rem;padding:.95rem .4rem .8rem;background:var(--surface-2);border:1px solid var(--line);border-radius:7px;cursor:pointer;color:var(--steel);transition:color .25s,border-color .25s,background .25s}
+.glif:hover{color:var(--ink-mute);border-color:var(--steel-dim)}
+.glif svg{width:34px;height:34px}
+.glif .gl{font-size:.68rem;font-weight:600;letter-spacing:.01em;color:var(--ink-mute);transition:color .25s}
+.glif.on{color:var(--signal);border-color:rgba(79,217,194,.5);background:rgba(79,217,194,.06)}
+.glif.on .gl{color:var(--ink)}
+.glif .check{position:absolute;top:6px;right:6px;width:14px;height:14px;opacity:0;transform:scale(.6);transition:opacity .2s,transform .2s;color:var(--signal)}
+.glif .check svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.glif.on .check{opacity:1;transform:scale(1)}
+
+/* selector de región */
+.regsel{display:flex;flex-wrap:wrap;gap:9px}
+.reg{font-family:'Inter Tight';font-weight:600;font-size:.9rem;color:var(--ink-mute);background:var(--surface-2);border:1px solid var(--line);border-radius:100px;padding:.6rem 1.15rem;cursor:pointer;transition:color .25s,border-color .25s,background .25s}
+.reg small{display:block;font-family:'IBM Plex Mono',monospace;font-size:.54rem;letter-spacing:.12em;color:var(--steel);text-transform:uppercase;margin-top:.15rem}
+.reg:hover{color:var(--ink)}
+.reg.on{color:var(--ink);border-color:var(--steel);background:var(--surface)}
+.reg.on small{color:var(--ink-mute)}
+
+/* ---- barra CTA fija ---- */
+.ctabar{position:fixed;left:0;right:0;bottom:0;z-index:55;background:linear-gradient(180deg,transparent,rgba(16,19,24,.86) 34%,var(--void) 100%);padding:1.4rem 0 1.15rem;pointer-events:none}
+.ctabar .inner{width:min(660px,92vw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1.2rem}
+.ctabar .count{font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase;font-variant-numeric:tabular-nums;line-height:1.4}
+.ctabar .count b{color:var(--ink);font-weight:500}
+.ctabar .count small{display:block;color:var(--steel);font-size:.58rem;margin-top:.25rem}
+.ctabar .btn{pointer-events:auto;padding:1rem 2.1rem;font-size:.96rem}
+.ctabar .btn[disabled]{opacity:.4;pointer-events:none;filter:grayscale(.4)}
+
+@media (max-width:440px){
+  .evgrid{grid-template-columns:repeat(2,1fr);gap:11px}
+  .glifsel{grid-template-columns:repeat(4,1fr);gap:7px}
+  .glif{padding:.7rem .2rem .6rem}
+  .glif svg{width:28px;height:28px}
+  .glif .gl{font-size:.58rem}
+  .ctabar .btn{padding:.9rem 1.4rem;font-size:.9rem}
+}
+</style>
+</head>
+<body>
+<div class="grain"></div>
+<div class="vignette"></div>
+<div class="telon cubierto"></div>
+
+<div class="apphud" id="hud">
+  <span class="chip">Datemaxxer · Expediente 001</span>
+  <div class="fase"><b id="faseTxt">ARMANDO EXPEDIENTE</b><small id="faseSub">0 de 9 pruebas</small></div>
+  <div class="progress"><i id="hudBar"></i></div>
+</div>
+
+<main class="wrap">
+  <header class="head">
+    <p class="kicker k-ox"><i></i>Reúne la evidencia</p>
+    <h1 class="display">La mesa de<br>evidencia.</h1>
+    <p class="sub">Deposita entre 4 y 9 fotos, las mismas que tienes en las apps. Las vamos a leer como las lee el algoritmo, y como las lee ella en 200 milisegundos.</p>
+  </header>
+
+  <section class="expediente" id="expediente">
+    <svg class="marco" id="marco" preserveAspectRatio="none"></svg>
+
+    <div class="tallybar" id="tallybar" hidden>
+      <div class="n" id="tallyN"><b>0</b> de 9 pruebas · mínimo 4</div>
+      <div class="pips" id="pips"></div>
+    </div>
+
+    <!-- estado vacío: zona de depósito -->
+    <div class="empty" id="empty">
+      <svg class="icon" viewBox="0 0 48 48">
+        <rect x="7" y="14" width="34" height="26" rx="3"/>
+        <path d="M7 32 L17 23 L25 30 L33 22 L41 30"/>
+        <circle cx="17" cy="21" r="2.4"/>
+        <path d="M24 12 L24 3 M24 3 L20 7 M24 3 L28 7" stroke-dasharray="0"/>
+      </svg>
+      <h3>Deposita tus fotos aquí</h3>
+      <p>Arrástralas a la mesa o <span class="pick">elígelas desde tu teléfono</span>. Entre 4 y 9, formato JPG o PNG, hasta 12&nbsp;MB cada una.</p>
+    </div>
+
+    <!-- grilla de pruebas (poblada) -->
+    <div class="evgrid" id="evgrid" hidden></div>
+
+    <div class="aviso" id="aviso">
+      <span class="selloe">Rechazada</span>
+      <p id="avisoTxt"></p>
+    </div>
+
+    <input type="file" id="file" accept="image/jpeg,image/png" multiple hidden>
+  </section>
+
+  <section class="ctx">
+    <div class="field">
+      <div class="lab"><span class="k">Tu bio, tal cual</span><span class="opt">Opcional</span></div>
+      <p class="hint">Pégala sin retocar. Si dice una cosa y las fotos dicen otra, eso es un hallazgo.</p>
+      <textarea id="bio" maxlength="500" placeholder="Pega aquí la bio que tienes hoy en la app…"></textarea>
+      <div class="counter"><span id="bioN">0</span> / 500</div>
+    </div>
+
+    <div class="field">
+      <div class="lab"><span class="k">¿Qué quieres proyectar?</span><span class="opt">Opcional</span></div>
+      <p class="hint">Elige un arquetipo objetivo y medimos la distancia entre lo que quieres y lo que hoy transmites.</p>
+      <div class="glifsel" id="glifsel"></div>
+    </div>
+
+    <div class="field">
+      <div class="lab"><span class="k">¿Cómo hablas?</span></div>
+      <p class="hint">Ajustamos el registro del informe a tu región. Nada de neutro de doblaje si no lo pides.</p>
+      <div class="regsel" id="regsel">
+        <button class="reg" data-reg="rioplatense">Rioplatense<small>Vos / che</small></button>
+        <button class="reg" data-reg="chileno">Chileno<small>Moderado</small></button>
+        <button class="reg" data-reg="mexicano">Mexicano<small>Tú / moderado</small></button>
+        <button class="reg on" data-reg="neutro">Neutro<small>Tú</small></button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="ctabar">
+  <div class="inner">
+    <div class="count" id="count"><b>0</b> / 9 pruebas<small id="countSub">te faltan 4 para empezar</small></div>
+    <button class="btn" id="go" disabled>Iniciar auditoría</button>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="shared.js"></script>
+<script src="glifos.js"></script>
+<script>
+telonEntrada();
+/* ===================== estado ===================== */
+const MIN = 4, MAX = 9;
+const state = { pruebas: [], arquetipo: null, region: 'neutro', bio: '' };
+const QA = qsParam('qa') === '1' || REDUCED;
+const TILT = [-2.4, 1.7, -1.3, 2.1, -1.9, 1.4, -2.2, 1.1, -1.6]; // inclinación determinística por índice
+
+/* escenas demo (para ?estado=lista): señales que compiten, como el fixture */
+const DEMO = [
+  { escena: 'Playa · viaje',  g:['#20303a','#122029'], tone:'#3a5566' },
+  { escena: 'Oficina',        g:['#2a2620','#161310'], tone:'#5a4d3a' },
+  { escena: 'Gimnasio',       g:['#241a1c','#130d0e'], tone:'#5a3a3f' },
+  { escena: 'Bar · grupo',    g:['#231d2a','#130f18'], tone:'#4a3a58' },
+  { escena: 'Cerro · outdoor',g:['#1c2620','#0f1712'], tone:'#3a5544' },
+  { escena: 'Casa',           g:['#26221c','#151210'], tone:'#544a3a' },
+];
+
+/* ===================== DOM ===================== */
+const $ = s => document.querySelector(s);
+const empty = $('#empty'), evgrid = $('#evgrid'), tallybar = $('#tallybar');
+const fileInput = $('#file'), aviso = $('#aviso'), avisoTxt = $('#avisoTxt');
+const goBtn = $('#go');
+
+/* ===================== marco del expediente (SVG) ===================== */
+function drawMarco(){
+  const svg = $('#marco'); svg.innerHTML='';
+  const w = svg.clientWidth || svg.parentElement.clientWidth, h = svg.clientHeight || svg.parentElement.clientHeight;
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  // borde punteado
+  mk('line',{x1:8,y1:2,x2:w-8,y2:2},svg); mk('line',{x1:8,y1:h-2,x2:w-8,y2:h-2},svg);
+  mk('line',{x1:2,y1:8,x2:2,y2:h-8},svg); mk('line',{x1:w-2,y1:8,x2:w-2,y2:h-8},svg);
+  // esquineros
+  const c=16;
+  mk('path',{d:`M2 ${c} L2 2 L${c} 2`},svg);
+  mk('path',{d:`M${w-c} 2 L${w-2} 2 L${w-2} ${c}`},svg);
+  mk('path',{d:`M2 ${h-c} L2 ${h-2} L${c} ${h-2}`},svg);
+  mk('path',{d:`M${w-c} ${h-2} L${w-2} ${h-2} L${w-2} ${h-c}`},svg);
+}
+
+/* ===================== render de una prueba ===================== */
+function siluetaSVG(idx){
+  const d = DEMO[idx % DEMO.length];
+  return `<svg viewBox="0 0 120 160" preserveAspectRatio="xMidYMid slice" style="width:100%;height:100%">
+    <defs><linearGradient id="pg${idx}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${d.g[0]}"/><stop offset="1" stop-color="${d.g[1]}"/></linearGradient></defs>
+    <rect width="120" height="160" fill="url(#pg${idx})"/>
+    <circle cx="60" cy="60" r="20" fill="${d.tone}" opacity=".55"/>
+    <path d="M28 160 C28 118 92 118 92 160 Z" fill="${d.tone}" opacity=".55"/>
+  </svg>`;
+}
+function fotoTag(n){ return 'FOTO ' + String(n).padStart(2,'0'); }
+
+function renderTile(p, i){
+  const el = document.createElement('div');
+  el.className = 'ev' + (i===0 ? ' first' : '');
+  el.dataset.id = p.id;
+  const viz = p.url
+    ? `<img src="${p.url}" alt="">`
+    : siluetaSVG(p.demo);
+  el.innerHTML = `
+    <div class="viz">${viz}</div>
+    <div class="scrim"></div>
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+    <span class="tag">${fotoTag(i+1)}</span>
+    <span class="portada">Portada</span>
+    ${p.escena ? `<span class="escena">${p.escena}</span>` : ''}
+    <div class="acts">
+      ${i!==0 ? `<button class="act port" title="Hacer portada" data-act="portada"><svg viewBox="0 0 24 24"><path d="M12 3 l2.5 5.5 6 .5 -4.5 4 1.4 6 -5.4-3.2 -5.4 3.2 1.4-6 -4.5-4 6-.5Z"/></svg></button>` : ''}
+      <button class="act desc" title="Descartar" data-act="descartar"><svg viewBox="0 0 24 24"><path d="M6 6 L18 18 M18 6 L6 18"/></svg></button>
+    </div>`;
+  return el;
+}
+
+function renderAddTile(){
+  const el = document.createElement('button');
+  el.className = 'addtile'; el.id='addtile';
+  el.innerHTML = `<svg class="plus" viewBox="0 0 48 48"><line x1="24" y1="12" x2="24" y2="36"/><line x1="12" y1="24" x2="36" y2="24"/></svg><span>Agregar prueba</span>`;
+  el.addEventListener('click', ()=> fileInput.click());
+  return el;
+}
+
+/* ===================== pintar todo ===================== */
+function paint(animateNew){
+  const n = state.pruebas.length;
+  const has = n > 0;
+  empty.hidden = has; evgrid.hidden = !has; tallybar.hidden = !has;
+
+  evgrid.innerHTML = '';
+  state.pruebas.forEach((p,i)=>{
+    const t = renderTile(p,i);
+    gsap.set(t, { rotate: TILT[i % TILT.length] });
+    evgrid.appendChild(t);
+  });
+  if (n < MAX) evgrid.appendChild(renderAddTile());
+
+  // tally
+  $('#tallyN').innerHTML = `<b>${n}</b> de ${MAX} pruebas · mínimo ${MIN}`;
+  $('#tallyN').classList.toggle('ok', n>=MIN);
+  const pips = $('#pips'); pips.innerHTML=''; pips.classList.toggle('ok', n>=MIN);
+  for(let i=0;i<MAX;i++){ const s=document.createElement('span'); if(i<n)s.classList.add('on'); pips.appendChild(s); }
+
+  // CTA + HUD
+  goBtn.disabled = n < MIN;
+  const faltan = MIN - n;
+  $('#count').innerHTML = `<b>${n}</b> / ${MAX} pruebas<small id="countSub">${n<MIN?`te falta${faltan>1?'n':''} ${faltan} para empezar`:'listo para auditar'}</small>`;
+  $('#faseSub').textContent = `${n} de ${MAX} pruebas`;
+  hudProgress(Math.min(n/MIN,1), n>=MIN);
+  $('#hud').classList.toggle('fase-cyan', n>=MIN);
+
+  bindTileActs();
+  requestAnimationFrame(drawMarco); // el marco se ajusta al alto real del expediente
+
+  // animación de "caída a la mesa" para la última prueba agregada
+  if (animateNew && !QA && has){
+    const last = evgrid.children[n-1];
+    gsap.fromTo(last, { y:-52, rotate:TILT[(n-1)%TILT.length]-8, autoAlpha:0, scale:1.06 },
+      { y:0, rotate:TILT[(n-1)%TILT.length], autoAlpha:1, scale:1, duration:.6, ease:'back.out(1.5)' });
+    const tag = last.querySelector('.tag');
+    stampIn(tag, gsap, '<0.28');
+  }
+}
+
+function bindTileActs(){
+  evgrid.querySelectorAll('.act').forEach(b=>{
+    b.onclick = e=>{
+      e.stopPropagation();
+      const id = b.closest('.ev').dataset.id;
+      if (b.dataset.act==='descartar') descartar(id);
+      else if (b.dataset.act==='portada') hacerPortada(id);
+    };
+  });
+}
+
+/* ===================== acciones ===================== */
+let uid = 0;
+function addFiles(files){
+  hideAviso();
+  const imgs = [...files];
+  // cantidad
+  if (state.pruebas.length + imgs.length > MAX){
+    return showAviso(`Son <b>${MAX} pruebas como máximo</b>. Ya tienes ${state.pruebas.length}: elige las mejores, no todas.`);
+  }
+  for (const f of imgs){
+    if (!/image\/(jpeg|png)/.test(f.type)) return showAviso(`<b>${f.name||'Ese archivo'}</b> no es JPG ni PNG. La mesa solo admite fotos.`);
+    if (f.size > 12*1024*1024) return showAviso(`<b>${f.name||'Una foto'}</b> pesa más de 12&nbsp;MB. Bájale el tamaño y vuelve a intentar.`);
+  }
+  imgs.forEach(f=>{
+    state.pruebas.push({ id:'p'+(uid++), url:URL.createObjectURL(f), file:f, escena:null });
+  });
+  paint(true);
+}
+function descartar(id){
+  const el = evgrid.querySelector(`.ev[data-id="${id}"]`);
+  const done = ()=>{ state.pruebas = state.pruebas.filter(p=>p.id!==id); paint(false); };
+  if (el && !QA) gsap.to(el, { y:26, autoAlpha:0, scale:.92, duration:.32, ease:'power2.in', onComplete:done });
+  else done();
+}
+function hacerPortada(id){
+  const i = state.pruebas.findIndex(p=>p.id===id);
+  if (i<=0) return;
+  const [p] = state.pruebas.splice(i,1);
+  state.pruebas.unshift(p);
+  paint(false);
+  const first = evgrid.children[0];
+  if (first && !QA) gsap.fromTo(first, { scale:1.05, autoAlpha:.4 }, { scale:1, autoAlpha:1, duration:.4, ease:'back.out(1.6)' });
+}
+
+function showAviso(html){ avisoTxt.innerHTML=html; aviso.classList.add('show'); }
+function hideAviso(){ aviso.classList.remove('show'); }
+
+/* ===================== inputs ===================== */
+fileInput.addEventListener('change', e=>{ addFiles(e.target.files); fileInput.value=''; });
+empty.addEventListener('click', ()=> fileInput.click());
+
+// drag & drop
+;['dragenter','dragover'].forEach(ev=>document.addEventListener(ev,e=>{
+  e.preventDefault(); (state.pruebas.length?evgrid.querySelector('#addtile'):empty)?.classList.add('drag');
+}));
+;['dragleave','drop'].forEach(ev=>document.addEventListener(ev,e=>{
+  e.preventDefault();
+  if(ev==='drop' && e.dataTransfer?.files?.length) addFiles(e.dataTransfer.files);
+  document.querySelectorAll('.drag').forEach(el=>el.classList.remove('drag'));
+}));
+
+/* bio */
+const bio = $('#bio');
+bio.addEventListener('input', ()=>{ state.bio=bio.value; $('#bioN').textContent=bio.value.length; });
+
+/* glifos: selector de arquetipos */
+const glifsel = $('#glifsel');
+ARQUETIPOS.forEach(a=>{
+  const el = document.createElement('button');
+  el.className='glif'; el.dataset.slug=a.slug;
+  el.appendChild(buildGlifo(a.slug,{size:34,stroke:2}));
+  const gl=document.createElement('span'); gl.className='gl'; gl.textContent=a.label; el.appendChild(gl);
+  const ck=document.createElement('span'); ck.className='check';
+  ck.innerHTML='<svg viewBox="0 0 24 24"><path d="M5 13 L10 18 L19 6"/></svg>'; el.appendChild(ck);
+  el.addEventListener('click', ()=>{
+    const on = el.classList.contains('on');
+    glifsel.querySelectorAll('.glif').forEach(g=>g.classList.remove('on'));
+    if(!on){ el.classList.add('on'); state.arquetipo=a.slug; if(!QA) gsap.fromTo(el.querySelector('svg'),{scale:.8},{scale:1,duration:.4,ease:'back.out(2)'}); }
+    else state.arquetipo=null;
+  });
+  glifsel.appendChild(el);
+});
+
+/* región */
+$('#regsel').querySelectorAll('.reg').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    $('#regsel').querySelectorAll('.reg').forEach(r=>r.classList.remove('on'));
+    b.classList.add('on'); state.region=b.dataset.reg;
+  });
+});
+
+/* CTA */
+goBtn.addEventListener('click', ()=>{
+  if (state.pruebas.length < MIN) return;
+  const destino = 'escaner.html?fotos='+state.pruebas.length;
+  /* ?net=1: simula una caída de conexión justo al enviar el expediente
+     (demo de netError() en el punto donde más importa: el submit) */
+  if (qsParam('net') === '1'){
+    netError('No pudimos enviar tu expediente. Revisa tu conexión y vuelve a intentar.', {
+      onRetry: ()=> telonHacia(destino),
+    });
+    return;
+  }
+  telonHacia(destino);
+});
+
+/* ===================== estados forzables (QA + demo) ===================== */
+function loadDemo(count){
+  state.pruebas = [];
+  for(let i=0;i<count;i++) state.pruebas.push({ id:'p'+(uid++), url:null, demo:i, escena:DEMO[i%DEMO.length].escena });
+}
+(function init(){
+  drawMarco();
+  addEventListener('resize', drawMarco);
+  const estado = qsParam('estado') || 'vacia';
+
+  if (estado==='lista'){
+    loadDemo(5);
+    bio.value='Tranquilo, de perfil bajo. Me gusta viajar y la buena mesa.'; state.bio=bio.value; $('#bioN').textContent=bio.value.length;
+    state.arquetipo='viajero';
+    glifsel.querySelector('[data-slug="viajero"]').classList.add('on');
+    paint(false);
+  } else if (estado==='error'){
+    loadDemo(3);
+    paint(false);
+    const err = qsParam('err')||'cantidad';
+    if(err==='peso') showAviso(`<b>foto-gym-4.jpg</b> pesa más de 12&nbsp;MB. Bájale el tamaño y vuelve a intentar.`);
+    else if(err==='formato') showAviso(`<b>captura.heic</b> no es JPG ni PNG. La mesa solo admite fotos.`);
+    else showAviso(`Son <b>${MAX} pruebas como máximo</b>. Ya tienes 3: elige las mejores, no todas.`);
+  } else {
+    paint(false);
+  }
+})();
+</script>
+</body>
+</html>

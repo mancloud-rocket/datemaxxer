@@ -466,7 +466,7 @@ Actualizar esta sección a medida que se cierren ítems - no crear checklists nu
 | 7 | Sin pipeline de deploy - CI solo corre typecheck+test, nadie despliega automático | CORE + Fernando (hosting: Vercel/Railway/Fly) |
 | 8 | Sin analytics ni error tracking (cero visibilidad de qué pasa en producción) | CORE |
 | 9 | Rotar la API key de Anthropic - marcada "provisoria" en el `.env` local, no está en git pero mejor cerrarlo | Fernando |
-| 10 | SEO básico: sin favicon, sin imagen OG (links compartidos en WhatsApp se ven pelados), sin robots.txt/sitemap | FRONT (favicon + OG image) |
+| 10 | ~~Favicon + imagen OG~~ (falta robots.txt/sitemap, y `metadataBase` cuando se defina el dominio - ítem 3) | ✅ FRONT, 2026-07-19 |
 | 11 | Respaldo real de los números del landing ("+2.500 usuarios", etc.) antes de correr pauta paga | Fernando |
 | 12 | `apps/web` sin ningún test | CORE |
 
