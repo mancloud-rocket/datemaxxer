@@ -6,6 +6,7 @@ import type { AuditResult } from '@percentil/contracts';
 import { buildApp } from '../app.js';
 import { loadEnv } from '../env.js';
 import type { AuditEngine } from '../engines/audit.js';
+import { InMemoryProfileStore } from '../profile/store.js';
 
 const TEST_SECRET = 'percentil-test-secret-32-chars-min';
 
@@ -160,6 +161,22 @@ describe('rutas /audit (con auth)', () => {
     const second = await postAudit(app, sub, [...photosParts(4), ...BASE_FIELDS]);
     expect(second.statusCode).toBe(409);
     expect((second.json() as { error: string }).error).toBe('limit_reached');
+  });
+
+  it('plan no-free (kit/copilot) → sin cupo, la segunda auditoría también se acepta', async () => {
+    const profileStore = new InMemoryProfileStore();
+    const sub = 'user-copilot';
+    await profileStore.setPlan(sub, 'copilot');
+    const plusApp = await buildApp(loadEnv(TEST_ENV), { auditEngine: fakeEngine(), profileStore });
+    const first = await postAudit(plusApp, sub, [...photosParts(4), ...BASE_FIELDS]);
+    expect(first.statusCode).toBe(202);
+    await flushTasks();
+    const second = await postAudit(plusApp, sub, [...photosParts(4), ...BASE_FIELDS]);
+    expect(second.statusCode).toBe(202);
+    await flushTasks();
+    const third = await postAudit(plusApp, sub, [...photosParts(4), ...BASE_FIELDS]);
+    expect(third.statusCode).toBe(202);
+    await plusApp.close();
   });
 
   it('una auditoría fallida NO quema el cupo gratis', async () => {

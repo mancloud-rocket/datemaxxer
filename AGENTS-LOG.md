@@ -25,6 +25,18 @@ Fernando lo lee también; escriban para humanos, no para logs de máquina.
 
 ---
 
+### [2026-07-19 aa] CORE - El campo `plan` de profiles ahora se respeta de verdad + cupo ilimitado para Fernando
+- Fernando pidió análisis ilimitados para su cuenta y preguntó si tenemos ABM de usuarios. Encontré que `percentil.profiles.plan` (free/kit/copilot) existe desde la migración inicial pero la lógica de cupo en `POST /audit` nunca lo miraba - siempre comparaba contra `AUDIT_FREE_LIMIT` sin importar el plan. Lo até: plan `!== 'free'` (kit/copilot) ahora salta el chequeo de cupo entero. Es una simplificación provisoria (documentada en el código) hasta que el checkout del Kit defina entitlements reales - hoy "no-free" = ilimitado, sin distinguir kit de copilot.
+- HICE:
+  1. `AuditRoutesDeps` en `audit/routes.ts` ahora recibe `profileStore` (antes solo lo usaba `profile/routes.ts`); `app.ts` reordenado para construir `profileStore` antes de wirear ambas rutas.
+  2. `ProfileStore.setPlan(userId, plan)` nuevo (memoria + Supabase) - el cambio de plan NO pasa por `PATCH /me` a propósito (ahí el usuario no puede auto-otorgarse el Kit), es una vía aparte para uso administrativo.
+  3. Test nuevo: plan no-free acepta una tercera auditoría seguida sin 409. 36/36 tests de apps/api.
+  4. **Otorgado a mano** (no por API, por script directo con la service role key): tu cuenta real (`f.urbanoesp@gmail.com`, uid `77c1376d-...`) ahora tiene `plan: 'copilot'` en la base de producción.
+- Sobre el ABM: no existe ninguna ruta ni pantalla para que un admin liste/edite OTROS usuarios - hoy el único camino es que yo corra un script con la service role key, como hice recién. Se lo planteé a Fernando como pregunta abierta en el chat (¿construir una ruta admin mínima ahora, o seguir así mientras sea solo un puñado de personas?) - si me pide que la construya, lo mejor es un allowlist de UIDs admin por env var + `PATCH /admin/users/:id/plan`, sin UI todavía.
+- ESTADO: done, pusheado.
+- PRÓXIMO: depende de lo que responda Fernando sobre el ABM.
+- PARA EL OTRO: nada bloqueante, no toqué nada tuyo.
+
 ### [2026-07-19 z] CORE - Porteado "La bitácora de vuelo" a Historial.tsx real
 - Porteé tu `historial.html` (entrada y) siguiendo `SET-PIECES.md` #6: mini-instrumento polar por entrada (mismo cálculo de arco de 3 zonas que el medidor grande de `Informe.tsx`, a escala 58×36, con `<MiniGauge/>` como sub-componente), sello `.selloe.s-mute` para "En curso" (lo agregué a `app.css` como clase global, no local a la pantalla, igual que vos a `shared.css`), estado vacío con el ícono de libro abierto, entrada en cascada (header + stagger de entradas, respetando `?qa=1`). Toda la lógica de datos (fetch de `/me/audits`, mapeo de estados) quedó igual, solo cambió la piel.
 - **Bug real que encontré al portear (no estaba en tu prototipo, es de mi lado):** `toLocaleDateString('es-AR', {month:'short'})` en el Node/Chromium que corre acá devuelve `"18 de jul de 2026"` (con conectores "de"), no el `"18 JUL 2026"` corto que se ve en tu demo - se desbordaba a 2 líneas en el ancho fijo de 88px de `.fecha`. Le saqué los "de" con regex antes de mayusculizar. Puede ser una diferencia de datos ICU entre navegadores/entornos - si en tu Chrome local te dio corto directo, por eso no lo viste.

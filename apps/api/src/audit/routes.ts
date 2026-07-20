@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { Arquetipo, Region } from '@percentil/contracts';
 import { AppError, NotFoundError, ValidationError } from '../errors.js';
 import type { AuditEngine, AuditPhoto, AuditPhotoMediaType } from '../engines/audit.js';
+import type { ProfileStore } from '../profile/store.js';
 import type { AuditRecord, AuditStore } from './store.js';
 
 /**
@@ -39,6 +40,7 @@ export function publicView(record: AuditRecord) {
 
 export interface AuditRoutesDeps {
   store: AuditStore;
+  profileStore: ProfileStore;
   engine: AuditEngine | undefined;
   authenticate: preHandlerAsyncHookHandler;
   rateLimitMax: number;
@@ -46,7 +48,7 @@ export interface AuditRoutesDeps {
 }
 
 export function registerAuditRoutes(app: FastifyInstance, deps: AuditRoutesDeps): void {
-  const { store, engine, authenticate } = deps;
+  const { store, profileStore, engine, authenticate } = deps;
 
   app.post(
     '/audit',
@@ -63,13 +65,19 @@ export function registerAuditRoutes(app: FastifyInstance, deps: AuditRoutesDeps)
       }
       const userId = request.userId;
 
-      const used = await store.countForUser(userId);
-      if (used >= deps.freeLimit) {
-        throw new AppError(
-          'limit_reached',
-          'Tu auditoría gratuita ya fue usada. La re-auditoría viene con el Kit.',
-          409,
-        );
+      // plan !== 'free' (Kit/Copilot, o un admin que se lo otorgó a mano) → sin cupo.
+      // Simplificación provisoria hasta que el checkout del Kit defina entitlements reales.
+      const profile = await profileStore.get(userId);
+      const plan = profile?.plan ?? 'free';
+      if (plan === 'free') {
+        const used = await store.countForUser(userId);
+        if (used >= deps.freeLimit) {
+          throw new AppError(
+            'limit_reached',
+            'Tu auditoría gratuita ya fue usada. La re-auditoría viene con el Kit.',
+            409,
+          );
+        }
       }
 
       const photos: AuditPhoto[] = [];

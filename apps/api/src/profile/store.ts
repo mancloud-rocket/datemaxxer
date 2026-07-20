@@ -19,6 +19,8 @@ export interface ProfileRow {
 export interface ProfileStore {
   get(userId: string): Promise<ProfileRow | undefined>;
   update(userId: string, patch: AccountProfileUpdate): Promise<ProfileRow>;
+  /** Fuera del self-service (PATCH /me no expone plan): solo rutas admin. */
+  setPlan(userId: string, plan: ProfileRow['plan']): Promise<ProfileRow>;
 }
 
 export class InMemoryProfileStore implements ProfileStore {
@@ -35,6 +37,13 @@ export class InMemoryProfileStore implements ProfileStore {
       plan: current.plan,
       handle: patch.handle !== undefined ? patch.handle : current.handle,
     };
+    this.rows.set(userId, next);
+    return next;
+  }
+
+  async setPlan(userId: string, plan: ProfileRow['plan']): Promise<ProfileRow> {
+    const current = this.rows.get(userId) ?? { region: 'neutro' as Region, plan: 'free' as const, handle: null };
+    const next: ProfileRow = { ...current, plan };
     this.rows.set(userId, next);
     return next;
   }
@@ -74,6 +83,16 @@ export class SupabaseProfileStore implements ProfileStore {
       .select('region, plan, handle')
       .single<ProfileRow>();
     if (error) throw storeError('upsert profiles', error.message);
+    return data;
+  }
+
+  async setPlan(userId: string, plan: ProfileRow['plan']): Promise<ProfileRow> {
+    const { data, error } = await this.db
+      .from('profiles')
+      .upsert({ id: userId, plan })
+      .select('region, plan, handle')
+      .single<ProfileRow>();
+    if (error) throw storeError('upsert profiles (plan)', error.message);
     return data;
   }
 }

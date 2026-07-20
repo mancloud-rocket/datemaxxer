@@ -90,19 +90,22 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
     (hasSupabase
       ? new SupabaseAuditStore(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
       : new InMemoryAuditStore());
-  registerAuditRoutes(app, {
-    store: auditStore,
-    engine: resolveAuditEngine(env, deps),
-    authenticate,
-    rateLimitMax: env.AUDIT_RATE_LIMIT_MAX,
-    freeLimit: env.AUDIT_FREE_LIMIT,
-  });
 
   const profileStore =
     deps.profileStore ??
     (hasSupabase
       ? new SupabaseProfileStore(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
       : new InMemoryProfileStore());
+
+  registerAuditRoutes(app, {
+    store: auditStore,
+    profileStore,
+    engine: resolveAuditEngine(env, deps),
+    authenticate,
+    rateLimitMax: env.AUDIT_RATE_LIMIT_MAX,
+    freeLimit: env.AUDIT_FREE_LIMIT,
+  });
+
   registerProfileRoutes(app, { profileStore, auditStore, authenticate });
 
   return app;
