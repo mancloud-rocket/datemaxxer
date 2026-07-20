@@ -25,6 +25,18 @@ Fernando lo lee también; escriban para humanos, no para logs de máquina.
 
 ---
 
+### [2026-07-19 x] CORE - Rehacer análisis + historial de auditorías (soporte real de varios análisis por perfil)
+- Fernando pidió (1) una función para rehacer el análisis y (2) soporte para varios análisis por perfil. Antes de construir le pregunté si esto tira abajo el modelo de negocio (el cupo gratis de 1 es justo lo que vende el Kit) - contestó que el cupo se mantiene tal cual, solo mejoro el flujo. No toqué `AUDIT_FREE_LIMIT` ni la lógica de cuota: si alguien excede su cupo al rehacer, sigue cayendo en `limit_reached` → pantalla de límite, exactamente como hoy.
+- HICE:
+  1. **"Rehacer análisis" en `Informe.tsx`**: nuevo prop opcional `onRehacer`, link/botón chico debajo de la sección del Kit ("Rehacer análisis con fotos nuevas"). En `page.tsx` dispara `setFase({nombre:'mesa', ...})` - reusa TODO el flujo existente de Mesa/enviar/POST /audit, ninguna lógica nueva de submit. Si está en el límite, el mismo `enviar()` ya sabe transicionar a la pantalla de límite.
+  2. **Historial (`Historial.tsx` + `/app/historial`, nuevo)**: lista las auditorías del usuario vía `GET /me/audits` - esa ruta ya existía desde el pase del sidebar pero nunca se había expuesto en ninguna pantalla. Cada fila muestra fecha, score+arquetipo si está completa, o progreso/estado si no. Esqueleto funcional sin diseño (mismo criterio que Settings antes de que lo skinearas vos).
+  3. **Nuevo ítem de nav "Historial"** en `Sidebar.tsx`, entre Auditoría y Configuración - reusa exactamente tu mismo patrón de LED+riel, no inventé nada visual nuevo ahí.
+  4. **Backend: agregué `created_at` a `publicView()`** (`audit/routes.ts`) - la API nunca devolvía la fecha de creación, así que el historial no tenía con qué mostrar fechas. Campo aditivo, no rompe nada existente (verificado: 35/35 tests de apps/api siguen pasando, más un assert nuevo que agregué confirmando que `created_at` viaja como fecha válida en `/me/audits`).
+- QA: capturas de Historial (con datos de muestra vía `?dev=1`) y del botón "Rehacer análisis" en el informe completo (tuve que agrandar el viewport a 3200px para llegar al fondo de la página real). Typecheck limpio, 51/51 tests.
+- ESTADO: done, pusheado.
+- PRÓXIMO: nada propio nuevo. Sigue en pie el mirroreo de vocabulario de cabina a Escaner/Informe/Mesa/Login.
+- PARA EL OTRO: Historial es candidato a tu próximo pase de diseño si Fernando lo pide - hoy es una lista de tarjetas sin más, mismo espíritu que tenía Settings antes de "los puertos de conexión". Nada bloqueante.
+
 ### [2026-07-19 w] CORE - 2 fixes de Fernando sobre el sidebar en prod: siempre visible + logo real
 - Fernando probó en producción con una cuenta de Google real y encontró dos problemas con captura:
   1. **La placa de identidad + cerrar sesión quedaban fuera de vista** en pantallas con contenido largo (la mesa, por ejemplo) - había que scrollear toda la página para verlas. Causa: `.dmx-sidebar` era un item de flex normal dentro de `.dmx-shell` (`display:flex`), así que por default (`align-items:stretch`) crecía hasta igualar la altura de `.dmx-content` cuando este era más alto que el viewport - el `margin-top:auto` de la placa de identidad la empujaba al fondo de ESA caja estirada, no al fondo de la pantalla. Fix: `position:sticky;top:0;align-self:flex-start;height:100dvh` en desktop (la sidebar queda clavada exactamente a un viewport de alto pase lo que pase con el contenido); en mobile `height:auto` (la barra superior no debe ser 100dvh) pero mantiene el sticky, bonus de persistencia al scrollear formularios largos.

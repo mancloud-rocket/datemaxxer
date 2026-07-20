@@ -30,6 +30,7 @@ export function Informe(props: {
   lectura: string;
   nFotos: number;
   qa?: boolean;
+  onRehacer?: (() => void) | undefined;
 }) {
   const root = useRef<HTMLDivElement>(null);
   const built = useRef(false);
@@ -317,6 +318,18 @@ export function Informe(props: {
           )}
           <p className="micro">Garantía de 30 días: si tu match rate no mejora, te devolvemos el dinero.</p>
         </section>
+
+        {props.onRehacer && (
+          <p style={{ textAlign: 'center', marginTop: '1.6rem' }}>
+            <button
+              className="btn btn-ghost"
+              style={{ fontSize: '.85rem', padding: '.7rem 1.4rem' }}
+              onClick={props.onRehacer}
+            >
+              Rehacer análisis con fotos nuevas
+            </button>
+          </p>
+        )}
       </main>
     </div>
   );

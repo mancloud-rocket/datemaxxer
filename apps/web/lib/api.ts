@@ -15,6 +15,7 @@ export interface AuditView {
   audit_id: string;
   status: AuditStatus;
   progress: AuditProgress;
+  created_at: string;
   result?: AuditResult;
   error?: string;
 }

@@ -173,11 +173,13 @@ describe('rutas /me (perfil de cuenta)', () => {
       url: '/me/audits',
       headers: { authorization: `Bearer ${await token(sub)}` },
     });
-    const { audits } = res.json() as { audits: Array<{ audit_id: string; status: string }> };
+    const { audits } = res.json() as { audits: Array<{ audit_id: string; status: string; created_at: string }> };
     expect(audits).toHaveLength(2);
     expect(audits[0]!.audit_id).toBe(secondId);
     expect(audits[1]!.audit_id).toBe(firstId);
     expect(audits.every((a) => a.status === 'done')).toBe(true);
+    // el historial necesita fecha para mostrarse (feature de "varios análisis por perfil")
+    expect(audits.every((a) => !Number.isNaN(Date.parse(a.created_at)))).toBe(true);
   });
 
   it('el historial de un usuario no incluye auditorías de otro', async () => {

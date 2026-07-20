@@ -31,6 +31,7 @@ export function publicView(record: AuditRecord) {
     audit_id: record.id,
     status: record.status,
     progress: record.progress,
+    created_at: record.createdAt.toISOString(),
     ...(record.status === 'done' ? { result: record.result } : {}),
     ...(record.status === 'error' ? { error: record.error } : {}),
   };

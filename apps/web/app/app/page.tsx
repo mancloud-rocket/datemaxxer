@@ -34,7 +34,7 @@ function faseDeQa(params: URLSearchParams): Fase | null {
   if (!estado) return null;
   const total = Math.min(9, Math.max(4, parseInt(params.get('fotos') ?? '6', 10) || 6));
   const leidas = Math.min(total, Math.max(0, parseInt(params.get('leidas') ?? '2', 10) || 0));
-  const base: AuditView = { audit_id: 'qa', status: 'analyzing', progress: { fotos_analizadas: leidas, total } };
+  const base: AuditView = { audit_id: 'qa', status: 'analyzing', progress: { fotos_analizadas: leidas, total }, created_at: new Date().toISOString() };
   switch (estado) {
     case 'login': return { nombre: 'login' };
     case 'mesa': return { nombre: 'mesa', error: null, enviando: false };
@@ -47,7 +47,7 @@ function faseDeQa(params: URLSearchParams): Fase | null {
       return {
         nombre: 'informe',
         view: {
-          audit_id: 'qa', status: 'done', progress: { fotos_analizadas: total, total },
+          audit_id: 'qa', status: 'done', progress: { fotos_analizadas: total, total }, created_at: new Date().toISOString(),
           result: {
             score_coherencia: 41,
             arquetipo_detectado: { nombre: 'viajero', confianza: 0.72 },
@@ -137,7 +137,7 @@ export default function AppHome() {
       const total = form.getAll('photos').length;
       setFase({
         nombre: 'escaner',
-        view: { audit_id, status: 'analyzing', progress: { fotos_analizadas: 0, total } },
+        view: { audit_id, status: 'analyzing', progress: { fotos_analizadas: 0, total }, created_at: new Date().toISOString() },
       });
     } catch (err) {
       if (err instanceof ApiError && err.code === 'limit_reached') setFase({ nombre: 'limite' });
@@ -185,6 +185,7 @@ export default function AppHome() {
         lectura={fase.view.result.lectura_200ms}
         nFotos={fase.view.result.evidencia_por_foto.length}
         qa={qa}
+        onRehacer={() => setFase({ nombre: 'mesa', error: null, enviando: false })}
       />
     );
   }

@@ -19,6 +19,7 @@ import { getSupabase, type DisplayUser } from '../../lib/supabase';
 
 const NAV = [
   { href: '/app', label: 'Auditoría' },
+  { href: '/app/historial', label: 'Historial' },
   { href: '/app/settings', label: 'Configuración' },
 ];
 
