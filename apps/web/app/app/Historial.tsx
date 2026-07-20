@@ -1,37 +1,72 @@
 'use client';
 
 /**
- * Historial de auditorías (soporte de "varios análisis por perfil", pedido
- * de Fernando 19-jul). Esqueleto funcional sin diseño (piel pendiente de
- * FRONT, mismo criterio que Settings antes de su primer pase de arte).
- * Usa GET /me/audits, que ya existía en el backend desde el pase del
- * sidebar pero nunca se había expuesto en la UI.
+ * Historial de auditorías · set piece "La bitácora de vuelo" (porteo fiel
+ * de design/app/historial.html, SET-PIECES.md #6): cada análisis pasado es
+ * una entrada de bitácora, no una card genérica - mini-instrumento polar
+ * (mismo lenguaje que el medidor grande del informe, a escala 58×36) para
+ * lecturas completas, sello de estado a la derecha, entrada en cascada.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ARQUETIPOS } from '../../lib/glifos';
 import { ApiError, misAuditorias, type AuditView } from '../../lib/api';
 import { getAccessToken } from '../../lib/supabase';
+import { gsap } from '../../lib/motion';
 
 const NOMBRES = Object.fromEntries(ARQUETIPOS.map((a) => [a.slug, a.label]));
 
 const ESTADOS: Record<AuditView['status'], { label: string; clase: string }> = {
   done: { label: 'Completa', clase: 's-cy' },
-  analyzing: { label: 'En curso', clase: '' },
+  analyzing: { label: 'En curso', clase: 's-mute' },
   error: { label: 'Falló', clase: '' },
 };
 
 function formatearFecha(iso: string): string {
   try {
-    return new Date(iso).toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' });
+    // Intl 'es-AR' con month:'short' devuelve "18 de jul de 2026" (con conectores) -
+    // se sacan para que quepa en una sola línea en el ancho fijo de .fecha.
+    return new Date(iso)
+      .toLocaleDateString('es-AR', { day: '2-digit', month: 'short', year: 'numeric' })
+      .replace(/\bde\b/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .toUpperCase()
+      .replace('.', '');
   } catch {
     return iso;
   }
 }
 
+/** Mini-instrumento polar: mismo arco de 3 zonas que el medidor grande del informe. */
+const CXg = 29, CYg = 34, Rg = 24;
+const ZONAS: Array<[number, number, string]> = [[0, 40, '#C94B32'], [40, 70, '#E8B04B'], [70, 100, '#4FD9C2']];
+function ptg(deg: number, r: number): [number, number] {
+  const a = Math.PI - (deg / 100) * Math.PI;
+  return [CXg + r * Math.cos(a), CYg - r * Math.sin(a)];
+}
+
+function MiniGauge(props: { score: number }) {
+  const zona = ZONAS.find(([a, b]) => props.score >= a && props.score <= b) ?? ZONAS[0]!;
+  const [mx, my] = ptg(props.score, Rg);
+  return (
+    <svg className="gauge" viewBox="0 0 58 36">
+      {ZONAS.map(([a, b, col]) => {
+        const [x0, y0] = ptg(a + 1.5, Rg);
+        const [x1, y1] = ptg(b - 1.5, Rg);
+        return <path key={a} d={`M${x0} ${y0} A${Rg} ${Rg} 0 0 1 ${x1} ${y1}`} fill="none" stroke={col} strokeWidth={5} strokeLinecap="round" opacity={0.5} />;
+      })}
+      <circle cx={mx} cy={my} r={4} fill="var(--void)" stroke={zona[2]} strokeWidth={2.4} />
+    </svg>
+  );
+}
+
 export function Historial() {
   const [auditorias, setAuditorias] = useState<AuditView[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const root = useRef<HTMLDivElement>(null);
+  const entrada = useRef(false);
+  const REDUCED = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get('dev') === '1') {
@@ -66,54 +101,74 @@ export function Historial() {
     })();
   }, []);
 
-  if (error) return <p style={{ color: 'var(--oxide)' }}>{error}</p>;
-  if (!auditorias) {
-    return <p className="mono" style={{ color: 'var(--ink-mute)', fontSize: '.7rem' }}>Cargando…</p>;
-  }
+  /* entrada en cascada, una sola vez cuando la bitácora queda lista */
+  useEffect(() => {
+    const el = root.current;
+    if (!auditorias || !el || entrada.current) return;
+    entrada.current = true;
+    const qa = new URLSearchParams(window.location.search).get('qa') === '1';
+    if (REDUCED || qa) return; // ?qa=1: --virtual-time-budget no es confiable con GSAP
+    const ctx = gsap.context(() => {
+      gsap.set(['.chead', '.entry'], { autoAlpha: 0, y: 16 });
+      gsap.timeline()
+        .to('.chead', { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0)
+        .to('.entry', { autoAlpha: 1, y: 0, duration: 0.45, stagger: 0.09, ease: 'power2.out' }, 0.2);
+    }, el);
+    return () => ctx.revert();
+  }, [auditorias, REDUCED]);
 
   return (
-    <div style={{ maxWidth: 560, width: '100%' }}>
-      <header style={{ marginBottom: '2rem' }}>
-        <p className="kicker"><i />Tus análisis</p>
-        <h1 className="display" style={{ fontSize: 'clamp(1.5rem,5vw,2rem)', marginTop: '.4rem' }}>Historial.</h1>
+    <div className="dmx-historial" ref={root}>
+      <header className="chead">
+        <p className="kicker"><i />Cada lectura, registrada</p>
+        <h1 className="display">Tu bitácora.</h1>
       </header>
 
-      {auditorias.length === 0 ? (
-        <p style={{ color: 'var(--ink-mute)' }}>Todavía no hiciste ninguna auditoría.</p>
+      {error ? (
+        <p className="err-general">{error}</p>
+      ) : !auditorias ? (
+        <div className="loading-row"><span className="dot" />CARGANDO TU BITÁCORA…</div>
+      ) : auditorias.length === 0 ? (
+        <div className="empty">
+          <svg viewBox="0 0 48 48">
+            <path d="M6 10 L6 40 L24 36 L42 40 L42 10 L24 14 Z" />
+            <path d="M24 14 L24 36" />
+            <line x1="11" y1="17" x2="19" y2="16" strokeDasharray="2 3" />
+            <line x1="11" y1="23" x2="19" y2="22" strokeDasharray="2 3" />
+            <line x1="11" y1="29" x2="19" y2="28" strokeDasharray="2 3" />
+          </svg>
+          <h3>Tu bitácora está en blanco</h3>
+          <p>Todavía no completaste ninguna auditoría. Cuando lo hagas, cada lectura queda anotada acá.</p>
+          <a className="btn" href="/app">Ir al checklist</a>
+        </div>
       ) : (
-        <ul style={{ listStyle: 'none', display: 'grid', gap: '.9rem' }}>
+        <div className="log">
           {auditorias.map((a) => {
             const estado = ESTADOS[a.status];
             return (
-              <li
-                key={a.audit_id}
-                style={{
-                  border: '1px solid var(--line)', borderRadius: 10, padding: '1.1rem 1.3rem',
-                  background: 'var(--surface-2)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem',
-                }}
-              >
-                <div>
-                  <div className="mono" style={{ fontSize: '.62rem', color: 'var(--steel)', marginBottom: '.3rem' }}>
-                    {formatearFecha(a.created_at)}
-                  </div>
-                  {a.status === 'done' && a.result ? (
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '.7rem' }}>
-                      <span style={{ fontFamily: 'var(--font-display)', fontSize: '1.4rem' }}>{a.result.score_coherencia}</span>
-                      <span style={{ color: 'var(--ink-mute)', fontSize: '.85rem' }}>
-                        {NOMBRES[a.result.arquetipo_detectado.nombre] ?? a.result.arquetipo_detectado.nombre}
-                      </span>
+              <div className="entry" key={a.audit_id}>
+                <div className="fecha">{formatearFecha(a.created_at)}</div>
+                {a.status === 'done' && a.result ? (
+                  <>
+                    <MiniGauge score={a.result.score_coherencia} />
+                    <div className="body">
+                      <span className="score">{a.result.score_coherencia}</span>
+                      <span className="arq">{NOMBRES[a.result.arquetipo_detectado.nombre] ?? a.result.arquetipo_detectado.nombre}</span>
                     </div>
-                  ) : (
-                    <span style={{ color: 'var(--ink-mute)', fontSize: '.9rem' }}>
-                      {a.progress.fotos_analizadas}/{a.progress.total} fotos
-                    </span>
-                  )}
-                </div>
-                <span className={`selloe ${estado.clase}`}>{estado.label}</span>
-              </li>
+                  </>
+                ) : (
+                  <>
+                    <div className="gauge" />
+                    <div className="body">
+                      <span className="parcial">{a.progress.fotos_analizadas}/{a.progress.total} fotos</span>
+                    </div>
+                  </>
+                )}
+                <div className="estado"><span className={`selloe ${estado.clase}`}>{estado.label}</span></div>
+              </div>
             );
           })}
-        </ul>
+        </div>
       )}
     </div>
   );

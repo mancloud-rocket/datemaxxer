@@ -46,6 +46,7 @@
 /* sellos: siempre rotados, entran estampándose */
 .dmx .selloe{display:inline-block;font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.22em;font-size:.62rem;color:var(--oxide);border:1.5px solid var(--stamp);padding:.55em 1.1em;border-radius:2px;transform:rotate(-3deg);background:rgba(16,19,24,.4)}
 .dmx .selloe.s-cy{color:var(--signal);border-color:rgba(79,217,194,.6)}
+.dmx .selloe.s-mute{color:var(--ink-mute);border-color:var(--steel-dim)}
 
 /* botones */
 .dmx .btn{pointer-events:auto;display:inline-block;border:0;cursor:pointer;text-decoration:none;text-align:center;font-family:var(--font-body),sans-serif;font-weight:700;font-size:1rem;letter-spacing:.02em;color:var(--void);background:var(--signal);padding:1.15rem 2.6rem;border-radius:6px;box-shadow:0 0 28px rgba(79,217,194,.26);transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
@@ -483,3 +484,38 @@
 .dmx-settings .loading-row{display:flex;align-items:center;gap:.7rem;color:var(--ink-mute);font-family:var(--font-mono),monospace;font-size:.72rem;letter-spacing:.12em}
 .dmx-settings .loading-row .dot{width:6px;height:6px;border-radius:50%;background:var(--signal);animation:dmxLdot 1.1s ease-in-out infinite}
 @keyframes dmxLdot{0%,100%{opacity:.25}50%{opacity:1}}
+
+/* ============ HISTORIAL · set piece "La bitácora de vuelo" ============ */
+.dmx-historial{width:min(640px,100%)}
+.dmx-historial .chead{margin-bottom:2.2rem}
+.dmx-historial .chead .kicker{margin-bottom:.6rem}
+.dmx-historial .chead h1{font-size:clamp(1.8rem,6vw,2.4rem)}
+
+.dmx-historial .log{display:flex;flex-direction:column;gap:.85rem}
+.dmx-historial .entry{position:relative;display:flex;align-items:center;gap:1.2rem;padding:1.05rem 1.3rem;
+  background:var(--surface-2);border:1px solid var(--line);border-radius:10px}
+.dmx-historial .entry .fecha{flex:none;width:88px;font-family:var(--font-mono),monospace;font-size:.62rem;
+  letter-spacing:.06em;color:var(--steel);text-transform:uppercase;line-height:1.4}
+.dmx-historial .entry .gauge{flex:none;width:58px;height:36px;overflow:visible}
+.dmx-historial .entry .body{flex:1;min-width:0;display:flex;align-items:baseline;gap:.75rem}
+.dmx-historial .entry .score{font-family:var(--font-display),sans-serif;font-size:1.5rem;letter-spacing:-.02em;color:var(--ink);font-variant-numeric:tabular-nums}
+.dmx-historial .entry .arq{color:var(--ink-mute);font-size:.9rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dmx-historial .entry .parcial{color:var(--ink-mute);font-size:.88rem;font-weight:500}
+.dmx-historial .entry .estado{flex:none}
+
+.dmx-historial .empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:1.1rem;
+  padding:3.4rem 1.4rem;border:1.6px dashed var(--steel-dim);border-radius:12px}
+.dmx-historial .empty svg{width:52px;height:52px;color:var(--steel)}
+.dmx-historial .empty svg path,.dmx-historial .empty svg line{stroke:currentColor;stroke-width:1.8;fill:none;stroke-linecap:round}
+.dmx-historial .empty h3{font-family:var(--font-body),sans-serif;font-weight:700;font-size:1.1rem;color:var(--ink)}
+.dmx-historial .empty p{color:var(--ink-mute);font-size:.9rem;max-width:26em;line-height:1.5}
+
+.dmx-historial .loading-row{display:flex;align-items:center;gap:.7rem;color:var(--ink-mute);font-family:var(--font-mono),monospace;font-size:.72rem;letter-spacing:.12em}
+.dmx-historial .loading-row .dot{width:6px;height:6px;border-radius:50%;background:var(--signal);animation:dmxLdot 1.1s ease-in-out infinite}
+.dmx-historial .err-general{color:var(--oxide);font-size:.9rem}
+
+@media (max-width:560px){
+  .dmx-historial .entry{flex-wrap:wrap;gap:.7rem .9rem}
+  .dmx-historial .entry .fecha{width:auto}
+  .dmx-historial .entry .body{width:100%;order:3}
+}
