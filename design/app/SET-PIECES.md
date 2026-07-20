@@ -141,6 +141,40 @@ no hay "fase" que narrar en una pantalla de ajustes estáticos, tiene su propio 
 **Nota de contrato:** el flujo real es Google OAuth (Supabase, activado por Fernando
 19-jul) + OTP por email. Acá el código demo válido es `204172`. CORE cablea el auth real.
 
+## 6. EL HISTORIAL (`historial.html`)
+
+Pedido de Fernando (19-jul, vía CORE, misma tanda que "rehacer análisis"): soporte real de
+varios análisis por perfil. CORE ya armó el wiring completo (`Historial.tsx`, ruta
+`GET /me/audits` con `created_at` agregado, ítem de nav en `Sidebar.tsx` reusando el patrón
+LED+riel sin pedir ayuda) y dejó explícito que la piel quedaba para FRONT - "mismo espíritu
+que tenía Configuración antes de los puertos de conexión".
+
+**Set piece nombrable: "La bitácora de vuelo".** Cada análisis pasado no es una card de
+historial genérica: es una entrada de bitácora - fecha en mono a la izquierda, un
+mini-instrumento (arco de 3 zonas óxido/ámbar/cyan + marcador circular en la posición exacta
+del score, MISMO lenguaje polar que el medidor grande de `informe.html`, solo que a 58×36) y
+el arquetipo detectado, sello de estado a la derecha. Las entradas sin score todavía
+(`analyzing`/`error`) muestran el progreso de fotos en vez del instrumento. Entran apilándose
+una a una (stagger), como se va llenando un libro de vuelo.
+
+**Prueba del template:** una lista de historial gérica muestra texto plano o una card con
+ícono de librería; acá cada fila es legible de un vistazo por el COLOR y la POSICIÓN del
+marcador en el arco, sin tener que leer el número - reutiliza la alfabetización visual que ya
+aprendiste en el informe en vez de inventar un nuevo lenguaje para "casi lo mismo".
+**Momento héroe:** header entra → filas se apilan con stagger .09s, cada una con su
+mini-instrumento ya resuelto (no hay barrido de aguja acá, es un registro, no un análisis en
+vivo - la única aguja que barre es la de `informe.html`).
+**Estados forzables:** `?estado=listo|vacia|error` · `?n=0..6` (cantidad de entradas demo) ·
+`?nav=historial` · `?qa=0..1`.
+**Estado vacío con carácter propio:** ícono de libro abierto con renglones punteados ("tu
+bitácora está en blanco") + CTA directo al checklist - nunca un mensaje pelado sin salida.
+
+**Nit propio encontrado y corregido:** el sello "En curso" (`analyzing`) usaba el color óxido
+por default de `.selloe` (pensado para alarmas/errores) - alarmaba visualmente un estado que
+es neutral, no un problema. Agregué la variante `.selloe.s-mute` (ink-mute/steel-dim) a
+`shared.css` - reutilizable en cualquier pantalla que necesite un sello neutral de aquí en más
+(no solo `.s-cy` para positivo y default-óxido para negativo).
+
 ## Transversal: umbral entre escenas + aviso de conexión (`shared.css` / `shared.js`)
 
 **Umbral de entrada (§4.2).** Hasta ahora `.telon` solo se usaba de salida (`telonHacia`,

@@ -51,6 +51,7 @@ body{
 /* sellos: siempre rotados, entran estampándose */
 .selloe{display:inline-block;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.22em;font-size:.62rem;color:var(--oxide);border:1.5px solid var(--stamp);padding:.55em 1.1em;border-radius:2px;transform:rotate(-3deg);background:rgba(16,19,24,.4)}
 .selloe.s-cy{color:var(--signal);border-color:rgba(79,217,194,.6)}
+.selloe.s-mute{color:var(--ink-mute);border-color:var(--steel-dim)}
 
 /* botones */
 .btn{pointer-events:auto;display:inline-block;border:0;cursor:pointer;text-decoration:none;text-align:center;font-family:'Inter Tight',sans-serif;font-weight:700;font-size:1rem;letter-spacing:.02em;color:var(--void);background:var(--signal);padding:1.15rem 2.6rem;border-radius:6px;box-shadow:0 0 28px rgba(79,217,194,.26);transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s}
