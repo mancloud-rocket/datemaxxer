@@ -17,6 +17,12 @@ const EnvSchema = z
     AUDIT_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(5),
     // Auditorías gratis por cuenta (decisión de producto: 1)
     AUDIT_FREE_LIMIT: z.coerce.number().int().positive().default(1),
+    // Techo de una auditoría completa (2 llamadas al modelo). Pasado esto se marca
+    // error y se devuelve el cupo: nunca queda "analizando" para siempre.
+    AUDIT_TIMEOUT_MS: z.coerce.number().int().positive().default(300_000),
+    // Una auditoría "analizando" más vieja que esto quedó huérfana de un reinicio
+    // (deploy o el sleep del plan free de Render): se cosecha como error.
+    AUDIT_STALE_AFTER_MS: z.coerce.number().int().positive().default(900_000),
     // Origins permitidos para la web app, separados por coma
     CORS_ORIGINS: z.string().optional(),
   });

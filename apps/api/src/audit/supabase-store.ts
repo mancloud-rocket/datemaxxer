@@ -2,7 +2,14 @@ import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import type { AuditResult, Region } from '@percentil/contracts';
 import { AppError } from '../errors.js';
 import type { AuditProgress } from '../engines/audit.js';
-import type { AuditRecord, AuditStatus, AuditStore } from './store.js';
+import {
+  QuotaRpcMissingError,
+  STALE_ERROR,
+  type AuditQuota,
+  type AuditRecord,
+  type AuditStatus,
+  type AuditStore,
+} from './store.js';
 
 /**
  * Persistencia real contra percentil.photo_sets (tablas canónicas spec §5) con
@@ -66,6 +73,31 @@ export class SupabaseAuditStore implements AuditStore {
     if (error) throw storeError('insert photo_sets', error.message);
   }
 
+  async createWithQuota(record: AuditRecord, quota: AuditQuota): Promise<boolean> {
+    // El perfil primero: la FK lo exige y la función RPC lockea esa fila.
+    const { error: profileError } = await this.db
+      .from('profiles')
+      .upsert({ id: record.userId, region: record.region });
+    if (profileError) throw storeError('upsert profiles', profileError.message);
+
+    const { data, error } = await this.db.rpc('crear_auditoria_con_cupo', {
+      p_id: record.id,
+      p_user_id: record.userId,
+      p_total: record.progress.total,
+      p_free_limit: quota.freeLimit,
+      p_sin_limite: quota.unlimited,
+    });
+    if (error) {
+      // La migración todavía no se aplicó a esta base. En vez de tirar 500 y dejar
+      // la app sin auditorías, la ruta cae al camino viejo (no atómico) y lo loguea.
+      if (error.code === 'PGRST202' || error.code === '42883') {
+        throw new QuotaRpcMissingError();
+      }
+      throw storeError('rpc crear_auditoria_con_cupo', error.message);
+    }
+    return data === true;
+  }
+
   async get(id: string): Promise<AuditRecord | undefined> {
     const { data, error } = await this.db
       .from('photo_sets')
@@ -109,6 +141,20 @@ export class SupabaseAuditStore implements AuditStore {
     if (error) throw storeError('select latest', error.message);
     if (!data) return undefined;
     return toRecord(data, data.profiles?.region ?? 'neutro');
+  }
+
+  async failStale(maxAgeMs: number): Promise<number> {
+    const cutoff = new Date(Date.now() - maxAgeMs).toISOString();
+    const { data, error } = await this.db
+      .from('photo_sets')
+      .update({ status: 'error', error: STALE_ERROR })
+      // 'uploaded' es el default de la columna en el schema; lo incluimos por si
+      // alguna fila quedó en ese estado sin llegar a 'analyzing'.
+      .in('status', ['analyzing', 'uploaded'])
+      .lt('created_at', cutoff)
+      .select('id');
+    if (error) throw storeError('failStale photo_sets', error.message);
+    return data?.length ?? 0;
   }
 
   async listForUser(userId: string): Promise<AuditRecord[]> {

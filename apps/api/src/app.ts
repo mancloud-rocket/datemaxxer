@@ -4,6 +4,11 @@ import multipart from '@fastify/multipart';
 import rateLimit from '@fastify/rate-limit';
 import { CONTRACTS_VERSION } from '@percentil/contracts';
 import Fastify, { type FastifyInstance } from 'fastify';
+import {
+  NoopPhotoArchive,
+  SupabasePhotoArchive,
+  type PhotoArchive,
+} from './audit/photo-archive.js';
 import { registerAuditRoutes } from './audit/routes.js';
 import { InMemoryAuditStore, type AuditStore } from './audit/store.js';
 import { SupabaseAuditStore } from './audit/supabase-store.js';
@@ -22,13 +27,29 @@ export interface AppDeps {
   auditEngine?: AuditEngine;
   auditStore?: AuditStore;
   profileStore?: ProfileStore;
+  photoArchive?: PhotoArchive;
+}
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    /** Store de auditorías, para mantenimiento fuera del ciclo de request. */
+    auditStore: AuditStore;
+  }
 }
 
 function resolveAuditEngine(env: Env, deps: AppDeps): AuditEngine | undefined {
   if (deps.auditEngine) return deps.auditEngine;
   if (env.ANTHROPIC_API_KEY === undefined) return undefined;
   return buildAuditEngine({
-    client: claudeClientFromSdk(new Anthropic({ apiKey: env.ANTHROPIC_API_KEY })),
+    client: claudeClientFromSdk(
+      new Anthropic({
+        apiKey: env.ANTHROPIC_API_KEY,
+        // Sin esto una llamada colgada deja la auditoría en "analizando" para
+        // siempre. Cada paso corta solo; el techo total lo pone AUDIT_TIMEOUT_MS.
+        timeout: 120_000,
+        maxRetries: 1,
+      }),
+    ),
     ...(env.AUDIT_MODEL !== undefined ? { model: env.AUDIT_MODEL } : {}),
   });
 }
@@ -39,10 +60,17 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
       env.NODE_ENV === 'test'
         ? false
         : { level: env.LOG_LEVEL }, // logger de Fastify = pino
+    /**
+     * OBLIGATORIO detrás del proxy de Render: sin esto `request.ip` es la IP del
+     * proxy para TODOS, el rate limit se vuelve un cupo global compartido y la
+     * plataforma se cae con un puñado de usuarios simultáneos.
+     */
+    trustProxy: true,
   });
 
   app.decorateRequest('userId', '');
 
+  // Límite global: por IP real. Protege del flood anónimo.
   await app.register(rateLimit, {
     max: env.RATE_LIMIT_MAX,
     timeWindow: '1 minute',
@@ -104,9 +132,20 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
     authenticate,
     rateLimitMax: env.AUDIT_RATE_LIMIT_MAX,
     freeLimit: env.AUDIT_FREE_LIMIT,
+    timeoutMs: env.AUDIT_TIMEOUT_MS,
+    staleAfterMs: env.AUDIT_STALE_AFTER_MS,
+    photoArchive:
+      deps.photoArchive ??
+      (hasSupabase
+        ? new SupabasePhotoArchive(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
+        : new NoopPhotoArchive()),
   });
 
   registerProfileRoutes(app, { profileStore, auditStore, authenticate });
+
+  // Expuesto para tareas de mantenimiento fuera del ciclo de request
+  // (barrido de auditorías huérfanas al arrancar, ver server.ts).
+  app.decorate('auditStore', auditStore);
 
   return app;
 }

@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
 import { buildApp } from './app.js';
 import { loadEnv } from './env.js';
+import { rateLimitKey } from './rate-limit.js';
 
 const TEST_SECRET = 'percentil-test-secret-32-chars-min';
 
@@ -85,6 +86,33 @@ describe('API base', () => {
     const res = await app.inject({ method: 'GET', url: '/no-existe' });
     expect(res.statusCode).toBe(404);
     expect(res.json()).toHaveProperty('message');
+  });
+});
+
+describe('rate limit por usuario (no global)', () => {
+  it('la clave sale del sub del JWT, no de la IP', async () => {
+    const key = rateLimitKey({
+      headers: { authorization: `Bearer ${await signToken('user-rl')}` },
+      ip: '1.2.3.4',
+    } as never);
+    expect(key).toBe('u:user-rl');
+  });
+
+  it('sin token usable cae a la IP real', async () => {
+    expect(rateLimitKey({ headers: {}, ip: '1.2.3.4' } as never)).toBe('ip:1.2.3.4');
+    expect(rateLimitKey({ headers: { authorization: 'Bearer no-es-un-jwt' }, ip: '1.2.3.4' } as never))
+      .toBe('ip:1.2.3.4');
+  });
+
+  it('dos usuarios distintos NO comparten cupo aunque compartan IP', async () => {
+    // El bug original: detrás del proxy de Render todos caían en el mismo balde.
+    const a = rateLimitKey({
+      headers: { authorization: `Bearer ${await signToken('user-a')}` }, ip: '10.0.0.1',
+    } as never);
+    const b = rateLimitKey({
+      headers: { authorization: `Bearer ${await signToken('user-b')}` }, ip: '10.0.0.1',
+    } as never);
+    expect(a).not.toBe(b);
   });
 });
 

@@ -7,6 +7,7 @@ import { buildApp } from '../app.js';
 import { loadEnv } from '../env.js';
 import type { AuditEngine } from '../engines/audit.js';
 import { InMemoryProfileStore } from '../profile/store.js';
+import { InMemoryAuditStore, QuotaRpcMissingError, type AuditStore } from './store.js';
 
 const TEST_SECRET = 'percentil-test-secret-32-chars-min';
 
@@ -179,6 +180,75 @@ describe('rutas /audit (con auth)', () => {
     await plusApp.close();
   });
 
+  it('dos auditorías concurrentes NO consumen dos veces el cupo (carrera)', async () => {
+    // El bug: contar y crear en dos pasos dejaba pasar a las dos requests.
+    const store = new InMemoryAuditStore();
+    const app2 = await buildApp(loadEnv(TEST_ENV), { auditEngine: fakeEngine(), auditStore: store });
+    const sub = 'user-carrera';
+    const [a, b] = await Promise.all([
+      postAudit(app2, sub, [...photosParts(4), ...BASE_FIELDS]),
+      postAudit(app2, sub, [...photosParts(4), ...BASE_FIELDS]),
+    ]);
+    const codigos = [a.statusCode, b.statusCode].sort();
+    expect(codigos).toEqual([202, 409]); // una entra, la otra rebota
+    await flushTasks();
+    expect((await store.listForUser(sub)).length).toBe(1);
+    await app2.close();
+  });
+
+  it('una auditoría colgada por un reinicio NO quema el cupo para siempre', async () => {
+    // Simula el caso real: el proceso murió a mitad (deploy / sleep de Render)
+    // y la fila quedó en 'analyzing'. Antes esto dejaba al usuario sin su gratis.
+    const store = new InMemoryAuditStore();
+    const sub = 'user-huerfano';
+    await store.create({
+      id: 'auditoria-colgada',
+      userId: sub,
+      region: 'neutro',
+      status: 'analyzing',
+      progress: { fotos_analizadas: 0, total: 4 },
+      createdAt: new Date(Date.now() - 60 * 60 * 1000), // hace una hora
+    });
+    expect(await store.countForUser(sub)).toBe(1); // consume cupo
+
+    const app2 = await buildApp(loadEnv(TEST_ENV), { auditEngine: fakeEngine(), auditStore: store });
+    const res = await postAudit(app2, sub, [...photosParts(4), ...BASE_FIELDS]);
+    expect(res.statusCode).toBe(202); // el cupo se liberó, puede reintentar
+
+    const colgada = await store.get('auditoria-colgada');
+    expect(colgada?.status).toBe('error');
+    await app2.close();
+  });
+
+  it('failStale no toca auditorías recientes ni terminadas', async () => {
+    const store = new InMemoryAuditStore();
+    await store.create({
+      id: 'recien-arrancada', userId: 'u1', region: 'neutro', status: 'analyzing',
+      progress: { fotos_analizadas: 0, total: 4 }, createdAt: new Date(),
+    });
+    await store.create({
+      id: 'vieja-pero-lista', userId: 'u1', region: 'neutro', status: 'done',
+      progress: { fotos_analizadas: 4, total: 4 }, createdAt: new Date(Date.now() - 60 * 60 * 1000),
+    });
+    expect(await store.failStale(15 * 60 * 1000)).toBe(0);
+    expect((await store.get('recien-arrancada'))?.status).toBe('analyzing');
+    expect((await store.get('vieja-pero-lista'))?.status).toBe('done');
+  });
+
+  it('si el motor se cuelga, la auditoría termina en error y no queda analizando', async () => {
+    const colgado: AuditEngine = { run: () => new Promise(() => {}) }; // nunca resuelve
+    const store = new InMemoryAuditStore();
+    const app2 = await buildApp(
+      loadEnv({ ...TEST_ENV, AUDIT_TIMEOUT_MS: '40' }),
+      { auditEngine: colgado, auditStore: store },
+    );
+    const res = await postAudit(app2, 'user-timeout', [...photosParts(4), ...BASE_FIELDS]);
+    const { audit_id } = res.json() as { audit_id: string };
+    await new Promise((r) => setTimeout(r, 120));
+    expect((await store.get(audit_id))?.status).toBe('error');
+    await app2.close();
+  });
+
   it('una auditoría fallida NO quema el cupo gratis', async () => {
     const failApp = await buildApp(loadEnv(TEST_ENV), { auditEngine: fakeEngine('fail') });
     const sub = 'user-fail';
@@ -230,6 +300,71 @@ describe('rutas /audit (con auth)', () => {
       { name: 'photos', filename: 'malo.gif', contentType: 'image/gif', buffer: TINY_PNG },
       ...BASE_FIELDS,
     ]);
+    expect(res.statusCode).toBe(400);
+  });
+
+  it('si falta la migración del cupo atómico, sigue funcionando (camino viejo)', async () => {
+    // Protege el orden de deploy: código nuevo contra base sin migrar no debe
+    // dejar la app sin auditorías.
+    const store = new InMemoryAuditStore();
+    const sinRpc: AuditStore = {
+      ...store,
+      create: (r) => store.create(r),
+      get: (id) => store.get(id),
+      update: (id, p) => store.update(id, p),
+      countForUser: (u) => store.countForUser(u),
+      latestForUser: (u) => store.latestForUser(u),
+      listForUser: (u) => store.listForUser(u),
+      failStale: (ms) => store.failStale(ms),
+      createWithQuota: () => Promise.reject(new QuotaRpcMissingError()),
+    };
+    const app2 = await buildApp(loadEnv(TEST_ENV), { auditEngine: fakeEngine(), auditStore: sinRpc });
+    const res = await postAudit(app2, 'user-sin-migracion', [...photosParts(4), ...BASE_FIELDS]);
+    expect(res.statusCode).toBe(202);
+    await flushTasks();
+    // y el cupo se sigue respetando por el camino viejo
+    const segunda = await postAudit(app2, 'user-sin-migracion', [...photosParts(4), ...BASE_FIELDS]);
+    expect(segunda.statusCode).toBe(409);
+    await app2.close();
+  });
+
+  it('archiva las fotos originales con la convención de path por usuario', async () => {
+    const guardadas: Array<{ auditId: string; userId: string; n: number }> = [];
+    const archive = {
+      save: async (p: { auditId: string; userId: string; photos: unknown[] }) => {
+        guardadas.push({ auditId: p.auditId, userId: p.userId, n: p.photos.length });
+      },
+    };
+    const app2 = await buildApp(loadEnv(TEST_ENV), { auditEngine: fakeEngine(), photoArchive: archive });
+    const res = await postAudit(app2, 'user-archivo', [...photosParts(5), ...BASE_FIELDS]);
+    const { audit_id } = res.json() as { audit_id: string };
+    await flushTasks();
+    expect(guardadas).toEqual([{ auditId: audit_id, userId: 'user-archivo', n: 5 }]);
+    await app2.close();
+  });
+
+  it('si el archivado falla, la auditoría igual termina bien', async () => {
+    const archive = { save: async () => { throw new Error('storage caído'); } };
+    const app2 = await buildApp(loadEnv(TEST_ENV), { auditEngine: fakeEngine(), photoArchive: archive });
+    const res = await postAudit(app2, 'user-storage-roto', [...photosParts(4), ...BASE_FIELDS]);
+    expect(res.statusCode).toBe(202);
+    const { audit_id } = res.json() as { audit_id: string };
+    await flushTasks();
+    const poll = await app2.inject({
+      method: 'GET', url: `/audit/${audit_id}`,
+      headers: { authorization: `Bearer ${await token('user-storage-roto')}` },
+    });
+    expect((poll.json() as { status: string }).status).toBe('done');
+    await app2.close();
+  });
+
+  it('rechaza un payload total desproporcionado (guarda de memoria)', async () => {
+    // 9 fotos de 4MB = 36MB > el techo de 32MB.
+    const gorda = Buffer.alloc(4 * 1024 * 1024, 1);
+    const partes: Part[] = Array.from({ length: 9 }, (_, i) => ({
+      name: 'photos', filename: `f${i}.png`, contentType: 'image/png', buffer: gorda,
+    }));
+    const res = await postAudit(app, 'user-payload', [...partes, ...BASE_FIELDS]);
     expect(res.statusCode).toBe(400);
   });
 

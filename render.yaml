@@ -22,6 +22,14 @@ services:
         value: 5
       - key: AUDIT_FREE_LIMIT
         value: 1
+      # Techo de una auditoría completa: pasado esto se marca error y se devuelve
+      # el cupo, en vez de quedar "analizando" para siempre.
+      - key: AUDIT_TIMEOUT_MS
+        value: 300000
+      # Las "analizando" más viejas que esto quedaron huérfanas de un reinicio
+      # (deploy o sleep del plan free) y se cosechan al arrancar.
+      - key: AUDIT_STALE_AFTER_MS
+        value: 900000
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_JWT_SECRET

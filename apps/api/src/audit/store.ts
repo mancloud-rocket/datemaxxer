@@ -9,6 +9,23 @@ import type { AuditProgress } from '../engines/audit.js';
 
 export type AuditStatus = 'analyzing' | 'done' | 'error';
 
+/** Mensaje de las auditorías cosechadas por quedar huérfanas de un reinicio. */
+export const STALE_ERROR =
+  'El análisis se interrumpió de nuestro lado. Tu cupo quedó intacto: probá de nuevo.';
+
+/**
+ * La función de cupo atómico todavía no existe en esta base (migración
+ * `20260720120001_cupo_atomico.sql` sin aplicar). Permite que el deploy del código
+ * no dependa del orden de la migración: la ruta cae al camino viejo y lo loguea
+ * fuerte, en vez de romper todas las auditorías con un 500.
+ */
+export class QuotaRpcMissingError extends Error {
+  constructor() {
+    super('Falta la migración del cupo atómico (crear_auditoria_con_cupo)');
+    this.name = 'QuotaRpcMissingError';
+  }
+}
+
 export interface AuditRecord {
   id: string;
   userId: string;
@@ -21,8 +38,21 @@ export interface AuditRecord {
   createdAt: Date;
 }
 
+export interface AuditQuota {
+  freeLimit: number;
+  /** plan pago: se salta el cupo por completo. */
+  unlimited: boolean;
+}
+
 export interface AuditStore {
   create(record: AuditRecord): Promise<void>;
+  /**
+   * Crea la auditoría SOLO si hay cupo, de forma atómica (conteo + insert en la
+   * misma transacción). Devuelve false si el cupo está agotado.
+   * Sin esto dos requests concurrentes del mismo usuario consumen dos veces el
+   * cupo gratis: el chequeo previo en la ruta es fail-fast, la garantía es esta.
+   */
+  createWithQuota(record: AuditRecord, quota: AuditQuota): Promise<boolean>;
   get(id: string): Promise<AuditRecord | undefined>;
   update(id: string, patch: Partial<Omit<AuditRecord, 'id' | 'userId'>>): Promise<void>;
   /** Auditorías que consumen cupo (analyzing|done; las fallidas no queman el gratis). */
@@ -30,6 +60,13 @@ export interface AuditStore {
   latestForUser(userId: string): Promise<AuditRecord | undefined>;
   /** Historial completo, más reciente primero (para "mis auditorías"). */
   listForUser(userId: string): Promise<AuditRecord[]>;
+  /**
+   * Cosecha auditorías que quedaron "analizando" más de `maxAgeMs`: las marca
+   * error para que dejen de consumir cupo y el usuario pueda reintentar.
+   * Pasa cuando el proceso muere a mitad (deploy, sleep del plan free, OOM).
+   * Devuelve cuántas cosechó.
+   */
+  failStale(maxAgeMs: number): Promise<number>;
 }
 
 export class InMemoryAuditStore implements AuditStore {
@@ -37,6 +74,20 @@ export class InMemoryAuditStore implements AuditStore {
 
   async create(record: AuditRecord): Promise<void> {
     this.records.set(record.id, record);
+  }
+
+  async createWithQuota(record: AuditRecord, quota: AuditQuota): Promise<boolean> {
+    // JS es single-threaded y acá no hay await entre el conteo y el insert:
+    // esta secuencia ya es atómica en proceso.
+    if (!quota.unlimited) {
+      let usadas = 0;
+      for (const r of this.records.values()) {
+        if (r.userId === record.userId && r.status !== 'error') usadas++;
+      }
+      if (usadas >= quota.freeLimit) return false;
+    }
+    this.records.set(record.id, record);
+    return true;
   }
 
   async get(id: string): Promise<AuditRecord | undefined> {
@@ -68,5 +119,17 @@ export class InMemoryAuditStore implements AuditStore {
     return [...this.records.values()]
       .filter((r) => r.userId === userId)
       .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+  }
+
+  async failStale(maxAgeMs: number): Promise<number> {
+    const cutoff = Date.now() - maxAgeMs;
+    let n = 0;
+    for (const [id, r] of this.records) {
+      if (r.status === 'analyzing' && r.createdAt.getTime() < cutoff) {
+        this.records.set(id, { ...r, status: 'error', error: STALE_ERROR });
+        n++;
+      }
+    }
+    return n;
   }
 }

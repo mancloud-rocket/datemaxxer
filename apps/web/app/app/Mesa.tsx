@@ -10,6 +10,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Region } from '@percentil/contracts';
 import { ARQUETIPOS, buildGlifo } from '../../lib/glifos';
+import { prepararFoto } from '../../lib/imagen';
 import { gsap, mk, stampIn } from '../../lib/motion';
 
 const MIN = 4;
@@ -124,7 +125,7 @@ export function Mesa(props: {
     });
   }, [arquetipo, REDUCED]);
 
-  function agregar(list: FileList | null) {
+  async function agregar(list: FileList | null) {
     if (!list || !list.length) return;
     setAviso(null);
     const imgs = Array.from(list);
@@ -142,7 +143,13 @@ export function Mesa(props: {
         return;
       }
     }
-    setPruebas((cur) => [...cur, ...imgs.map((f) => ({ id: `p${uid++}`, file: f, url: URL.createObjectURL(f) }))]);
+    // Se redimensionan acá: sube ~10x más rápido en móvil y no revienta la memoria
+    // del server. La miniatura se genera del archivo ya preparado.
+    const preparadas = await Promise.all(imgs.map(prepararFoto));
+    setPruebas((cur) => [
+      ...cur,
+      ...preparadas.map((f) => ({ id: `p${uid++}`, file: f, url: URL.createObjectURL(f) })),
+    ]);
   }
 
   function descartar(id: string) {
@@ -221,7 +228,7 @@ export function Mesa(props: {
               onClick={() => fileRef.current?.click()}
               onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
               onDragLeave={() => setDrag(false)}
-              onDrop={(e) => { e.preventDefault(); setDrag(false); agregar(e.dataTransfer.files); }}
+              onDrop={(e) => { e.preventDefault(); setDrag(false); void agregar(e.dataTransfer.files); }}
             >
               <svg className="icon" viewBox="0 0 48 48">
                 <rect x="7" y="14" width="34" height="26" rx="3" />
@@ -237,7 +244,7 @@ export function Mesa(props: {
               ref={evgridRef}
               onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
               onDragLeave={() => setDrag(false)}
-              onDrop={(e) => { e.preventDefault(); setDrag(false); agregar(e.dataTransfer.files); }}
+              onDrop={(e) => { e.preventDefault(); setDrag(false); void agregar(e.dataTransfer.files); }}
             >
               {pruebas.map((p, i) => (
                 <div className={`ev${i === 0 ? ' first' : ''}`} data-id={p.id} key={p.id}>
@@ -281,7 +288,7 @@ export function Mesa(props: {
             accept="image/jpeg,image/png"
             multiple
             hidden
-            onChange={(e) => { agregar(e.target.files); e.target.value = ''; }}
+            onChange={(e) => { void agregar(e.target.files); e.target.value = ''; }}
           />
         </section>
 
