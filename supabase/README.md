@@ -13,6 +13,12 @@ supabase db push --yes --db-url "postgresql://postgres.<ref>:<PASSWORD-URLENCODE
 
 Notas del historial (compartido entre proyectos de la instancia):
 - `20260326013648` pertenece a otro proyecto (rio_seguros); hay un placeholder local vacío para alinear.
+- Los 7 `20260720222844`..`20260720225733` pertenecen a **AgentSuite** (schema `agentsuite`),
+  otro proyecto de Fernando en esta misma instancia. Mismo tratamiento: placeholders locales
+  vacíos para que `db push` no se bloquee. No los edites ni los borres.
+- **Regla práctica:** al crear una migración nueva, fechala DESPUÉS de la última remota
+  (`supabase migration list`), aunque sea de otro proyecto. Si queda con timestamp anterior,
+  el push entra fuera de orden.
 - La 0001 de Percentil se aplicó a mano por SQL Editor y quedó marcada con `supabase migration repair --status applied`.
 
 **Después del primer push (paso manual obligatorio):** exponer el schema en

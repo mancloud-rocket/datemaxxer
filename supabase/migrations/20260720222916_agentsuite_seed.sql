@@ -1,0 +1,5 @@
+-- Placeholder: migración del proyecto AgentSuite (schema `agentsuite`), que comparte
+-- esta instancia de Supabase con Datemaxxer (schema `percentil`).
+-- NO pertenece a Datemaxxer: existe solo para alinear el historial local con el remoto
+-- y que `supabase db push` no se bloquee. No la edites ni la borres.
+-- Original remota: 20260720222916 (agentsuite_seed)
