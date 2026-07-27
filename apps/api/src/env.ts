@@ -25,6 +25,12 @@ const EnvSchema = z
     AUDIT_STALE_AFTER_MS: z.coerce.number().int().positive().default(900_000),
     // Origins permitidos para la web app, separados por coma
     CORS_ORIGINS: z.string().optional(),
+    // Facturación con Paddle (Merchant of Record). Sin el secreto, el webhook
+    // responde 503 en vez de aceptar eventos sin verificar.
+    PADDLE_WEBHOOK_SECRET: z.string().min(10).optional(),
+    // price ids de Paddle: definen qué compró el usuario en cada evento.
+    PADDLE_PRICE_KIT: z.string().optional(),
+    PADDLE_PRICE_COPILOTO: z.string().optional(),
   });
 // Nota: SUPABASE_* son opcionales para que la API bootee en dev sin proyecto Supabase;
 // las rutas autenticadas responden 503 hasta que se configure (src/auth.ts).

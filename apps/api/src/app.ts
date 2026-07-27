@@ -13,6 +13,8 @@ import { registerAuditRoutes } from './audit/routes.js';
 import { InMemoryAuditStore, type AuditStore } from './audit/store.js';
 import { SupabaseAuditStore } from './audit/supabase-store.js';
 import { makeAuthenticate } from './auth.js';
+import { registerBillingRoutes } from './billing/routes.js';
+import { InMemoryBillingStore, SupabaseBillingStore, type BillingStore } from './billing/store.js';
 import {
   buildAuditEngine,
   claudeClientFromSdk,
@@ -20,12 +22,6 @@ import {
 } from './engines/audit.js';
 import type { Env } from './env.js';
 import { AppError } from './errors.js';
-import { registerPricingRoutes } from './pricing/routes.js';
-import {
-  InMemoryPricingStore,
-  SupabasePricingStore,
-  type PricingStore,
-} from './pricing/store.js';
 import { registerProfileRoutes } from './profile/routes.js';
 import { InMemoryProfileStore, SupabaseProfileStore, type ProfileStore } from './profile/store.js';
 
@@ -34,7 +30,7 @@ export interface AppDeps {
   auditStore?: AuditStore;
   profileStore?: ProfileStore;
   photoArchive?: PhotoArchive;
-  pricingStore?: PricingStore;
+  billingStore?: BillingStore;
 }
 
 declare module 'fastify' {
@@ -150,12 +146,14 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
 
   registerProfileRoutes(app, { profileStore, auditStore, authenticate });
 
-  registerPricingRoutes(app, {
-    pricingStore:
-      deps.pricingStore ??
+  await registerBillingRoutes(app, {
+    store:
+      deps.billingStore ??
       (hasSupabase
-        ? new SupabasePricingStore(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
-        : new InMemoryPricingStore()),
+        ? new SupabaseBillingStore(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
+        : new InMemoryBillingStore()),
+    webhookSecret: env.PADDLE_WEBHOOK_SECRET,
+    precios: { kit: env.PADDLE_PRICE_KIT, copiloto: env.PADDLE_PRICE_COPILOTO },
   });
 
   // Expuesto para tareas de mantenimiento fuera del ciclo de request
