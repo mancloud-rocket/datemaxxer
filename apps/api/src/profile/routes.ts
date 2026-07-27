@@ -16,6 +16,8 @@ export interface ProfileRoutesDeps {
   profileStore: ProfileStore;
   auditStore: AuditStore;
   authenticate: preHandlerAsyncHookHandler;
+  /** Solo para que la UI muestre u oculte el panel: autorizar es tarea de requireAdmin. */
+  esAdmin: (userId: string) => boolean;
 }
 
 const DEFAULTS = { region: 'neutro' as const, plan: 'free' as const, handle: null };
@@ -25,7 +27,7 @@ export function registerProfileRoutes(app: FastifyInstance, deps: ProfileRoutesD
 
   app.get('/me', { preHandler: [authenticate] }, async (request) => {
     const row = await profileStore.get(request.userId);
-    return row ?? DEFAULTS;
+    return { ...(row ?? DEFAULTS), esAdmin: deps.esAdmin(request.userId) };
   });
 
   app.patch('/me', { preHandler: [authenticate] }, async (request) => {

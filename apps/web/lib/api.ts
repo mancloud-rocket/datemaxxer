@@ -1,4 +1,12 @@
-import type { AccountProfile, AccountProfileUpdate, AuditResult } from '@percentil/contracts';
+import type {
+  AccountProfile,
+  AccountProfileUpdate,
+  CuentaMe,
+  Plan,
+  Sku,
+  SolicitudUpgrade,
+} from '@percentil/contracts';
+import type { AuditResult } from '@percentil/contracts';
 
 /** Cliente tipado de la API de Datemaxxer (contrato acordado en AGENTS-LOG, v2 con auth). */
 
@@ -65,7 +73,7 @@ export async function misAuditorias(token: string): Promise<AuditView[]> {
   return audits;
 }
 
-export async function obtenerPerfil(token: string): Promise<AccountProfile> {
+export async function obtenerPerfil(token: string): Promise<CuentaMe> {
   return request('/me', token);
 }
 
@@ -74,5 +82,66 @@ export async function actualizarPerfil(token: string, patch: AccountProfileUpdat
     method: 'PATCH',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(patch),
+  });
+}
+
+/* --- Pedir plan (el cobro todavía es a mano: link de pago + activación) --- */
+
+export async function pedirPlan(
+  token: string,
+  sku: Sku,
+  mensaje?: string,
+): Promise<SolicitudUpgrade> {
+  return request('/me/upgrade', token, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(mensaje !== undefined && mensaje !== '' ? { sku, mensaje } : { sku }),
+  });
+}
+
+export async function misSolicitudes(token: string): Promise<SolicitudUpgrade[]> {
+  const { solicitudes } = await request<{ solicitudes: SolicitudUpgrade[] }>('/me/upgrade', token);
+  return solicitudes;
+}
+
+/* --- Admin --- */
+
+export interface SolicitudAdmin extends SolicitudUpgrade {
+  userId: string;
+  email: string | null;
+}
+
+export interface UsuarioAdmin {
+  id: string;
+  email: string | null;
+  creado: string;
+  ultimoAcceso: string | null;
+  plan: Plan;
+  auditorias: number;
+}
+
+export async function solicitudesPendientes(token: string): Promise<SolicitudAdmin[]> {
+  const { solicitudes } = await request<{ solicitudes: SolicitudAdmin[] }>(
+    '/admin/solicitudes',
+    token,
+  );
+  return solicitudes;
+}
+
+export async function listarUsuarios(token: string): Promise<UsuarioAdmin[]> {
+  const { usuarios } = await request<{ usuarios: UsuarioAdmin[] }>('/admin/usuarios', token);
+  return usuarios;
+}
+
+export async function cambiarPlan(
+  token: string,
+  userId: string,
+  plan: Plan,
+  solicitudId?: string,
+): Promise<AccountProfile> {
+  return request(`/admin/usuarios/${userId}/plan`, token, {
+    method: 'PATCH',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(solicitudId !== undefined ? { plan, solicitudId } : { plan }),
   });
 }

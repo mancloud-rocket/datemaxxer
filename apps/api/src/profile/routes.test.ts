@@ -102,7 +102,7 @@ describe('rutas /me (perfil de cuenta)', () => {
       headers: { authorization: `Bearer ${await token('user-nuevo')}` },
     });
     expect(res.statusCode).toBe(200);
-    expect(res.json()).toEqual({ region: 'neutro', plan: 'free', handle: null });
+    expect(res.json()).toEqual({ region: 'neutro', plan: 'free', handle: null, esAdmin: false });
   });
 
   it('PATCH /me guarda region y handle, GET /me después los refleja', async () => {
@@ -118,7 +118,7 @@ describe('rutas /me (perfil de cuenta)', () => {
     expect(patch.json()).toEqual({ region: 'chileno', plan: 'free', handle: 'Fer' });
 
     const get = await app.inject({ method: 'GET', url: '/me', headers: auth });
-    expect(get.json()).toEqual({ region: 'chileno', plan: 'free', handle: 'Fer' });
+    expect(get.json()).toEqual({ region: 'chileno', plan: 'free', handle: 'Fer', esAdmin: false });
   });
 
   it('PATCH /me parcial no pisa lo que no vino en el body', async () => {

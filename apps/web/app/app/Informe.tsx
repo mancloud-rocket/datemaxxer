@@ -10,6 +10,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { GLIFOS } from '../../lib/glifos';
+import { ApiError, pedirPlan } from '../../lib/api';
+import { getAccessToken } from '../../lib/supabase';
 import { gsap, mk, setDraw } from '../../lib/motion';
 
 const NOMBRES: Record<string, string> = {
@@ -34,9 +36,33 @@ export function Informe(props: {
 }) {
   const root = useRef<HTMLDivElement>(null);
   const built = useRef(false);
-  const [avisado, setAvisado] = useState(false);
+  const [pedido, setPedido] = useState<'no' | 'enviando' | 'listo'>('no');
+  const [errorPedido, setErrorPedido] = useState<string | null>(null);
   const { score, confianza, nFotos } = props;
   const nombre = NOMBRES[props.arquetipo] ?? props.arquetipo;
+
+  /**
+   * Todavía no hay checkout: el pedido queda registrado, le avisa a Fernando por
+   * mail y el cobro se cierra a mano con un link de pago. Es a propósito - se
+   * valida que alguien quiera pagar antes de montar la pasarela.
+   */
+  async function pedirKit() {
+    setPedido('enviando');
+    setErrorPedido(null);
+    const token = await getAccessToken();
+    if (!token) {
+      setErrorPedido('Tu sesión se interrumpió. Recargá la página.');
+      setPedido('no');
+      return;
+    }
+    try {
+      await pedirPlan(token, 'kit');
+      setPedido('listo');
+    } catch (err) {
+      setErrorPedido(err instanceof ApiError ? err.message : 'No pudimos registrar tu pedido.');
+      setPedido('no');
+    }
+  }
 
   useEffect(() => {
     const el = root.current;
@@ -309,12 +335,19 @@ export function Informe(props: {
 
         {/* 5 · desbloqueo */}
         <section className="unlock">
-          <h2 className="display">Abre el expediente<br />completo.</h2>
+          <h2 className="display">Destrabá el tablero<br />completo.</h2>
           <div className="precio">Kit · US$ 19 <small>una sola vez</small></div>
-          {avisado ? (
-            <p style={{ color: 'var(--signal)', fontWeight: 600 }}>Listo. Te avisamos cuando el Kit abra.</p>
+          {pedido === 'listo' ? (
+            <p style={{ color: 'var(--signal)', fontWeight: 600 }}>
+              Listo, quedó anotado. Te escribimos al mail con el link de pago.
+            </p>
           ) : (
-            <button className="btn" onClick={() => setAvisado(true)}>Desbloquear con el Kit</button>
+            <button className="btn" disabled={pedido === 'enviando'} onClick={() => void pedirKit()}>
+              {pedido === 'enviando' ? 'Anotando…' : 'Desbloquear con el Kit'}
+            </button>
+          )}
+          {errorPedido && (
+            <p className="micro" style={{ color: 'var(--rust)' }}>{errorPedido}</p>
           )}
           <p className="micro">Garantía de 30 días: si tu match rate no mejora, te devolvemos el dinero.</p>
         </section>

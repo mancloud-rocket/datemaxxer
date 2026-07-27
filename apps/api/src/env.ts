@@ -31,6 +31,16 @@ const EnvSchema = z
     // price ids de Paddle: definen qué compró el usuario en cada evento.
     PADDLE_PRICE_KIT: z.string().optional(),
     PADDLE_PRICE_COPILOTO: z.string().optional(),
+    // Admins: uids de Supabase separados por coma. Sin esto, /admin/* responde 404
+    // para todo el mundo. Va por env y no por columna en base a propósito.
+    ADMIN_USER_IDS: z.string().optional(),
+    // Aviso por mail cuando alguien pide un plan. Sin key, la solicitud igual se
+    // guarda y aparece en el panel: el mail es empujón, no fuente de verdad.
+    RESEND_API_KEY: z.string().min(10).optional(),
+    RESEND_FROM: z.string().default('Datemaxxer <onboarding@resend.dev>'),
+    ADMIN_EMAIL: z.string().email().optional(),
+    // Link al panel que se mete en el mail de aviso.
+    ADMIN_PANEL_URL: z.string().url().default('https://datemaxxer.vercel.app/admin'),
   });
 // Nota: SUPABASE_* son opcionales para que la API bootee en dev sin proyecto Supabase;
 // las rutas autenticadas responden 503 hasta que se configure (src/auth.ts).

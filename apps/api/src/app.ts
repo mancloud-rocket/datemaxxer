@@ -12,6 +12,8 @@ import {
 import { registerAuditRoutes } from './audit/routes.js';
 import { InMemoryAuditStore, type AuditStore } from './audit/store.js';
 import { SupabaseAuditStore } from './audit/supabase-store.js';
+import { makeRequireAdmin, parsearAdmins } from './admin/guard.js';
+import { InMemoryAdminStore, SupabaseAdminStore, type AdminStore } from './admin/store.js';
 import { makeAuthenticate } from './auth.js';
 import { registerBillingRoutes } from './billing/routes.js';
 import { InMemoryBillingStore, SupabaseBillingStore, type BillingStore } from './billing/store.js';
@@ -24,6 +26,9 @@ import type { Env } from './env.js';
 import { AppError } from './errors.js';
 import { registerProfileRoutes } from './profile/routes.js';
 import { InMemoryProfileStore, SupabaseProfileStore, type ProfileStore } from './profile/store.js';
+import { NoopNotificador, ResendNotificador, type Notificador } from './upgrades/notificador.js';
+import { registerUpgradeRoutes } from './upgrades/routes.js';
+import { InMemoryUpgradeStore, SupabaseUpgradeStore, type UpgradeStore } from './upgrades/store.js';
 
 export interface AppDeps {
   auditEngine?: AuditEngine;
@@ -31,6 +36,22 @@ export interface AppDeps {
   profileStore?: ProfileStore;
   photoArchive?: PhotoArchive;
   billingStore?: BillingStore;
+  upgradeStore?: UpgradeStore;
+  adminStore?: AdminStore;
+  notificador?: Notificador;
+}
+
+function resolveNotificador(env: Env, deps: AppDeps): Notificador {
+  if (deps.notificador) return deps.notificador;
+  if (env.RESEND_API_KEY === undefined || env.ADMIN_EMAIL === undefined) {
+    return new NoopNotificador();
+  }
+  return new ResendNotificador({
+    apiKey: env.RESEND_API_KEY,
+    from: env.RESEND_FROM,
+    to: env.ADMIN_EMAIL,
+    panelUrl: env.ADMIN_PANEL_URL,
+  });
 }
 
 declare module 'fastify' {
@@ -72,6 +93,7 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
   });
 
   app.decorateRequest('userId', '');
+  app.decorateRequest('userEmail', null);
 
   // Límite global: por IP real. Protege del flood anónimo.
   await app.register(rateLimit, {
@@ -144,7 +166,31 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
         : new NoopPhotoArchive()),
   });
 
-  registerProfileRoutes(app, { profileStore, auditStore, authenticate });
+  const admins = parsearAdmins(env.ADMIN_USER_IDS);
+
+  registerProfileRoutes(app, {
+    profileStore,
+    auditStore,
+    authenticate,
+    esAdmin: (userId) => admins.has(userId),
+  });
+
+  registerUpgradeRoutes(app, {
+    upgradeStore:
+      deps.upgradeStore ??
+      (hasSupabase
+        ? new SupabaseUpgradeStore(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
+        : new InMemoryUpgradeStore()),
+    adminStore:
+      deps.adminStore ??
+      (hasSupabase
+        ? new SupabaseAdminStore(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
+        : new InMemoryAdminStore()),
+    profileStore,
+    notificador: resolveNotificador(env, deps),
+    authenticate,
+    requireAdmin: makeRequireAdmin(admins),
+  });
 
   await registerBillingRoutes(app, {
     store:

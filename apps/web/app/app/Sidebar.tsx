@@ -13,9 +13,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { obtenerPerfil } from '../../lib/api';
 import { gsap } from '../../lib/motion';
-import { getSupabase, type DisplayUser } from '../../lib/supabase';
+import { getAccessToken, getSupabase, type DisplayUser } from '../../lib/supabase';
 
 const NAV = [
   { href: '/app', label: 'Auditoría' },
@@ -26,7 +27,26 @@ const NAV = [
 export function Sidebar(props: { user: DisplayUser; children: React.ReactNode }) {
   const pathname = usePathname();
   const root = useRef<HTMLElement>(null);
+  // El link de admin solo lo ve un admin. Esconderlo es cosmética: quien adivine
+  // la URL igual choca con el 404 de la API en cada ruta /admin/*.
+  const [esAdmin, setEsAdmin] = useState(false);
   const REDUCED = typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('dev') === '1') {
+      setEsAdmin(true); // QA sin sesión real (ver layout.tsx)
+      return;
+    }
+    void (async () => {
+      const token = await getAccessToken();
+      if (!token) return;
+      try {
+        setEsAdmin((await obtenerPerfil(token)).esAdmin);
+      } catch {
+        /* si /me falla, el sidebar igual funciona: solo no aparece el link */
+      }
+    })();
+  }, []);
 
   useEffect(() => {
     const el = root.current;
@@ -83,7 +103,7 @@ export function Sidebar(props: { user: DisplayUser; children: React.ReactNode })
         </div>
 
         <nav className="dmx-sidebar-nav">
-          {NAV.map((item) => (
+          {(esAdmin ? [...NAV, { href: '/app/admin', label: 'Admin' }] : NAV).map((item) => (
             <Link
               key={item.href}
               href={item.href}

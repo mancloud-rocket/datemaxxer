@@ -1,6 +1,14 @@
 export { Arquetipo, Confianza, CONTRACTS_VERSION, Region, Score100 } from './shared.js';
-export { AccountProfile, AccountProfileUpdate } from './account.js';
-export { Plan, PlanStatus, Sku } from './billing.js';
+export { AccountProfile, AccountProfileUpdate, CuentaMe } from './account.js';
+export {
+  CambioPlanAdmin,
+  EstadoSolicitud,
+  NuevaSolicitud,
+  Plan,
+  PlanStatus,
+  Sku,
+  SolicitudUpgrade,
+} from './billing.js';
 export {
   AuditResult,
   EvidenciaFoto,

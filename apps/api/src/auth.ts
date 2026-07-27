@@ -7,10 +7,12 @@ declare module 'fastify' {
   interface FastifyRequest {
     /** uid de Supabase (claim `sub`), seteado por el preHandler `authenticate`. */
     userId: string;
+    /** claim `email` del token, si viene. Solo para contactar al usuario, nunca para autorizar. */
+    userEmail: string | null;
   }
 }
 
-type Verifier = (token: string) => Promise<{ sub?: string | undefined }>;
+type Verifier = (token: string) => Promise<{ sub?: string | undefined; email?: unknown }>;
 
 function buildVerifier(env: Env): Verifier | null {
   // JWKS del proyecto es la fuente de verdad (claves reales de Supabase, sin secreto
@@ -45,8 +47,9 @@ export function makeAuthenticate(env: Env): preHandlerAsyncHookHandler {
       throw new AuthError('Falta el header Authorization: Bearer <jwt>');
     }
     let sub: string | undefined;
+    let email: unknown;
     try {
-      ({ sub } = await verify(header.slice('Bearer '.length)));
+      ({ sub, email } = await verify(header.slice('Bearer '.length)));
     } catch {
       throw new AuthError('Token inválido o vencido');
     }
@@ -54,5 +57,6 @@ export function makeAuthenticate(env: Env): preHandlerAsyncHookHandler {
       throw new AuthError('Token sin subject');
     }
     request.userId = sub;
+    request.userEmail = typeof email === 'string' && email !== '' ? email : null;
   };
 }

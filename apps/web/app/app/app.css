@@ -519,3 +519,57 @@
   .dmx-historial .entry .fecha{width:auto}
   .dmx-historial .entry .body{width:100%;order:3}
 }
+
+/* ============ ADMIN · pantalla interna, sin set piece ============
+   A propósito seca: es la consola de trabajo de Fernando, no una superficie
+   de producto. Reusa los tokens y los bloques del resto, sin animación. */
+.dmx-admin{width:min(680px,100%)}
+.dmx-admin .chead{margin-bottom:2.2rem}
+.dmx-admin .chead .kicker{margin-bottom:.6rem}
+.dmx-admin .chead h1{font-size:clamp(1.8rem,6vw,2.4rem)}
+.dmx-admin .chead .hint{margin-top:.85rem;color:var(--ink-mute);font-size:.88rem;font-weight:500;line-height:1.5;max-width:34em}
+
+.dmx-admin .bloque{margin-bottom:2.8rem}
+.dmx-admin .bhead{display:flex;align-items:center;gap:.9rem;margin-bottom:1rem}
+.dmx-admin .bhead h2{font-family:var(--font-body),sans-serif;font-weight:700;font-size:1.02rem;color:var(--ink)}
+.dmx-admin .bhead .selloe{font-size:.58rem;padding:.4em .8em;transform:rotate(-2deg)}
+
+.dmx-admin .input{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;
+  color:var(--ink);padding:.7rem .95rem;font-size:.92rem;font-family:var(--font-body),sans-serif;margin-bottom:1rem}
+.dmx-admin .input:focus{outline:none;border-color:var(--steel)}
+.dmx-admin .input::placeholder{color:var(--steel)}
+
+.dmx-admin .filas{display:flex;flex-direction:column;gap:.7rem}
+.dmx-admin .fila{display:flex;align-items:center;gap:1.1rem;padding:.95rem 1.15rem;
+  background:var(--surface-2);border:1px solid var(--line);border-radius:10px}
+.dmx-admin .fila.pedido{border-color:var(--stamp);background:rgba(201,75,50,.05)}
+.dmx-admin .fila .quien{flex:1;min-width:0}
+.dmx-admin .fila .quien b{display:block;font-weight:700;font-size:.94rem;color:var(--ink);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dmx-admin .fila .quien small{display:block;font-family:var(--font-mono),monospace;font-size:.56rem;
+  letter-spacing:.1em;color:var(--steel);margin-top:.25rem;text-transform:uppercase}
+.dmx-admin .fila .quien .nota{margin-top:.5rem;font-size:.85rem;color:var(--ink-mute);line-height:1.45;
+  border-left:2px solid var(--stamp);padding-left:.7rem}
+
+.dmx-admin .fila .acciones{flex:none;display:flex;gap:.5rem}
+.dmx-admin .btn-sm{font-size:.8rem;padding:.6rem 1.1rem;border-radius:5px;box-shadow:none}
+.dmx-admin .btn-sm:hover{transform:none;box-shadow:none}
+
+.dmx-admin .planes{flex:none;display:flex;gap:.35rem}
+.dmx-admin .chip{font-family:var(--font-mono),monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--steel);background:transparent;border:1px solid var(--line);border-radius:4px;padding:.55em .9em;
+  cursor:pointer;transition:color .25s,border-color .25s}
+.dmx-admin .chip:hover:not(:disabled){color:var(--ink);border-color:var(--steel)}
+.dmx-admin .chip.on{color:var(--signal);border-color:rgba(79,217,194,.55);background:rgba(79,217,194,.07)}
+.dmx-admin .chip:disabled{cursor:default}
+
+.dmx-admin .vacio{color:var(--ink-mute);font-size:.88rem;font-weight:500}
+.dmx-admin .err-general{color:var(--oxide);font-size:.9rem;margin-bottom:1.2rem}
+.dmx-admin .loading-row{display:flex;align-items:center;gap:.7rem;color:var(--ink-mute);
+  font-family:var(--font-mono),monospace;font-size:.72rem;letter-spacing:.12em}
+.dmx-admin .loading-row .dot{width:6px;height:6px;border-radius:50%;background:var(--signal);animation:dmxLdot 1.1s ease-in-out infinite}
+
+@media (max-width:560px){
+  .dmx-admin .fila{flex-wrap:wrap}
+  .dmx-admin .fila .acciones,.dmx-admin .planes{width:100%}
+}

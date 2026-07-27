@@ -48,3 +48,15 @@ services:
         sync: false
       - key: PADDLE_PRICE_COPILOTO
         sync: false
+      # Admins (uids de Supabase separados por coma). Sin esto /admin/* responde
+      # 404 para todos: el panel de planes queda inaccesible.
+      - key: ADMIN_USER_IDS
+        sync: false
+      # Aviso por mail cuando alguien pide un plan. Sin RESEND_API_KEY o
+      # ADMIN_EMAIL la solicitud igual se guarda y sale en el panel.
+      - key: RESEND_API_KEY
+        sync: false
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PANEL_URL
+        sync: false
