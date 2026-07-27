@@ -1,5 +1,6 @@
 export { Arquetipo, Confianza, CONTRACTS_VERSION, Region, Score100 } from './shared.js';
 export { AccountProfile, AccountProfileUpdate } from './account.js';
+export { ListaPrecios, Moneda, Pais, Precio, Sku } from './pricing.js';
 export {
   AuditResult,
   EvidenciaFoto,

@@ -20,6 +20,12 @@ import {
 } from './engines/audit.js';
 import type { Env } from './env.js';
 import { AppError } from './errors.js';
+import { registerPricingRoutes } from './pricing/routes.js';
+import {
+  InMemoryPricingStore,
+  SupabasePricingStore,
+  type PricingStore,
+} from './pricing/store.js';
 import { registerProfileRoutes } from './profile/routes.js';
 import { InMemoryProfileStore, SupabaseProfileStore, type ProfileStore } from './profile/store.js';
 
@@ -28,6 +34,7 @@ export interface AppDeps {
   auditStore?: AuditStore;
   profileStore?: ProfileStore;
   photoArchive?: PhotoArchive;
+  pricingStore?: PricingStore;
 }
 
 declare module 'fastify' {
@@ -142,6 +149,14 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
   });
 
   registerProfileRoutes(app, { profileStore, auditStore, authenticate });
+
+  registerPricingRoutes(app, {
+    pricingStore:
+      deps.pricingStore ??
+      (hasSupabase
+        ? new SupabasePricingStore(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
+        : new InMemoryPricingStore()),
+  });
 
   // Expuesto para tareas de mantenimiento fuera del ciclo de request
   // (barrido de auditorías huérfanas al arrancar, ver server.ts).
