@@ -1,0 +1,78 @@
+{
+  "type": "object",
+  "description": "Radar. Salida corta a propósito: cada campo de más son milisegundos.",
+  "properties": {
+    "rechazado": {
+      "type": "boolean",
+      "description": "true SOLO si hay señal de que la persona podría ser menor de edad, no se ve a nadie, o no es un perfil."
+    },
+    "motivo_rechazo": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": ["menor_aparente", "sin_persona_identificable", "imagen_ilegible", "no_es_un_perfil"]
+        },
+        { "type": "null" }
+      ]
+    },
+    "indice": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "bucket": {
+              "type": "string",
+              "enum": ["bajo", "medio_bajo", "medio", "alto", "muy_alto", "top"],
+              "description": "Elegí el bucket ANTES que el score. bajo=p0-20, medio_bajo=p20-40, medio=p40-60, alto=p60-80, muy_alto=p80-95, top=p95-100"
+            },
+            "score": {
+              "type": "integer",
+              "description": "Dentro del rango de su bucket: bajo 0-19, medio_bajo 20-39, medio 40-59, alto 60-79, muy_alto 80-94, top 95-100"
+            },
+            "lectura": { "type": "string", "description": "UNA línea. No un párrafo." },
+            "confianza": { "type": "number", "description": "0 a 1" }
+          },
+          "required": ["bucket", "score", "lectura", "confianza"],
+          "additionalProperties": false
+        },
+        { "type": "null" }
+      ],
+      "description": "null si rechazado = true"
+    },
+    "selectividad": {
+      "anyOf": [
+        { "type": "string", "enum": ["baja", "media", "alta", "muy_alta"] },
+        { "type": "null" }
+      ],
+      "description": "Cuánto puede darse el lujo de filtrar. null si rechazado."
+    },
+    "openers": {
+      "type": "array",
+      "description": "Exactamente 3 cuando no hay rechazo. Vacío si rechazado.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tono": {
+            "type": "string",
+            "enum": ["contexto", "humor", "directo", "desafiante", "sexual_indirecto"]
+          },
+          "texto": { "type": "string" },
+          "licencia": {
+            "type": "string",
+            "description": "OBLIGATORIO: qué mostró ella que habilita este tono. Sin licencia citable, bajá el tono."
+          },
+          "riesgo": { "type": "string", "enum": ["bajo", "medio", "alto"] },
+          "por_que_funciona": { "type": "string", "description": "corto" }
+        },
+        "required": ["tono", "texto", "licencia", "riesgo", "por_que_funciona"],
+        "additionalProperties": false
+      }
+    },
+    "alerta_autenticidad": {
+      "anyOf": [{ "type": "string" }, { "type": "null" }],
+      "description": "Una línea SOLO si huele a bot, venta de contenido, agencia o cuenta muerta. Si no, null."
+    }
+  },
+  "required": ["rechazado", "motivo_rechazo", "indice", "selectividad", "openers", "alerta_autenticidad"],
+  "additionalProperties": false
+}

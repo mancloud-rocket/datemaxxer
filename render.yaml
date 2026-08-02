@@ -30,6 +30,19 @@ services:
       # (deploy o sleep del plan free) y se cosechan al arrancar.
       - key: AUDIT_STALE_AFTER_MS
         value: 900000
+      # Radar: modelo chico a propósito, corre por swipe.
+      - key: RADAR_MODEL
+        value: claude-haiku-4-5-20251001
+      - key: RADAR_RATE_LIMIT_MAX
+        value: 30
+      - key: RADAR_FREE_LIMIT
+        value: 3
+      - key: RADAR_KIT_LIMIT
+        value: 30
+      - key: RADAR_COPILOT_LIMIT
+        value: 400
+      - key: RADAR_VENTANA_DIAS
+        value: 30
       # F5 - lectura de perfil ajeno. free y kit son cupo de por vida; copilot
       # es mensual corredizo, porque es lo que sostiene la suscripción.
       - key: PROFILE_READ_RATE_LIMIT_MAX

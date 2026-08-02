@@ -180,7 +180,26 @@ F6 mida resultados reales se ajusta la función, no el prompt.
 Los dos salen casi gratis arriba de F5 porque comparten `market.ts`. El Radar es lo que
 hace que abra la app todos los días; el Comparador es la card compartible.
 
-### 2.1 Radar (contrato `radar.ts` listo)
+### 2.1 Radar ✅ **BACKEND HECHO (2-ago)**
+
+- [x] **Modelo decidido: Haiku 4.5** (`RADAR_MODEL`), separado del de las auditorías. Con el
+      modelo grande por swipe la economía de la suscripción no cierra.
+- [x] `engines/radar.ts`: una sola llamada, sin cadena. **Sin retry de reparación, y es
+      deliberado**: una segunda llamada duplica la latencia y mata el único motivo por el
+      que existe la función.
+- [x] Respuesta **síncrona, sin polling**: hacer polling sobre algo que dura 4 segundos son
+      round trips de más y una UI más complicada para nada.
+- [x] `ms_motor` medido y guardado, con un `warn` en el log si pasa de 5 segundos.
+- [x] **La reserva de cupo inserta la fila, no solo cuenta.** El radar se usa muchas veces
+      por sesión: acá la carrera es lo esperable, no lo excepcional. Probado contra la base.
+- [x] Ni un rechazo ni un fallo del motor gastan radar: se libera la reserva.
+- [x] **No se guarda la lectura**, solo el rastro (quién, cuándo, cuánto tardó) más bucket y
+      veredicto como telemetría de calibración. Acumular análisis de terceros que nadie va a
+      volver a consultar es archivo muerto con costo de privacidad.
+- [x] Cupos: free 3, Kit 30, Copiloto 400 por mes.
+- [ ] **Falta la UI del radar.**
+
+### 2.1 (referencia original)
 
 - [ ] 🔸 **Decisión: qué modelo.** Con Opus por swipe no cierra ninguna cuenta. El Radar es
       una llamada de visión con salida chica: es el caso de uso de un modelo rápido.

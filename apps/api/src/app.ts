@@ -41,6 +41,9 @@ import {
   SupabaseProfileReadStore,
   type ProfileReadStore,
 } from './profile-read/store.js';
+import { buildRadarEngine, type RadarEngine } from './engines/radar.js';
+import { registerRadarRoutes } from './radar/routes.js';
+import { InMemoryRadarStore, SupabaseRadarStore, type RadarStore } from './radar/store.js';
 import { registerProfileRoutes } from './profile/routes.js';
 import { InMemoryProfileStore, SupabaseProfileStore, type ProfileStore } from './profile/store.js';
 import { NoopNotificador, ResendNotificador, type Notificador } from './upgrades/notificador.js';
@@ -60,6 +63,8 @@ export interface AppDeps {
   coachEngine?: CoachEngine;
   profileReadStore?: ProfileReadStore;
   profileReadEngine?: ProfileReadEngine;
+  radarStore?: RadarStore;
+  radarEngine?: RadarEngine;
 }
 
 function resolveNotificador(env: Env, deps: AppDeps): Notificador {
@@ -109,6 +114,16 @@ function resolveProfileReadEngine(env: Env, deps: AppDeps): ProfileReadEngine | 
   return buildProfileReadEngine({
     client: claudeClientFromSdk(sdkAnthropic(env.ANTHROPIC_API_KEY)),
     ...(env.AUDIT_MODEL !== undefined ? { model: env.AUDIT_MODEL } : {}),
+  });
+}
+
+function resolveRadarEngine(env: Env, deps: AppDeps): RadarEngine | undefined {
+  if (deps.radarEngine) return deps.radarEngine;
+  if (env.ANTHROPIC_API_KEY === undefined) return undefined;
+  // Modelo propio, NO el de las auditorías: el radar corre por swipe.
+  return buildRadarEngine({
+    client: claudeClientFromSdk(sdkAnthropic(env.ANTHROPIC_API_KEY)),
+    model: env.RADAR_MODEL,
   });
 }
 
@@ -238,6 +253,25 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
     },
     ventanaDiasCopilot: env.PROFILE_READ_VENTANA_DIAS,
     timeoutMs: env.PROFILE_READ_TIMEOUT_MS,
+  });
+
+  registerRadarRoutes(app, {
+    store:
+      deps.radarStore ??
+      (hasSupabase
+        ? new SupabaseRadarStore(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
+        : new InMemoryRadarStore()),
+    profileStore,
+    auditStore,
+    engine: resolveRadarEngine(env, deps),
+    authenticate,
+    rateLimitMax: env.RADAR_RATE_LIMIT_MAX,
+    limites: {
+      free: env.RADAR_FREE_LIMIT,
+      kit: env.RADAR_KIT_LIMIT,
+      copilot: env.RADAR_COPILOT_LIMIT,
+    },
+    ventanaDias: env.RADAR_VENTANA_DIAS,
   });
 
   registerCoachRoutes(app, {

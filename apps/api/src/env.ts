@@ -31,6 +31,14 @@ const EnvSchema = z
     // price ids de Paddle: definen qué compró el usuario en cada evento.
     PADDLE_PRICE_KIT: z.string().optional(),
     PADDLE_PRICE_COPILOTO: z.string().optional(),
+    // Radar. Va a un modelo chico a propósito: con el grande por swipe la
+    // economía de la suscripción no cierra.
+    RADAR_MODEL: z.string().min(1).default('claude-haiku-4-5-20251001'),
+    RADAR_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(30),
+    RADAR_FREE_LIMIT: z.coerce.number().int().nonnegative().default(3),
+    RADAR_KIT_LIMIT: z.coerce.number().int().nonnegative().default(30),
+    RADAR_COPILOT_LIMIT: z.coerce.number().int().nonnegative().default(400),
+    RADAR_VENTANA_DIAS: z.coerce.number().int().positive().default(30),
     // F5 - lectura de perfil ajeno. free y kit son cupo de por vida; copilot es
     // mensual corredizo, porque es lo que sostiene la suscripción.
     PROFILE_READ_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
