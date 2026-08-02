@@ -19,7 +19,8 @@ import { gsap } from '../../lib/motion';
 import { getAccessToken, getSupabase, type DisplayUser } from '../../lib/supabase';
 
 const NAV = [
-  { href: '/app', label: 'Auditoría' },
+  { href: '/app', label: 'Mi perfil' },
+  { href: '/app/perfil', label: 'Leer un perfil' },
   { href: '/app/coach', label: 'Coach' },
   { href: '/app/historial', label: 'Historial' },
   { href: '/app/settings', label: 'Configuración' },

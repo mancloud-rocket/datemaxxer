@@ -6,7 +6,7 @@ import type {
   Sku,
   SolicitudUpgrade,
 } from '@percentil/contracts';
-import type { AuditResult } from '@percentil/contracts';
+import type { AnalisisRechazado, AuditResult, ProfileRead } from '@percentil/contracts';
 
 /** Cliente tipado de la API de Datemaxxer (contrato acordado en AGENTS-LOG, v2 con auth). */
 
@@ -83,6 +83,34 @@ export async function actualizarPerfil(token: string, patch: AccountProfileUpdat
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(patch),
   });
+}
+
+/* --- F5: lectura de perfil ajeno --- */
+
+export type ProfileReadStatus = 'analyzing' | 'done' | 'error' | 'rechazado';
+
+export interface ProfileReadView {
+  read_id: string;
+  status: ProfileReadStatus;
+  progress: { fotos_analizadas: number; total: number };
+  created_at: string;
+  result?: ProfileRead;
+  rechazo?: AnalisisRechazado;
+  error?: string;
+}
+
+/** POST /profile-read: form con photos[] (File), region, plataforma, verificada, bio. */
+export async function leerPerfil(token: string, form: FormData): Promise<{ read_id: string }> {
+  return request('/profile-read', token, { method: 'POST', body: form });
+}
+
+export async function obtenerLectura(token: string, id: string): Promise<ProfileReadView> {
+  return request(`/profile-read/${id}`, token);
+}
+
+export async function misLecturas(token: string): Promise<ProfileReadView[]> {
+  const { reads } = await request<{ reads: ProfileReadView[] }>('/me/profile-reads', token);
+  return reads;
 }
 
 /* --- Coach de confianza --- */

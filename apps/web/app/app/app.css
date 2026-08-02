@@ -555,6 +555,134 @@
   .dmx-informe .indice .cabeza{flex-direction:column;gap:.8rem}
 }
 
+/* ============ F5 · leer un perfil ============
+   Instrumento, no set piece. El veredicto va primero porque es la única
+   línea que el usuario siempre lee. */
+.dmx-perfil{width:min(620px,100%)}
+.dmx-perfil .chead{margin-bottom:1.8rem}
+.dmx-perfil .chead .kicker{margin-bottom:.6rem}
+.dmx-perfil .chead h1{font-size:clamp(1.9rem,6.4vw,2.6rem)}
+.dmx-perfil .chead .hint{margin-top:.9rem;color:var(--ink-mute);font-size:.92rem;font-weight:500;line-height:1.55;max-width:34em}
+
+/* -- subida -- */
+.dmx-perfil .zona{border:1.6px dashed var(--steel-dim);border-radius:12px;padding:2.4rem 1.4rem;text-align:center;
+  cursor:pointer;transition:border-color .25s,background .25s;margin-bottom:1.8rem}
+.dmx-perfil .zona:hover,.dmx-perfil .zona.drag{border-color:var(--signal);background:rgba(79,217,194,.04)}
+.dmx-perfil .zona h3{font-family:var(--font-body),sans-serif;font-weight:700;font-size:1.05rem;color:var(--ink);margin-bottom:.4rem}
+.dmx-perfil .zona p{color:var(--ink-mute);font-size:.88rem}
+.dmx-perfil .miniaturas{display:flex;flex-wrap:wrap;gap:.55rem;justify-content:center;align-items:center}
+.dmx-perfil .miniaturas img{width:64px;height:88px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.dmx-perfil .miniaturas .mas{width:64px;height:88px;display:grid;place-items:center;border:1.4px dashed var(--steel-dim);
+  border-radius:6px;color:var(--steel);font-size:1.4rem}
+
+.dmx-perfil .campos{display:flex;flex-direction:column;gap:1.3rem;margin-bottom:1.6rem}
+.dmx-perfil .campo-label>span{display:block;font-weight:700;font-size:.94rem;color:var(--ink);margin-bottom:.55rem}
+.dmx-perfil .chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.dmx-perfil .chip{font-family:var(--font-mono),monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--steel);background:transparent;border:1px solid var(--line);border-radius:4px;padding:.6em 1em;cursor:pointer;
+  transition:color .25s,border-color .25s}
+.dmx-perfil .chip:hover{color:var(--ink);border-color:var(--steel)}
+.dmx-perfil .chip.on{color:var(--signal);border-color:rgba(79,217,194,.55);background:rgba(79,217,194,.07)}
+.dmx-perfil .check{display:flex;align-items:center;gap:.6rem;color:var(--ink-mute);font-size:.9rem;cursor:pointer}
+.dmx-perfil .check input{accent-color:var(--signal);width:16px;height:16px}
+.dmx-perfil textarea.campo{resize:vertical;line-height:1.5}
+.dmx-perfil .accion{display:flex;gap:.7rem;align-items:center}
+
+/* -- leyendo -- */
+.dmx-perfil .leyendo{text-align:center;padding:4rem 1rem}
+.dmx-perfil .leyendo h1{font-size:clamp(1.7rem,6vw,2.3rem);margin:1rem 0 1.4rem}
+.dmx-perfil .leyendo .mono{font-size:.72rem;letter-spacing:.22em;color:var(--ink-mute);margin-bottom:.8rem}
+.dmx-perfil .leyendo .track{width:min(320px,80%);height:5px;margin:0 auto 1.2rem;border-radius:3px;background:#1A202A;overflow:hidden}
+.dmx-perfil .leyendo .track i{display:block;height:100%;background:var(--signal);transition:width .5s ease-out;
+  box-shadow:0 0 10px rgba(79,217,194,.4)}
+
+/* -- rechazo y límite: sin números, a propósito -- */
+.dmx-perfil .rechazo{text-align:center;padding:3.6rem 1.2rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
+.dmx-perfil .rechazo h1{font-size:clamp(1.6rem,5.6vw,2.2rem)}
+.dmx-perfil .rechazo p{color:var(--ink-mute);max-width:30em;line-height:1.55}
+.dmx-perfil .rechazo .btn{margin-top:.6rem}
+
+/* -- informe -- */
+.dmx-perfil .bloque{margin-bottom:1.3rem}
+.dmx-perfil .panel{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:1.5rem 1.4rem}
+.dmx-perfil .plabel{font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.22em;
+  font-size:.58rem;color:var(--ink-mute);margin-bottom:1.1rem}
+
+.dmx-perfil .alerta{background:rgba(201,75,50,.08);border:1px solid var(--stamp);border-radius:14px;padding:1.2rem 1.3rem}
+.dmx-perfil .alerta ul{list-style:none;margin-top:.8rem;display:flex;flex-direction:column;gap:.35rem}
+.dmx-perfil .alerta li{position:relative;padding-left:1rem;color:var(--ink-mute);font-size:.88rem}
+.dmx-perfil .alerta li::before{content:'';position:absolute;left:0;top:.55em;width:4px;height:4px;border-radius:50%;background:var(--oxide)}
+
+.dmx-perfil .veredicto{border-radius:14px;padding:1.6rem 1.4rem;border:1px solid var(--line);background:var(--surface-2)}
+.dmx-perfil .veredicto.v-ok{border-color:rgba(79,217,194,.5);background:rgba(79,217,194,.06)}
+.dmx-perfil .veredicto.v-mal{border-color:var(--stamp);background:rgba(201,75,50,.07)}
+.dmx-perfil .veredicto .vlabel{font-family:var(--font-mono),monospace;font-size:.6rem;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--ink-mute);margin-bottom:.7rem}
+.dmx-perfil .veredicto .vresumen{font-family:var(--font-body),sans-serif;font-weight:700;
+  font-size:clamp(1.1rem,4.2vw,1.35rem);line-height:1.4;color:var(--ink)}
+.dmx-perfil .veredicto .vmeta{margin-top:.7rem;font-family:var(--font-mono),monospace;font-size:.58rem;
+  letter-spacing:.16em;text-transform:uppercase;color:var(--signal)}
+.dmx-perfil .veredicto.v-mal .vmeta{color:var(--oxide)}
+.dmx-perfil .vevidencia{list-style:none;margin-top:1rem;display:flex;flex-direction:column;gap:.4rem}
+.dmx-perfil .vevidencia li{position:relative;padding-left:1rem;color:var(--ink-mute);font-size:.88rem;line-height:1.45}
+.dmx-perfil .vevidencia li::before{content:'';position:absolute;left:0;top:.55em;width:4px;height:4px;border-radius:50%;background:var(--steel)}
+
+.dmx-perfil .gapfila{display:flex;gap:1.3rem;align-items:flex-start;margin-bottom:1.2rem}
+.dmx-perfil .gapfila .numero{flex:none;font-family:var(--font-display),sans-serif;font-size:clamp(2.6rem,9vw,3.4rem);
+  line-height:1;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums}
+.dmx-perfil .gapfila .numero small{display:block;margin-top:.3rem;font-family:var(--font-mono),monospace;
+  font-size:.58rem;letter-spacing:.14em;color:var(--steel)}
+.dmx-perfil .getiqueta{flex:1;min-width:0}
+.dmx-perfil .gtier{display:block;margin-top:.6rem;font-weight:700;font-size:.98rem;color:var(--ink)}
+.dmx-perfil .glectura{margin-top:.35rem;color:var(--ink-mute);font-size:.88rem;line-height:1.5}
+.dmx-perfil .glectura.sinmedir{color:var(--oxide)}
+.dmx-perfil .estrategia{color:var(--ink);font-size:.94rem;line-height:1.55;padding-left:.9rem;
+  border-left:2px solid rgba(79,217,194,.45);margin-bottom:1.2rem}
+
+.dmx-perfil .desglose{display:flex;flex-direction:column;gap:.8rem}
+.dmx-perfil .comp .ctop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.35rem}
+.dmx-perfil .comp .ctop b{font-weight:600;font-size:.88rem;color:var(--ink-mute)}
+.dmx-perfil .comp .cnum{font-family:var(--font-mono),monospace;font-size:.72rem;color:var(--ink-mute);font-variant-numeric:tabular-nums}
+.dmx-perfil .comp .track{height:6px;border-radius:3px;background:#1A202A;overflow:hidden}
+.dmx-perfil .comp .track i{display:block;height:100%;border-radius:3px;background:var(--signal)}
+.dmx-perfil .comp.vacio .cnum{color:var(--oxide)}
+.dmx-perfil .comp.vacio .track{background:repeating-linear-gradient(45deg,#1A202A,#1A202A 4px,#141A22 4px,#141A22 8px)}
+
+.dmx-perfil .probfila{display:flex;align-items:baseline;gap:.9rem;margin-bottom:.9rem}
+.dmx-perfil .pnivel{font-family:var(--font-display),sans-serif;font-size:1.7rem;letter-spacing:-.02em;color:var(--ink)}
+.dmx-perfil .pvs{font-family:var(--font-mono),monospace;font-size:.68rem;letter-spacing:.14em;color:var(--signal)}
+.dmx-perfil .palancas{list-style:none;display:flex;flex-direction:column;gap:.4rem;margin-bottom:.9rem}
+.dmx-perfil .palancas li{position:relative;padding-left:1rem;color:var(--ink-mute);font-size:.88rem;line-height:1.45}
+.dmx-perfil .palancas li::before{content:'';position:absolute;left:0;top:.55em;width:4px;height:4px;border-radius:50%;background:var(--signal)}
+
+.dmx-perfil .openers{display:flex;flex-direction:column;gap:.9rem}
+.dmx-perfil .opener{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1rem 1.1rem}
+.dmx-perfil .otop{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
+.dmx-perfil .otono,.dmx-perfil .oriesgo{font-family:var(--font-mono),monospace;font-size:.54rem;letter-spacing:.16em;text-transform:uppercase}
+.dmx-perfil .otono{color:var(--signal)}
+.dmx-perfil .oriesgo.r-bajo{color:var(--steel)}
+.dmx-perfil .oriesgo.r-medio{color:#E8B04B}
+.dmx-perfil .oriesgo.r-alto{color:var(--oxide)}
+.dmx-perfil .otexto{font-size:1rem;line-height:1.5;color:var(--ink);font-weight:600}
+.dmx-perfil .oporque{margin-top:.5rem;color:var(--ink-mute);font-size:.86rem;line-height:1.45}
+.dmx-perfil .olicencia{margin-top:.4rem;font-family:var(--font-mono),monospace;font-size:.56rem;
+  letter-spacing:.08em;color:var(--steel);line-height:1.5}
+
+.dmx-perfil .ganchos{display:flex;flex-direction:column;gap:.8rem}
+.dmx-perfil .gancho b{display:block;font-weight:700;font-size:.94rem;color:var(--ink);margin-bottom:.25rem}
+.dmx-perfil .gancho p{color:var(--ink-mute);font-size:.88rem;line-height:1.45}
+.dmx-perfil .traduccion{font-size:.98rem;line-height:1.55;color:var(--ink)}
+.dmx-perfil .evidencia,.dmx-perfil .evitar{list-style:none;margin-top:.8rem;display:flex;flex-direction:column;gap:.35rem}
+.dmx-perfil .evidencia li,.dmx-perfil .evitar li{position:relative;padding-left:1rem;color:var(--ink-mute);font-size:.86rem}
+.dmx-perfil .evidencia li::before{content:'';position:absolute;left:0;top:.55em;width:4px;height:4px;border-radius:50%;background:var(--steel)}
+.dmx-perfil .evitar li::before{content:'×';position:absolute;left:0;color:var(--oxide)}
+.dmx-perfil .disclaimer{color:var(--steel);font-size:.78rem;line-height:1.5;text-align:center;padding:0 1rem}
+.dmx-perfil .err-general{color:var(--oxide);font-size:.9rem;margin-bottom:1rem}
+
+@media (max-width:520px){
+  .dmx-perfil .gapfila{flex-direction:column;gap:.6rem}
+}
+
 /* ============ COACH · la conversación ============
    Sin set piece a propósito: el resto de la app es cine, acá la única
    animación es el cursor mientras escribe. Quien abre esto no quiere show. */

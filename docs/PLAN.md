@@ -132,7 +132,21 @@ F6 mida resultados reales se ajusta la función, no el prompt.
 - [ ] Timeout + devolución de cupo, igual que F1.
 - [ ] Archivado de los screenshots subidos, igual que `photo-archive.ts`.
 
-### 1.4 UI del informe de perfil ajeno
+### 1.4 UI del informe de perfil ajeno ✅ **HECHO (2-ago)**
+
+- [x] `/app/perfil`: subida de capturas, espera con progreso real, informe, rechazo y límite.
+- [x] **El orden del informe lo manda el producto, no el contrato:** primero el veredicto de
+      inversión (la única línea que el usuario va a leer siempre), después el gap contra su
+      número, después los openers, y recién al final la lectura fina.
+- [x] La alerta de autenticidad va **arriba de todo** cuando hay sospecha: le ahorra leer el
+      resto.
+- [x] **La pantalla de rechazo no muestra ningún número** y aclara que no gastó cupo.
+- [x] Sin índice propio, en vez del gap aparece el botón de medirse. Es la conversión más
+      limpia del producto y no está escondida en texto gris.
+- [x] Cada opener muestra su `licencia` ("se apoya en: ...") y su riesgo de unmatch. El
+      usuario ve por qué ese tono está habilitado, no solo el texto para copiar.
+
+### 1.4 (referencia original)
 
 - [ ] 🔸 **Decisión de vocabulario antes de dibujar nada.** Hoy conviven tres registros:
       "expediente forense", "cabina de instrumentos" y el de mercado (índice, bucket, tier,
