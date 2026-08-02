@@ -77,16 +77,16 @@ export default function AppHome() {
         // El layout gatekeepea la sesión: esto solo pasaría en una carrera
         // transitoria (token venciendo justo acá). El listener del layout
         // va a reaccionar solo en cuanto Supabase confirme la sesión perdida.
-        setFase({ nombre: 'mesa', error: 'Tu sesión se interrumpió. Recargá la página.', enviando: false });
+        setFase({ nombre: 'mesa', error: 'Tu sesión se interrumpió. Recarga la página.', enviando: false });
         return;
       }
       const audit = await miAuditoria(token);
       if (!audit) setFase({ nombre: 'mesa', error: null, enviando: false });
       else if (audit.status === 'analyzing') setFase({ nombre: 'escaner', view: audit });
       else if (audit.status === 'done') setFase({ nombre: 'informe', view: audit });
-      else setFase({ nombre: 'mesa', error: 'Tu auditoría anterior falló (no gastó tu cupo). Probá de nuevo.', enviando: false });
+      else setFase({ nombre: 'mesa', error: 'Tu auditoría anterior falló (no gastó tu cupo). Prueba de nuevo.', enviando: false });
     } catch {
-      setFase({ nombre: 'mesa', error: 'No pudimos conectar con el expediente. Recargá la página.', enviando: false });
+      setFase({ nombre: 'mesa', error: 'No pudimos conectar con el expediente. Recarga la página.', enviando: false });
     } finally {
       restaurando.current = false;
     }
@@ -129,7 +129,7 @@ export default function AppHome() {
     setFase({ nombre: 'mesa', error: null, enviando: true });
     const token = await getAccessToken();
     if (!token) {
-      setFase({ nombre: 'mesa', error: 'Tu sesión se interrumpió. Recargá la página.', enviando: false });
+      setFase({ nombre: 'mesa', error: 'Tu sesión se interrumpió. Recarga la página.', enviando: false });
       return;
     }
     try {
@@ -144,7 +144,7 @@ export default function AppHome() {
       else {
         setFase({
           nombre: 'mesa',
-          error: err instanceof ApiError ? err.message : 'Error de conexión. Probá de nuevo.',
+          error: err instanceof ApiError ? err.message : 'Error de conexión. Prueba de nuevo.',
           enviando: false,
         });
       }

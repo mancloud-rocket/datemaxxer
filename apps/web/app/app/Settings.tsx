@@ -60,7 +60,7 @@ export function Settings() {
     void (async () => {
       const token = await getAccessToken();
       if (!token) {
-        setError('Tu sesión se interrumpió. Recargá la página.');
+        setError('Tu sesión se interrumpió. Recarga la página.');
         setCargando(false);
         return;
       }
@@ -101,7 +101,7 @@ export function Settings() {
     setError(null);
     const token = await getAccessToken();
     if (!token) {
-      setError('Tu sesión se interrumpió. Recargá la página.');
+      setError('Tu sesión se interrumpió. Recarga la página.');
       setGuardando(false);
       return;
     }

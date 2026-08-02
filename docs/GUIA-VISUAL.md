@@ -12,7 +12,64 @@ parte de la misma película.
 
 ---
 
+## 0. El registro vigente: el instrumento de mercado (2-ago-2026)
+
+**Esta sección manda sobre cualquier otra cosa que diga este documento.** Es la
+tercera y última mudanza de vocabulario: forense → cabina → **mercado**. No hay
+una cuarta. Si algo de abajo la contradice, gana esto.
+
+**Por qué cambió:** el board redefinió el producto. No es un revisor de perfiles
+ni un panel de instrumentos: es un **instrumento de posición de mercado**. Le dice
+al usuario en qué escalón está, en qué escalón está ella, y cuáles de esos puntos
+puede recuperar. El vocabulario tiene que decir eso mismo o el producto se lee
+como otra cosa.
+
+### Léxico canónico
+
+| Concepto | Se dice así | NO se dice |
+|---|---|---|
+| El acto central del producto | **medir**, medición, lectura | auditar, analizar, examinar |
+| El resultado | **tu número**, índice, score | expediente, informe pericial, dossier |
+| Dónde estás | **escalón**, bucket, tier, posición, percentil | zona, categoría, nivel |
+| La distancia con ella | **gap**, puntos de diferencia | brecha, distancia, diferencial |
+| Lo que puede mejorar | **puntos recuperables**, puntos cerrables | mejoras, optimizaciones, tips |
+| Las fotos que sube | **fotos** | pruebas, evidencia, exhibits, material |
+| Contenido pagado | **En el Kit**, con el Copiloto | sellado, lacrado, bajo custodia, premium |
+| Lo que decide | **veredicto** (sobrevive: está en los contratos) | dictamen, sentencia, fallo |
+| El margen de error | **margen** (± N puntos) | intervalo, desviación |
+
+**Prohibidas de acá en más, en texto que ve el usuario:** expediente, evidencia,
+prueba (como unidad de foto), caso, custodia, sellado, lacrado, perito, dossier,
+bitácora, mesa de luz como sustantivo de pantalla.
+
+**Excepción explícita:** `evidencia[]` y `confianza` son nombres de campo de los
+contratos Zod y reglas duras de los prompts. **No se renombran.** La prohibición
+es de copy visible, no de esquema.
+
+**Qué sobrevive intacto del registro anterior:** la grieta óxido → sutura cyan
+(es el gesto firma de la marca), los actos con numerales romanos fantasma, y todo
+el vocabulario de motion de §6. El cambio es de palabras, no de cine.
+
+### Registro gramatical: neutro-tú, no voseo
+
+La UI estática se escribe en **tú**, no en vos, aunque Fernando escriba en
+rioplatense y aunque el producto nazca en Uruguay. Motivo: es un producto LATAM y
+un mexicano leyendo "tenés" lee algo extranjero, mientras que un rioplatense
+leyendo "tienes" lee algo neutro. El landing canónico (`landing/cinema.html`) ya
+está en tú.
+
+Lo que **sí** se adapta por región es la **salida de los motores**, vía el campo
+`region` del usuario. Eso está en los prompts, no en la UI.
+
+Única excepción: `/app/admin`, que solo ve Fernando.
+
+---
+
 ## 1. El principio rector: sos el piloto, Datemaxxer es tu copiloto
+
+> ⚠️ **Superado por §0 (2-ago-2026).** Se conserva porque explica de dónde viene
+> la mitad del código vivo y por qué sobrevive la grieta óxido → sutura cyan. El
+> registro que manda hoy es el de mercado.
 
 **Pivote de narrativa (19-jul-2026, decisión de Fernando, ver AGENTS-LOG entrada
 CORE "DIRECTIVA DE FERNANDO: pivote de narrativa").** El universo dejó de ser un

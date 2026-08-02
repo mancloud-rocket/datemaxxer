@@ -10,10 +10,11 @@ export function PantallaLimite() {
   return (
     <div className="estado-box">
       <span className="selloe">Cupo gratuito usado</span>
-      <h1 className="display">Tu primera auditoría<br />ya está en el expediente.</h1>
+      <h1 className="display">Ya sabes dónde<br />estás parado.</h1>
       <p>
-        La auditoría gratis es una sola por cuenta. Para volver a auditarte después de mejorar tu
-        perfil, y desbloquear el plan completo de fotos, el Kit te cubre: incluye re-chequeo a los 30 días.
+        La medición gratis es una sola por cuenta. Para volver a medirte después de mejorar tu
+        perfil, y ver el plan completo de puntos que puedes recuperar, el Kit te cubre: incluye una
+        segunda medición a los 30 días para comprobar si tu número subió.
       </p>
       <div>
         <button className="btn">Pasar al Kit · US$ 19</button>

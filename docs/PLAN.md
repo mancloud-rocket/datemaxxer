@@ -99,8 +99,10 @@ F6 mida resultados reales se ajusta la función, no el prompt.
 - [ ] Migración de la tabla elegida + RLS por `auth.uid()`.
 - [ ] `POST /profile-read` (202 + background, como `/audit`) y `GET /profile-read/:id`.
 - [ ] `GET /me/profile-reads`: historial. La gente va a querer volver a una lectura.
-- [ ] Cupo por plan con el patrón atómico. 🔸 **Decisión: cuántas por plan.** Propuesta:
-      free 1 (para que pruebe), Kit 5, Copiloto 60/mes.
+- [ ] Cupo por plan con el patrón atómico. **Decidido (provisorio, 2-ago): free 1, Kit 5,
+      Copiloto 60/mes.** Van por variable de entorno (`PROFILE_READ_FREE_LIMIT`,
+      `PROFILE_READ_KIT_LIMIT`, `PROFILE_READ_COPILOT_LIMIT`) para moverlos sin deploy
+      cuando haya datos de uso real.
 - [ ] Timeout + devolución de cupo, igual que F1.
 - [ ] Archivado de los screenshots subidos, igual que `photo-archive.ts`.
 

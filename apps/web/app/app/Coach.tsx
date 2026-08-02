@@ -24,9 +24,9 @@ import { getAccessToken } from '../../lib/supabase';
 /** Arranques sugeridos, para que la pantalla vacía no sea un cursor mudo. */
 const ARRANQUES = [
   'Me ghostearon otra vez y no sé qué hice mal',
-  'Tengo una cita el sábado y estoy con los nervios de punta',
   '¿Le escribo o dejo que escriba ella?',
   'Llevo dos semanas sin un match y ya me está pegando',
+  'Le estoy tirando a alguien muy por encima de mi nivel',
 ];
 
 const MENSAJES_QA: MensajeCoach[] = [
@@ -67,7 +67,7 @@ export function Coach() {
     void (async () => {
       const token = await getAccessToken();
       if (!token) {
-        setError('Tu sesión se interrumpió. Recargá la página.');
+        setError('Tu sesión se interrumpió. Recarga la página.');
         setCargando(false);
         return;
       }
@@ -109,7 +109,7 @@ export function Coach() {
 
       const token = await getAccessToken();
       if (!token) {
-        setError('Tu sesión se interrumpió. Recargá la página.');
+        setError('Tu sesión se interrumpió. Recarga la página.');
         setEscribiendo(false);
         return;
       }
@@ -166,7 +166,8 @@ export function Coach() {
         <p className="kicker"><i />Tu coach</p>
         <h1 className="display">Hablemos.</h1>
         <p className="hint">
-          Lo que no se arregla con una foto mejor. El rechazo, los nervios, la duda de si escribir.
+          Por qué te está yendo como te está yendo. Sin consuelo: aquí se lee el mercado, se decide
+          si insistes o sueltas, y sales con algo concreto para hacer.
         </p>
         {restantes !== null && !sinCupo && (
           <div className="cupo">
@@ -180,7 +181,7 @@ export function Coach() {
 
         {vacio && (
           <div className="arranque">
-            <p className="lead">No sé por dónde arrancás. Elegí uno, o escribí lo tuyo.</p>
+            <p className="lead">Elige uno, o escribe lo tuyo.</p>
             <div className="sugerencias">
               {ARRANQUES.map((s) => (
                 <button key={s} type="button" className="sug" onClick={() => void enviar(s)}>
@@ -223,7 +224,7 @@ export function Coach() {
 
       {sinCupo ? (
         <div className="tope">
-          <p className="lead">Hasta acá llega el coach en el plan gratuito.</p>
+          <p className="lead">Hasta aquí llega el coach en el plan gratuito.</p>
           <p className="micro">Con el Copiloto la conversación no tiene tope.</p>
           <a className="btn" href="/app">Ver los planes</a>
         </div>
@@ -240,7 +241,7 @@ export function Coach() {
             className="campo-coach"
             rows={1}
             maxLength={2000}
-            placeholder="Escribí lo que te está pasando"
+            placeholder="Escribe lo que te está pasando"
             value={borrador}
             disabled={escribiendo || cargando}
             onChange={(e) => setBorrador(e.target.value)}

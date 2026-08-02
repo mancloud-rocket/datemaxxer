@@ -51,7 +51,7 @@ export function Informe(props: {
     setErrorPedido(null);
     const token = await getAccessToken();
     if (!token) {
-      setErrorPedido('Tu sesión se interrumpió. Recargá la página.');
+      setErrorPedido('Tu sesión se interrumpió. Recarga la página.');
       setPedido('no');
       return;
     }
@@ -194,16 +194,16 @@ export function Informe(props: {
   return (
     <div ref={root} className="dmx-informe">
       <div className="apphud">
-        <span className="chip">Datemaxxer · Expediente 001</span>
-        <div className="fase"><b>VEREDICTO LISTO</b><small>informe completo</small></div>
+        <span className="chip">Datemaxxer · Medición 001</span>
+        <div className="fase"><b>MEDICIÓN LISTA</b><small>lectura completa</small></div>
         <div className="progress"><i /></div>
       </div>
 
       <main className="doc">
         <header className="doc-head">
-          <p className="kicker"><i />Tu expediente está completo</p>
+          <p className="kicker"><i />Ya sabemos dónde estás parado</p>
           <h1 className="display">El veredicto<br />de tu perfil.</h1>
-          <div className="caso"><span className="selloe s-cy">EXPEDIENTE · {nFotos} FOTOS + BIO</span></div>
+          <div className="caso"><span className="selloe s-cy">MEDIDO SOBRE {nFotos} FOTOS + BIO</span></div>
         </header>
 
         {/* 1 · el medidor */}
@@ -285,7 +285,7 @@ export function Informe(props: {
           </div>
           <div className="velo">
             <svg className="sutura" preserveAspectRatio="none" />
-            <span className="selloe s-cy">Sellado</span>
+            <span className="selloe s-cy">En el Kit</span>
             <div className="queHay">La lectura foto por foto de tus {nFotos} fotos<small>qué dice cada una y qué la traiciona</small></div>
           </div>
         </section>
@@ -308,7 +308,7 @@ export function Informe(props: {
           </div>
           <div className="velo">
             <svg className="sutura" preserveAspectRatio="none" />
-            <span className="selloe s-cy">Sellado</span>
+            <span className="selloe s-cy">En el Kit</span>
             <div className="queHay">Tu plan de fotos completo<small>cuáles conservar, cuáles reemplazar y el orden que convierte</small></div>
           </div>
         </section>
@@ -328,14 +328,14 @@ export function Informe(props: {
           </div>
           <div className="velo">
             <svg className="sutura" preserveAspectRatio="none" />
-            <span className="selloe s-cy">Sellado</span>
+            <span className="selloe s-cy">En el Kit</span>
             <div className="queHay">Quick wins + tu plan contra el objetivo<small>lo accionable, ordenado por impacto</small></div>
           </div>
         </section>
 
         {/* 5 · desbloqueo */}
         <section className="unlock">
-          <h2 className="display">Destrabá el tablero<br />completo.</h2>
+          <h2 className="display">Mira todo lo que<br />te falta recuperar.</h2>
           <div className="precio">Kit · US$ 19 <small>una sola vez</small></div>
           {pedido === 'listo' ? (
             <p style={{ color: 'var(--signal)', fontWeight: 600 }}>

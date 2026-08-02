@@ -211,7 +211,7 @@ export function Escaner(props: {
         .to(rail, { autoAlpha: 1, duration: 0.4 }, 0.5)
         .to(q('.cabezal'), { x: 0, autoAlpha: 1, duration: 0.7, ease: 'back.out(1.4)' }, 0.55)
         .to(q('.status'), { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.7)
-        .call(() => { decode(faseTxt, 'ANALIZANDO EVIDENCIA'); decode(statusTxt, 'EL CABEZAL ESTÁ CALIENTE'); }, undefined, 0.9);
+        .call(() => { decode(faseTxt, 'MIDIENDO TU PERFIL'); decode(statusTxt, 'EL CABEZAL ESTÁ CALIENTE'); }, undefined, 0.9);
 
       /* cada foto pasa por el cabezal */
       frames.forEach((f, i) => {
@@ -305,7 +305,7 @@ export function Escaner(props: {
         hud?.classList.add('fase-cyan');
       } else if (t >= ENT) {
         const i = Math.min(N - 1, Math.floor((t - ENT) / PORFOTO));
-        faseTxt.textContent = 'ANALIZANDO EVIDENCIA';
+        faseTxt.textContent = 'MIDIENDO TU PERFIL';
         faseSub.textContent = `foto ${i + 1} de ${N}`;
         statusTxt.textContent = 'EL CABEZAL ESTÁ CALIENTE';
         if (bar) gsap.set(bar, { scaleX: ((i + 1) / N) * 0.68 });
@@ -366,14 +366,14 @@ export function Escaner(props: {
   return (
     <div ref={root} className="dmx-escaner">
       <div className="apphud">
-        <span className="chip">Datemaxxer · Expediente 001</span>
-        <div className="fase"><b id="faseTxt">PREPARANDO MESA DE LUZ</b><small id="faseSub">evidencia recibida</small></div>
+        <span className="chip">Datemaxxer · Medición 001</span>
+        <div className="fase"><b id="faseTxt">PREPARANDO MESA DE LUZ</b><small id="faseSub">fotos recibidas</small></div>
         <div className="progress"><i /></div>
       </div>
 
       <header className="head">
-        <p className="kicker"><i />Tu evidencia está en la mesa</p>
-        <h1 className="display">Leyendo tu perfil como<br />lo lee el algoritmo.</h1>
+        <p className="kicker"><i />Tus fotos están en la mesa</p>
+        <h1 className="display">Midiendo tu perfil como<br />lo mide el algoritmo.</h1>
         <p className="eta">Esto toma entre 25 y 60 segundos. Vale cada uno.</p>
       </header>
 
@@ -442,7 +442,7 @@ export function Escaner(props: {
       </div>
 
       <div className="status">
-        <div className="mono" id="statusTxt">EVIDENCIA EN COLA</div>
+        <div className="mono" id="statusTxt">FOTOS EN COLA</div>
         <div className="sub" id="statusSub">no cierres esta pantalla</div>
       </div>
 

@@ -130,7 +130,7 @@ export function Mesa(props: {
     setAviso(null);
     const imgs = Array.from(list);
     if (pruebas.length + imgs.length > MAX) {
-      setAviso(`Son <b>${MAX} pruebas como máximo</b>. Ya tienes ${pruebas.length}: elige las mejores, no todas.`);
+      setAviso(`Son <b>${MAX} fotos como máximo</b>. Ya tienes ${pruebas.length}: elige las mejores, no todas.`);
       return;
     }
     for (const f of imgs) {
@@ -192,20 +192,20 @@ export function Mesa(props: {
   return (
     <div className="dmx-mesa">
       <div className="apphud">
-        <span className="chip">Datemaxxer · Expediente 001</span>
+        <span className="chip">Datemaxxer · Medición 001</span>
         <div className="fase">
-          <b>{n >= MIN ? 'EXPEDIENTE LISTO' : 'ARMANDO EXPEDIENTE'}</b>
-          <small>{n} de {MAX} pruebas</small>
+          <b>{n >= MIN ? 'LISTO PARA MEDIR' : 'CARGANDO PERFIL'}</b>
+          <small>{n} de {MAX} fotos</small>
         </div>
         <div className="progress"><i style={{ transform: `scaleX(${Math.min(n / MIN, 1)})`, background: n >= MIN ? 'var(--signal)' : undefined }} /></div>
       </div>
 
       <main className="wrap">
         <header className="head">
-          <p className="kicker k-ox"><i />Reúne la evidencia</p>
-          <h1 className="display">La mesa de<br />evidencia.</h1>
+          <p className="kicker k-ox"><i />Tu perfil real, sin maquillar</p>
+          <h1 className="display">Vamos a medir<br />dónde estás.</h1>
           <p className="sub">
-            Deposita entre 4 y 9 fotos, las mismas que tienes en las apps. Las vamos a leer como las lee
+            Sube entre 4 y 9 fotos, las mismas que tienes en las apps. Las leemos como las lee
             el algoritmo, y como las lee ella en 200 milisegundos.
           </p>
         </header>
@@ -215,7 +215,7 @@ export function Mesa(props: {
 
           {has && (
             <div className="tallybar">
-              <div className={`n${n >= MIN ? ' ok' : ''}`}><b>{n}</b> de {MAX} pruebas · mínimo {MIN}</div>
+              <div className={`n${n >= MIN ? ' ok' : ''}`}><b>{n}</b> de {MAX} fotos · mínimo {MIN}</div>
               <div className={`pips${n >= MIN ? ' ok' : ''}`}>
                 {Array.from({ length: MAX }, (_, i) => <span key={i} className={i < n ? 'on' : ''} />)}
               </div>
@@ -235,8 +235,8 @@ export function Mesa(props: {
                 <path d="M7 32 L17 23 L25 30 L33 22 L41 30" />
                 <circle cx="17" cy="21" r="2.4" />
               </svg>
-              <h3>Deposita tus fotos aquí</h3>
-              <p>Arrástralas a la mesa o <span className="pick">elígelas desde tu teléfono</span>. Entre 4 y 9, formato JPG o PNG, hasta 12&nbsp;MB cada una.</p>
+              <h3>Sube tus fotos aquí</h3>
+              <p>Arrástralas o <span className="pick">elígelas desde tu teléfono</span>. Entre 4 y 9, formato JPG o PNG, hasta 12&nbsp;MB cada una.</p>
             </div>
           ) : (
             <div
@@ -269,7 +269,7 @@ export function Mesa(props: {
               {n < MAX && (
                 <button type="button" className="addtile" onClick={() => fileRef.current?.click()}>
                   <svg className="plus" viewBox="0 0 48 48"><line x1="24" y1="12" x2="24" y2="36" /><line x1="12" y1="24" x2="36" y2="24" /></svg>
-                  <span>Agregar prueba</span>
+                  <span>Agregar foto</span>
                 </button>
               )}
             </div>
@@ -295,7 +295,7 @@ export function Mesa(props: {
         <section className="ctx">
           <div className="field">
             <div className="lab"><span className="k">Tu bio, tal cual</span><span className="opt">Opcional</span></div>
-            <p className="hint">Pegala sin retocar. Si dice una cosa y las fotos dicen otra, eso es un hallazgo.</p>
+            <p className="hint">Pégala sin retocar. Si dice una cosa y las fotos dicen otra, eso es un hallazgo.</p>
             <textarea maxLength={500} placeholder="Pega aquí la bio que tienes hoy en la app…" value={bio} onChange={(e) => setBio(e.target.value)} />
             <div className="counter">{bio.length} / 500</div>
           </div>
@@ -323,11 +323,11 @@ export function Mesa(props: {
       <div className="ctabar">
         <div className="inner">
           <div className="count">
-            <b>{n}</b> / {MAX} pruebas
-            <small>{n < MIN ? `te falta${faltan > 1 ? 'n' : ''} ${faltan} para empezar` : 'listo para auditar'}</small>
+            <b>{n}</b> / {MAX} fotos
+            <small>{n < MIN ? `te falta${faltan > 1 ? 'n' : ''} ${faltan} para empezar` : 'listo para medir'}</small>
           </div>
           <button className="btn" disabled={n < MIN || props.enviando} onClick={enviar}>
-            {props.enviando ? 'Abriendo expediente…' : 'Iniciar auditoría'}
+            {props.enviando ? 'Midiendo…' : 'Medir mi perfil'}
           </button>
         </div>
       </div>

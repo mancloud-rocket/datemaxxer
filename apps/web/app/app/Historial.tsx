@@ -90,7 +90,7 @@ export function Historial() {
     void (async () => {
       const token = await getAccessToken();
       if (!token) {
-        setError('Tu sesión se interrumpió. Recargá la página.');
+        setError('Tu sesión se interrumpió. Recarga la página.');
         return;
       }
       try {
@@ -120,14 +120,14 @@ export function Historial() {
   return (
     <div className="dmx-historial" ref={root}>
       <header className="chead">
-        <p className="kicker"><i />Cada lectura, registrada</p>
-        <h1 className="display">Tu bitácora.</h1>
+        <p className="kicker"><i />Cómo se movió tu número</p>
+        <h1 className="display">Tus mediciones.</h1>
       </header>
 
       {error ? (
         <p className="err-general">{error}</p>
       ) : !auditorias ? (
-        <div className="loading-row"><span className="dot" />CARGANDO TU BITÁCORA…</div>
+        <div className="loading-row"><span className="dot" />CARGANDO TUS MEDICIONES…</div>
       ) : auditorias.length === 0 ? (
         <div className="empty">
           <svg viewBox="0 0 48 48">
@@ -137,9 +137,9 @@ export function Historial() {
             <line x1="11" y1="23" x2="19" y2="22" strokeDasharray="2 3" />
             <line x1="11" y1="29" x2="19" y2="28" strokeDasharray="2 3" />
           </svg>
-          <h3>Tu bitácora está en blanco</h3>
-          <p>Todavía no completaste ninguna auditoría. Cuando lo hagas, cada lectura queda anotada acá.</p>
-          <a className="btn" href="/app">Ir al checklist</a>
+          <h3>Todavía no te mediste</h3>
+          <p>Cuando midas tu perfil, cada medición queda aquí y vas a poder ver si tu número sube.</p>
+          <a className="btn" href="/app">Medir mi perfil</a>
         </div>
       ) : (
         <div className="log">
