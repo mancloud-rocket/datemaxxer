@@ -1,4 +1,13 @@
-import { RANGO_BUCKET, type Bucket, type ComponenteIndice, type IndiceAtractivo } from '@percentil/contracts';
+import {
+  RANGO_BUCKET,
+  type Bucket,
+  type ComponenteIndice,
+  type GapAtractivo,
+  type IndiceAtractivo,
+  type ProbabilidadRespuesta,
+  type Selectividad,
+  type VolumenMatches,
+} from '@percentil/contracts';
 
 /**
  * Derivados de mercado. Todo lo de acá se calcula EN CÓDIGO, nunca se le pide al
@@ -102,6 +111,189 @@ export function calcularMargen(
   margen += Math.min(limitantes.length, 3) * 2;
 
   return Math.min(50, Math.max(0, margen));
+}
+
+/* ========================================================================== */
+/* Derivados de mercado                                                        */
+/* ========================================================================== */
+
+/**
+ * Gap de atractivo. `delta` positivo = ella está por encima.
+ *
+ * Los cortes de tier son los del contrato y NO se tocan sin mover también los
+ * tests: el tier es lo que gatea el tono de los openers en F5, así que correrlo
+ * un punto cambia qué mensaje se le sugiere al usuario.
+ *
+ * Devuelve `null` si el usuario todavía no tiene índice propio. Ese null es
+ * deliberado y la UI lo usa: es la conversión más limpia del producto
+ * ("medite y te digo cuánto te separa de ella").
+ */
+export function calcularGap(
+  globalUsuario: number | null,
+  globalElla: number,
+): GapAtractivo | null {
+  if (globalUsuario === null) return null;
+  const delta = Math.round(globalElla - globalUsuario);
+  const tier: GapAtractivo['tier'] =
+    delta <= -10 ? 'el_arriba' : delta < 10 ? 'paridad' : delta < 25 ? 'ella_un_tier' : 'ella_dos_tiers';
+
+  const LECTURA: Record<GapAtractivo['tier'], { lectura: string; estrategia: string }> = {
+    el_arriba: {
+      lectura: `Estás ${Math.abs(delta)} puntos por encima. Acá el cuello de botella no es ella: es cuántos mensajes mandas.`,
+      estrategia:
+        'Puedes ser directo y puedes filtrar. El riesgo real es quedarte anclado a una sola conversación teniendo margen para varias.',
+    },
+    paridad: {
+      lectura:
+        delta === 0
+          ? 'Están en el mismo escalón. Esto se decide por lo que escribas.'
+          : `Los separan ${Math.abs(delta)} puntos: prácticamente el mismo escalón. Esto se decide por lo que escribas.`,
+      estrategia:
+        'Un mensaje con gancho concreto de su perfil te alcanza. No hace falta hacerse el interesante ni sobreexplicar.',
+    },
+    ella_un_tier: {
+      lectura: `Ella está ${delta} puntos arriba. Tienes chance, pero no con un mensaje genérico.`,
+      estrategia:
+        'Necesitas un gancho específico de su perfil y un tono que no ruegue. El mensaje de "hola, qué tal" acá muere en el segundo tres.',
+    },
+    ella_dos_tiers: {
+      lectura: `Ella está ${delta} puntos arriba. Es un escalón completo de diferencia y conviene que lo sepas antes de invertir.`,
+      estrategia:
+        'Mensaje bueno, uno solo, y seguir swipeando. Anclarte acá es el error que más tiempo te va a costar. Si quieres cerrar la brecha, se cierra con fotos y presentación, no con mensajes.',
+    },
+  };
+
+  return { delta, tier, ...{ lectura: LECTURA[tier].lectura, estrategia_implicada: LECTURA[tier].estrategia } };
+}
+
+export type Plataforma = 'tinder' | 'bumble' | 'hinge' | 'otra';
+
+const NIVELES_VOLUMEN = ['bajo', 'medio', 'alto', 'muy_alto'] as const;
+
+/** Piso de volumen por bucket. Monótono: más bucket nunca da menos volumen. */
+const VOLUMEN_BASE: Record<Bucket, number> = {
+  bajo: 0,
+  medio_bajo: 0,
+  medio: 1,
+  alto: 2,
+  muy_alto: 3,
+  top: 3,
+};
+
+/**
+ * Volumen de matches entrantes que recibe ELLA.
+ *
+ * No es un dato que tengamos: es una estimación por escalón, y su valor no está
+ * en el número sino en la implicancia. Que a ella le entren cien matches por
+ * semana es la explicación de por qué su latencia es alta y por qué un mensaje
+ * genérico no se lee. Eso es lo que el usuario necesita entender.
+ */
+export function calcularVolumenMatches(params: {
+  bucket: Bucket;
+  plataforma: Plataforma;
+  verificada: boolean;
+}): VolumenMatches {
+  const { bucket, plataforma, verificada } = params;
+  const drivers: string[] = [`está en el escalón ${bucket.replace('_', ' ')} del pool`];
+
+  let nivel = VOLUMEN_BASE[bucket];
+
+  // Tinder mueve más volumen crudo por el modelo de swipe abierto; Hinge filtra
+  // más de entrada. No cambia quién es ella, cambia cuánto le entra.
+  if (plataforma === 'tinder') {
+    nivel += 1;
+    drivers.push('Tinder empuja más volumen que las apps de match curado');
+  } else if (plataforma === 'hinge') {
+    nivel -= 1;
+    drivers.push('Hinge filtra más de entrada, le entra menos y más dirigido');
+  }
+
+  if (verificada) {
+    nivel += 1;
+    drivers.push('perfil verificado: la app lo muestra más y le da más confianza');
+  }
+
+  const idx = Math.min(NIVELES_VOLUMEN.length - 1, Math.max(0, nivel));
+  const nivelFinal = NIVELES_VOLUMEN[idx]!;
+
+  const IMPLICANCIA: Record<(typeof NIVELES_VOLUMEN)[number], string> = {
+    bajo: 'Le entra poco. Un mensaje decente se lee de verdad, y la latencia larga acá significa desinterés y no saturación.',
+    medio: 'Le entra un flujo normal. Vas a competir, pero un mensaje con gancho concreto sale del montón.',
+    alto: 'Le entran más mensajes de los que puede contestar. Que no responda no dice nada sobre vos; que responda tarde, tampoco.',
+    muy_alto:
+      'Le entra mucho más de lo que puede procesar. Filtra por descarte, no por elección, y cualquier mensaje que se parezca a los demás no llega a leerse.',
+  };
+
+  return { nivel: nivelFinal, drivers, implicancia: IMPLICANCIA[nivelFinal] };
+}
+
+/** Qué tan bueno es el mensaje con el que va a escribir. */
+export type CalidadOpener = 'generico' | 'decente' | 'con_gancho';
+
+const FACTOR_TIER: Record<GapAtractivo['tier'], number> = {
+  el_arriba: 1.6,
+  paridad: 1.0,
+  ella_un_tier: 0.55,
+  ella_dos_tiers: 0.25,
+};
+
+const FACTOR_SELECTIVIDAD: Record<Selectividad['nivel'], number> = {
+  baja: 1.25,
+  media: 1.0,
+  alta: 0.7,
+  muy_alta: 0.45,
+};
+
+const FACTOR_OPENER: Record<CalidadOpener, number> = {
+  generico: 0.6,
+  decente: 1.0,
+  con_gancho: 1.5,
+};
+
+/**
+ * Probabilidad de respuesta, SIEMPRE relativa a su propia baseline.
+ *
+ * Un porcentaje absoluto sería mentira con cara de dato: no conocemos su tasa
+ * real de respuesta hasta que exista F6. `vs_baseline` de 0.55 significa "acá te
+ * va a ir alrededor de la mitad de bien que en tu promedio", que es una frase
+ * que se puede sostener y que además se vuelve verificable el día que midamos.
+ *
+ * Los factores son multiplicativos a propósito: un gap malo con un mensaje
+ * genérico se hunde el doble, que es lo que efectivamente pasa.
+ */
+export function calcularProbabilidadRespuesta(params: {
+  gap: GapAtractivo | null;
+  selectividad: Selectividad['nivel'];
+  calidadOpener: CalidadOpener;
+}): ProbabilidadRespuesta {
+  const { gap, selectividad, calidadOpener } = params;
+
+  const factorTier = gap === null ? 1 : FACTOR_TIER[gap.tier];
+  const crudo = factorTier * FACTOR_SELECTIVIDAD[selectividad] * FACTOR_OPENER[calidadOpener];
+  const vs_baseline = Math.min(5, Math.max(0, Math.round(crudo * 100) / 100));
+
+  const nivel: ProbabilidadRespuesta['nivel'] =
+    vs_baseline < 0.4 ? 'muy_baja' : vs_baseline < 0.9 ? 'baja' : vs_baseline < 1.5 ? 'media' : 'alta';
+
+  const palancas: string[] = [];
+  if (calidadOpener !== 'con_gancho') {
+    palancas.push('Un gancho concreto de su perfil, en vez de un saludo, es lo que más mueve este número.');
+  }
+  if (gap !== null && (gap.tier === 'ella_un_tier' || gap.tier === 'ella_dos_tiers')) {
+    palancas.push('Cerrar puntos de tu lado (fotos, presentación) sube esto para todos los perfiles, no solo para este.');
+  }
+  if (selectividad === 'alta' || selectividad === 'muy_alta') {
+    palancas.push('Filtra duro: si tienes algo que cumpla uno de sus filtros declarados, ponelo adelante.');
+  }
+  if (gap === null) {
+    palancas.push('Mide tu perfil y esta estimación se afina: hoy no sabemos desde dónde partís.');
+  }
+
+  // Sin índice propio no hay gap, y sin gap esto es una estimación a medias.
+  // Decirlo con la confianza y no con una nota al pie.
+  const confianza = gap === null ? 0.4 : 0.7;
+
+  return { nivel, vs_baseline, palancas, confianza };
 }
 
 /** Arma el índice completo a partir de lo que devolvió el modelo. */

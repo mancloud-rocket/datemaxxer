@@ -34,14 +34,16 @@ ya nos caímos una vez.
 
 No es código. Son cinco minutos de Fernando y sin esto hay dos funciones muertas en prod.
 
-- [ ] 🔸 Aplicar `20260727130001_solicitudes_upgrade.sql` en el editor SQL de Supabase.
-      **Sin esto el botón del Kit tira error.**
-- [ ] 🔸 Aplicar `20260801120001_coach.sql`. **Sin esto el coach no guarda nada.**
+- [x] Aplicar las tres migraciones (`solicitudes_upgrade`, `coach`, `profile_reads`).
+      **Hecho el 2-ago** con `supabase/PARA-CORRER.sql`. Verificado contra la base: las
+      tres tablas existen, `conversations.profile_read` se fue y `profile_read_id` está,
+      nada de lo anterior se rompió, y probado con escritura real más el índice único que
+      bloquea el pedido duplicado.
 - [ ] 🔸 Setear en Render: `ADMIN_USER_IDS`, `RESEND_API_KEY`, `ADMIN_EMAIL`,
-      `ADMIN_PANEL_URL`. Sin las dos primeras, el panel de admin es inaccesible y no llega
-      el aviso de pedido de plan.
-- [ ] 🔸 Pasar la contraseña nueva de la base, o aplicar las migraciones a mano. La que
-      tengo dejó de autenticar.
+      `ADMIN_PANEL_URL`. **Sigue pendiente.** Sin las dos primeras, el panel de admin es
+      inaccesible y no llega el aviso cuando alguien pide un plan.
+- [ ] 🔸 Pasar la contraseña nueva de la base. La que tengo dejó de autenticar, así que
+      hoy solo puedo verificar por PostgREST (service role), no correr DDL.
 
 ---
 
@@ -55,18 +57,19 @@ escritos (`profile-read.ts` + `market.ts`), lo que falta es el motor.
 Los tres derivados que faltan. Van en código por la misma razón que el resto: el día que
 F6 mida resultados reales se ajusta la función, no el prompt.
 
-- [ ] `calcularVolumenMatches(indice, plataforma, verificada)` → `VolumenMatches`.
-      Drivers: bucket global, verificación, plataforma, densidad urbana. Es monótona en el
-      bucket: a mayor bucket, nunca menos volumen.
-- [ ] `calcularProbabilidadRespuesta(gap, selectividad, calidadOpener)` →
-      `ProbabilidadRespuesta`. **Siempre relativa** (`vs_baseline`), nunca un porcentaje
-      absoluto: no tenemos su tasa real hasta que exista F6, y un absoluto sería mentira
-      con cara de dato.
-- [ ] `calcularGap(indiceUsuario, indiceElla)` → `GapAtractivo`. `delta = ella - usuario`,
-      tier según los cortes del contrato (-10 / 10 / 25). Devuelve `null` si el usuario no
-      tiene índice.
-- [ ] Tests: monotonía de las tres funciones (si el gap empeora, la probabilidad no puede
-      subir), y los bordes exactos de cada tier.
+- [x] `calcularVolumenMatches({bucket, plataforma, verificada})` → `VolumenMatches`.
+      **Hecho el 2-ago.** Monótona en el bucket y en la verificación. Tinder empuja más
+      volumen que Hinge a igual perfil.
+- [x] `calcularProbabilidadRespuesta({gap, selectividad, calidadOpener})` →
+      `ProbabilidadRespuesta`. **Hecho.** Siempre relativa (`vs_baseline`), nunca un
+      porcentaje absoluto. Factores multiplicativos a propósito: un gap malo con un
+      mensaje genérico se hunde el doble, que es lo que pasa de verdad. Sin gap, baja la
+      confianza a 0.4 y ofrece medirse en vez de fingir precisión.
+- [x] `calcularGap(globalUsuario, globalElla)` → `GapAtractivo`. **Hecho.** Cortes del
+      contrato (-10 / 10 / 25) con test de borde exacto, porque el tier gatea el tono de
+      los openers y correrlo un punto cambia qué mensaje se sugiere.
+- [x] Tests: 35 en `market.test.ts` (eran 17). Monotonía de las tres funciones, bordes de
+      tier, y barrido de todas las combinaciones contra el contrato.
 
 ### 1.2 Motor F5
 
