@@ -36,6 +36,7 @@ function fakeEngine(): AuditEngine {
         score_coherencia: 41,
         lectura_200ms: 'Señales compitiendo.',
         evidencia_por_foto: [],
+        indice: null,
         gap_analysis: null,
         plan_de_fotos: { conservar: [], reemplazar: [], orden_sugerido: [], briefs_faltantes: [] },
         quick_wins: [],
@@ -102,7 +103,13 @@ describe('rutas /me (perfil de cuenta)', () => {
       headers: { authorization: `Bearer ${await token('user-nuevo')}` },
     });
     expect(res.statusCode).toBe(200);
-    expect(res.json()).toEqual({ region: 'neutro', plan: 'free', handle: null, esAdmin: false });
+    expect(res.json()).toEqual({
+      region: 'neutro',
+      plan: 'free',
+      handle: null,
+      esAdmin: false,
+      indice: null,
+    });
   });
 
   it('PATCH /me guarda region y handle, GET /me después los refleja', async () => {
@@ -118,7 +125,13 @@ describe('rutas /me (perfil de cuenta)', () => {
     expect(patch.json()).toEqual({ region: 'chileno', plan: 'free', handle: 'Fer' });
 
     const get = await app.inject({ method: 'GET', url: '/me', headers: auth });
-    expect(get.json()).toEqual({ region: 'chileno', plan: 'free', handle: 'Fer', esAdmin: false });
+    expect(get.json()).toEqual({
+      region: 'chileno',
+      plan: 'free',
+      handle: 'Fer',
+      esAdmin: false,
+      indice: null,
+    });
   });
 
   it('PATCH /me parcial no pisa lo que no vino en el body', async () => {

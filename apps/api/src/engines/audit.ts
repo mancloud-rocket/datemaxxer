@@ -5,10 +5,12 @@ import { z } from 'zod';
 import {
   Arquetipo,
   AuditResult,
+  ComponenteIndice,
   EvidenciaFoto,
   type Region,
 } from '@percentil/contracts';
 import { EngineError, ValidationError } from '../errors.js';
+import { armarIndice, type Componentes } from './market.js';
 
 /**
  * Motor F1 - Auditoría de Arquetipos.
@@ -41,7 +43,25 @@ const SYSTEM_PROMPT =
   '\n';
 
 const Paso1 = z.object({ evidencia_por_foto: z.array(EvidenciaFoto).min(1) }).strict();
-const Paso2 = AuditResult.omit({ evidencia_por_foto: true });
+
+/**
+ * Lo que el modelo devuelve del índice (F1b): SOLO los componentes percibidos.
+ * `global`, `bucket_global` y `margen` los calcula `engines/market.ts`, porque un
+ * número que sale del modelo no se puede recalibrar después contra resultados
+ * reales (CLAUDE.md §5).
+ */
+const IndiceCrudo = z
+  .object({
+    facial: ComponenteIndice.nullable(),
+    presentacion: ComponenteIndice.nullable(),
+    produccion: ComponenteIndice.nullable(),
+    limitantes: z.array(z.string().min(1)),
+  })
+  .strict();
+
+const Paso2 = AuditResult.omit({ evidencia_por_foto: true, indice: true }).extend({
+  indice: IndiceCrudo,
+});
 
 export type AuditPhotoMediaType = 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif';
 
@@ -119,6 +139,26 @@ function extractJsonText(message: MinimalMessage, paso: string): string {
     throw new EngineError(`Respuesta sin bloque de texto en ${paso}`);
   }
   return text;
+}
+
+/**
+ * Cierra el índice con la parte calculada. Devuelve `null` si el modelo no pudo
+ * juzgar ni un componente: mejor sin índice que con un número inventado, porque
+ * este número alimenta el gap de F5, el Radar y el Comparador.
+ */
+function componerIndice(
+  crudo: z.infer<typeof IndiceCrudo>,
+  fotosEvaluadas: number,
+): AuditResult['indice'] {
+  const componentes: Componentes = {
+    facial: crudo.facial,
+    presentacion: crudo.presentacion,
+    produccion: crudo.produccion,
+  };
+  if (componentes.facial === null && componentes.presentacion === null && componentes.produccion === null) {
+    return null;
+  }
+  return armarIndice({ componentes, fotosEvaluadas, limitantes: crudo.limitantes, sujeto: 'usuario' });
 }
 
 export function buildAuditEngine(options: AuditEngineOptions) {
@@ -232,8 +272,14 @@ export function buildAuditEngine(options: AuditEngineOptions) {
       jsonSchema: SCHEMA_SINTESIS,
     });
 
-    // Merge en código: la evidencia canónica es la del paso 1.
-    return AuditResult.parse({ ...paso2, evidencia_por_foto: paso1.evidencia_por_foto });
+    // Merge en código: la evidencia canónica es la del paso 1 y el índice se
+    // termina de armar acá (el modelo solo aportó los componentes percibidos).
+    const { indice: crudo, ...resto } = paso2;
+    return AuditResult.parse({
+      ...resto,
+      evidencia_por_foto: paso1.evidencia_por_foto,
+      indice: componerIndice(crudo, input.photos.length),
+    });
   }
 
   return { run };

@@ -1,5 +1,101 @@
 {
-  "version": "1.0",
+  "version": "2.0",
+  "indice": {
+    "facial": {
+      "bucket": "muy_alto",
+      "score": 84,
+      "evidencia": [
+        "simetría alta y rasgos definidos en las tres fotos frontales",
+        "piel y dentadura cuidadas, sin filtro pesado que tape",
+        "foto 2 sin maquillaje sostiene el mismo nivel"
+      ],
+      "ancla": {
+        "un_bucket_arriba": "rasgos de nivel editorial, la clase de cara que funciona sin producción ninguna",
+        "un_bucket_abajo": "atractiva pero con rasgos que dependen del ángulo, una sola foto frontal buena"
+      },
+      "confianza": 0.72
+    },
+    "presentacion": {
+      "bucket": "alto",
+      "score": 74,
+      "evidencia": [
+        "cuerpo entero en foto 4: delgada, entrenada, postura trabajada",
+        "vestuario coordinado y actual en las cinco fotos",
+        "pelo con corte y color mantenidos"
+      ],
+      "ancla": {
+        "un_bucket_arriba": "físico visiblemente de gimnasio sostenido y estilo con identidad propia",
+        "un_bucket_abajo": "ropa cómoda sin intención, sin foto de cuerpo entero clara"
+      },
+      "confianza": 0.65
+    },
+    "produccion": {
+      "bucket": "muy_alto",
+      "score": 88,
+      "evidencia": [
+        "cuatro de cinco fotos con fotógrafo, no selfies",
+        "Torres del Paine y una locación de restaurante caro",
+        "luz y color consistentes, se nota edición de set"
+      ],
+      "ancla": {
+        "un_bucket_arriba": "material de sesión profesional con dirección de arte, nivel marca personal",
+        "un_bucket_abajo": "buenas fotos de amigos, sin locaciones que comuniquen estándar"
+      },
+      "confianza": 0.81
+    },
+    "global": 81,
+    "bucket_global": "muy_alto",
+    "margen": 8,
+    "fotos_evaluadas": 5,
+    "limitantes": ["ninguna foto casual sin producir, el piso real puede ser más bajo"]
+  },
+  "selectividad": {
+    "nivel": "muy_alta",
+    "filtros_declarados": ["no busco nada casual", "+180"],
+    "evidencia": [
+      "bio con dos requisitos explícitos",
+      "perfil verificado",
+      "curaduría producida completa, no hay fotos de relleno"
+    ],
+    "confianza": 0.78
+  },
+  "volumen_matches": {
+    "nivel": "muy_alto",
+    "drivers": ["bucket global muy_alto", "perfil verificado", "capital, densidad alta"],
+    "implicancia": "tiene la bandeja llena todos los días; tu mensaje compite contra veinte del mismo día"
+  },
+  "probabilidad_respuesta": {
+    "nivel": "baja",
+    "vs_baseline": 0.45,
+    "palancas": [
+      "gancho de trekking real, es el único terreno donde no compite con el promedio",
+      "foto tuya de exterior arriba de todo antes de escribir"
+    ],
+    "confianza": 0.6
+  },
+  "gap": {
+    "delta": 19,
+    "tier": "ella_un_tier",
+    "lectura": "está un escalón arriba, no dos: es alcanzable pero no con un mensaje tibio",
+    "estrategia_implicada": "gancho específico y propuesta rápida; nada de charla de mantenimiento"
+  },
+  "autenticidad": {
+    "veredicto": "genuino",
+    "tipo_sospecha": null,
+    "señales": ["verificada", "fotos con terceros y contextos variados", "sin handles ni linktree"],
+    "confianza": 0.88
+  },
+  "inversion": {
+    "veredicto": "oportunista",
+    "resumen": "vale el intento por el gancho de montaña, pero no le dediques la semana",
+    "evidencia": [
+      "gap de 19 puntos con selectividad muy alta",
+      "filtro de altura declarado que no sabemos si cumplís",
+      "coincidencia real de actividad en Torres del Paine"
+    ],
+    "mensajes_antes_de_soltar": 3,
+    "confianza": 0.7
+  },
   "eje_declarado": {
     "principal": "aventura",
     "secundario": "estetica",
@@ -15,6 +111,13 @@
     "coincide": false,
     "nota": "bio dice tranqui, fotos dicen producción alta"
   },
+  "expectativa_de_plan": {
+    "nivel": "alto",
+    "evidencia": ["restaurante de gama alta en foto 3", "viaje de trekking con logística cara"],
+    "traduccion": "su perfil vende un estándar; 'unas birras' compite mal acá"
+  ,
+    "confianza": 0.66
+  },
   "ganchos": [
     {
       "tipo": "lugar",
@@ -26,5 +129,28 @@
     "tono": "nonchalant",
     "evitar": ["formalidad", "doble mensaje inicial"]
   },
-  "disclaimer": "interpretación sobre curaduría pública; confianza indicada por campo"
+  "openers": [
+    {
+      "tono": "contexto",
+      "texto": "¿W o circuito completo? Lo pregunto porque el refugio Grey me rompió y necesito saber si sos de las que la sufrió o de las que lo disfrutó.",
+      "licencia": "ella publicó la foto de trekking como primera del perfil",
+      "riesgo": "bajo",
+      "por_que_funciona": "es la única pregunta que no puede contestar con un emoji y la separa del resto de su bandeja"
+    },
+    {
+      "tono": "desafiante",
+      "texto": "Tu perfil dice tranqui y tenés cinco fotos de producción. Una de las dos miente y quiero saber cuál.",
+      "licencia": "la contradicción entre bio y fotos está declarada por ella",
+      "riesgo": "medio",
+      "por_que_funciona": "la obliga a justificarse en tono de juego; con selectividad muy alta el push-pull rinde más que el halago"
+    },
+    {
+      "tono": "sexual_indirecto",
+      "texto": "Nota mental: no te llevo a la montaña en una primera cita, ya vi que ganás vos y no pienso empezar perdiendo.",
+      "licencia": "muestra cuerpo y actividad física como eje central del perfil",
+      "riesgo": "alto",
+      "por_que_funciona": "insinúa competencia y contacto sin explicitud; con gap de 19 puntos es la jugada de mayor varianza del set"
+    }
+  ],
+  "disclaimer": "estimación de posición de mercado sobre lo que ella eligió publicar, no un juicio sobre la persona; cada claim lleva su evidencia y su confianza"
 }

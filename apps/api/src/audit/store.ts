@@ -1,4 +1,4 @@
-import type { AuditResult, Region } from '@percentil/contracts';
+import type { AuditResult, IndiceAtractivo, Region } from '@percentil/contracts';
 import type { AuditProgress } from '../engines/audit.js';
 
 /**
@@ -58,6 +58,16 @@ export interface AuditStore {
   /** Auditorías que consumen cupo (analyzing|done; las fallidas no queman el gratis). */
   countForUser(userId: string): Promise<number>;
   latestForUser(userId: string): Promise<AuditRecord | undefined>;
+  /**
+   * Índice de atractivo vigente del usuario (F1b): el de la última auditoría
+   * TERMINADA que lo tenga.
+   *
+   * Existe aparte de `latestForUser` porque esa devuelve la más nueva sea cual
+   * sea su estado: mientras corre una auditoría nueva, el índice del usuario
+   * desaparecería y el `gap` de F5, el Radar y el Comparador entregarían null
+   * justo mientras el tipo está usando la app.
+   */
+  latestIndiceForUser(userId: string): Promise<IndiceAtractivo | null>;
   /** Historial completo, más reciente primero (para "mis auditorías"). */
   listForUser(userId: string): Promise<AuditRecord[]>;
   /**
@@ -113,6 +123,15 @@ export class InMemoryAuditStore implements AuditStore {
       if (r.userId === userId && (!latest || r.createdAt > latest.createdAt)) latest = r;
     }
     return latest;
+  }
+
+  async latestIndiceForUser(userId: string): Promise<IndiceAtractivo | null> {
+    let mejor: AuditRecord | undefined;
+    for (const r of this.records.values()) {
+      if (r.userId !== userId || r.status !== 'done' || !r.result?.indice) continue;
+      if (!mejor || r.createdAt > mejor.createdAt) mejor = r;
+    }
+    return mejor?.result?.indice ?? null;
   }
 
   async listForUser(userId: string): Promise<AuditRecord[]> {

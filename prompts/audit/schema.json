@@ -1,7 +1,7 @@
 {
   "type": "object",
   "properties": {
-    "version": { "type": "string", "const": "1.0" },
+    "version": { "type": "string", "const": "2.0" },
     "arquetipo_detectado": {
       "type": "object",
       "properties": {
@@ -56,8 +56,59 @@
       "required": ["conservar", "reemplazar", "orden_sugerido", "briefs_faltantes"],
       "additionalProperties": false
     },
-    "quick_wins": { "type": "array", "items": { "type": "string" } }
+    "quick_wins": { "type": "array", "items": { "type": "string" } },
+    "indice": {
+      "type": "object",
+      "description": "F1b. Solo los componentes percibidos: global, bucket_global y margen los calcula el código.",
+      "properties": {
+        "facial": { "$ref": "#/$defs/componente" },
+        "presentacion": { "$ref": "#/$defs/componente" },
+        "produccion": { "$ref": "#/$defs/componente" },
+        "limitantes": {
+          "type": "array",
+          "description": "Qué impidió afinar el juicio: pocas fotos, un solo ángulo, filtros, sin cuerpo entero.",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["facial", "presentacion", "produccion", "limitantes"],
+      "additionalProperties": false
+    }
   },
-  "required": ["version", "arquetipo_detectado", "score_coherencia", "lectura_200ms", "gap_analysis", "plan_de_fotos", "quick_wins"],
-  "additionalProperties": false
+  "required": ["version", "arquetipo_detectado", "score_coherencia", "lectura_200ms", "gap_analysis", "plan_de_fotos", "quick_wins", "indice"],
+  "additionalProperties": false,
+  "$defs": {
+    "componente": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "bucket": {
+              "type": "string",
+              "enum": ["bajo", "medio_bajo", "medio", "alto", "muy_alto", "top"],
+              "description": "Elegí el bucket ANTES que el score. bajo=p0-20, medio_bajo=p20-40, medio=p40-60, alto=p60-80, muy_alto=p80-95, top=p95-100"
+            },
+            "score": {
+              "type": "integer",
+              "description": "Tiene que caer dentro del rango de su bucket: bajo 0-19, medio_bajo 20-39, medio 40-59, alto 60-79, muy_alto 80-94, top 95-100"
+            },
+            "evidencia": { "type": "array", "items": { "type": "string" } },
+            "ancla": {
+              "type": "object",
+              "description": "Obligatorio. Es el mecanismo que evita que todo termine en medio/alto.",
+              "properties": {
+                "un_bucket_arriba": { "type": "string" },
+                "un_bucket_abajo": { "type": "string" }
+              },
+              "required": ["un_bucket_arriba", "un_bucket_abajo"],
+              "additionalProperties": false
+            },
+            "confianza": { "type": "number", "description": "0 a 1" }
+          },
+          "required": ["bucket", "score", "evidencia", "ancla", "confianza"],
+          "additionalProperties": false
+        },
+        { "type": "null" }
+      ]
+    }
+  }
 }

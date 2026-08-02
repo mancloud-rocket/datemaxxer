@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import Anthropic from '@anthropic-ai/sdk';
 import { describe, expect, it } from 'vitest';
 import { AuditResult } from '@percentil/contracts';
@@ -39,8 +42,17 @@ const PASO1_OK = {
   ],
 };
 
+/** Componente del índice tal como lo devuelve el modelo (sin global ni margen). */
+const componente = (bucket: string, score: number, confianza = 0.75) => ({
+  bucket,
+  score,
+  evidencia: ['lo que se ve en las fotos'],
+  ancla: { un_bucket_arriba: 'algo mejor', un_bucket_abajo: 'algo peor' },
+  confianza,
+});
+
 const PASO2_OK = {
-  version: '1.0',
+  version: '2.0',
   arquetipo_detectado: { nombre: 'viajero', confianza: 0.72 },
   score_coherencia: 41,
   lectura_200ms: 'Cuatro señales compitiendo: nadie sabe quién sos.',
@@ -52,6 +64,12 @@ const PASO2_OK = {
     briefs_faltantes: [{ tipo: 'apertura', specs: 'exterior, luz día, plano medio, cara visible' }],
   },
   quick_wins: ['sacar la foto grupal de la posición 3'],
+  indice: {
+    facial: componente('medio', 52),
+    presentacion: componente('medio_bajo', 34),
+    produccion: componente('alto', 66),
+    limitantes: [],
+  },
 };
 
 const INPUT: AuditInput = {
@@ -150,5 +168,118 @@ describe('engines/audit (F1)', () => {
     const result = await engine.run(INPUT);
     expect(result.gap_analysis).toBeNull();
     expect(JSON.stringify(calls[1])).toContain('gap_analysis debe ser null');
+  });
+});
+
+describe('engines/audit - índice de atractivo (F1b)', () => {
+  it('el global lo calcula el código, no lo toma del modelo', async () => {
+    const { client } = makeClient([jsonMessage(PASO1_OK), jsonMessage(PASO2_OK)]);
+    const result = await buildAuditEngine({ client }).run(INPUT);
+
+    // 52*.45 + 34*.33 + 66*.22 = 23.4 + 11.22 + 14.52 = 49.14 → 49
+    expect(result.indice?.global).toBe(49);
+    expect(result.indice?.bucket_global).toBe('medio');
+  });
+
+  it('rellena lo que el modelo no devuelve: margen y fotos evaluadas', async () => {
+    const { client } = makeClient([jsonMessage(PASO1_OK), jsonMessage(PASO2_OK)]);
+    const result = await buildAuditEngine({ client }).run(INPUT);
+
+    expect(result.indice?.fotos_evaluadas).toBe(INPUT.photos.length);
+    expect(result.indice?.margen).toBeGreaterThan(0);
+  });
+
+  it('si el modelo devuelve un global inventado, el schema lo rechaza', async () => {
+    // El contrato del paso 2 es strict y no tiene `global`: un modelo que lo
+    // manda igual no puede colarlo.
+    const conGlobal = {
+      ...PASO2_OK,
+      indice: { ...PASO2_OK.indice, global: 88 },
+    };
+    const { client } = makeClient([
+      jsonMessage(PASO1_OK),
+      jsonMessage(conGlobal),
+      jsonMessage(conGlobal),
+    ]);
+    await expect(buildAuditEngine({ client }).run(INPUT)).rejects.toBeInstanceOf(EngineError);
+  });
+
+  it('un score fuera del rango de su bucket no pasa (anti-regresión a la media)', async () => {
+    const descalibrado = {
+      ...PASO2_OK,
+      indice: { ...PASO2_OK.indice, facial: componente('bajo', 72) },
+    };
+    const { client } = makeClient([
+      jsonMessage(PASO1_OK),
+      jsonMessage(descalibrado),
+      jsonMessage(descalibrado),
+    ]);
+    await expect(buildAuditEngine({ client }).run(INPUT)).rejects.toBeInstanceOf(EngineError);
+  });
+
+  it('un componente sin ancla no pasa (el ancla es el mecanismo, no un adorno)', async () => {
+    const { ancla: _, ...sinAncla } = componente('medio', 50);
+    const roto = { ...PASO2_OK, indice: { ...PASO2_OK.indice, produccion: sinAncla } };
+    const { client } = makeClient([jsonMessage(PASO1_OK), jsonMessage(roto), jsonMessage(roto)]);
+    await expect(buildAuditEngine({ client }).run(INPUT)).rejects.toBeInstanceOf(EngineError);
+  });
+
+  it('sin foto de cuerpo entero, presentacion queda null y el global se renormaliza', async () => {
+    const sinCuerpo = {
+      ...PASO2_OK,
+      indice: {
+        ...PASO2_OK.indice,
+        presentacion: null,
+        limitantes: ['ninguna foto de cuerpo entero'],
+      },
+    };
+    const { client } = makeClient([jsonMessage(PASO1_OK), jsonMessage(sinCuerpo)]);
+    const result = await buildAuditEngine({ client }).run(INPUT);
+
+    expect(result.indice?.presentacion).toBeNull();
+    // 52*.45 + 66*.22 sobre peso .67 = (23.4+14.52)/.67 = 56.6 → 57
+    expect(result.indice?.global).toBe(57);
+    expect(result.indice?.limitantes).toEqual(['ninguna foto de cuerpo entero']);
+  });
+
+  it('el margen se ensancha cuando falta un componente', async () => {
+    const completo = makeClient([jsonMessage(PASO1_OK), jsonMessage(PASO2_OK)]);
+    const conTodo = await buildAuditEngine({ client: completo.client }).run(INPUT);
+
+    const parcial = makeClient([
+      jsonMessage(PASO1_OK),
+      jsonMessage({ ...PASO2_OK, indice: { ...PASO2_OK.indice, presentacion: null } }),
+    ]);
+    const incompleto = await buildAuditEngine({ client: parcial.client }).run(INPUT);
+
+    expect(incompleto.indice!.margen).toBeGreaterThan(conTodo.indice!.margen);
+  });
+
+  it('si no se pudo juzgar ni un componente, el índice es null y no un número inventado', async () => {
+    const nada = {
+      ...PASO2_OK,
+      indice: {
+        facial: null,
+        presentacion: null,
+        produccion: null,
+        limitantes: ['todas las fotos ilegibles'],
+      },
+    };
+    const { client } = makeClient([jsonMessage(PASO1_OK), jsonMessage(nada)]);
+    const result = await buildAuditEngine({ client }).run(INPUT);
+
+    expect(result.indice).toBeNull();
+  });
+
+  it('el prompt le pide elegir bucket antes que número', () => {
+    // Si esta regla se cae del prompt, el índice deja de discriminar y nadie se
+    // entera hasta que un usuario mira su informe.
+    const system = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..', 'prompts', 'audit', 'system.md'),
+      'utf8',
+    );
+    expect(system).toContain('Primero elegís el bucket');
+    expect(system).toContain('ancla');
+    expect(system).toContain('La mitad del pool está debajo de 60');
   });
 });

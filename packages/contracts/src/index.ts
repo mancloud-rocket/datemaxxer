@@ -36,6 +36,26 @@ export {
   EjeDeclarado,
   DensidadCompetitiva,
   CoherenciaTextoFotos,
+  ExpectativaDePlan,
   Gancho,
   RegistroSugerido,
 } from './profile-read.js';
+export {
+  AnalisisRechazado,
+  Autenticidad,
+  Bucket,
+  ComponenteIndice,
+  GapAtractivo,
+  IndiceAtractivo,
+  Inversion,
+  MotivoRechazo,
+  Opener,
+  ProbabilidadRespuesta,
+  RANGO_BUCKET,
+  Selectividad,
+  TonoOpener,
+  VeredictoInversion,
+  VolumenMatches,
+} from './market.js';
+export { IndiceRapido, RadarRead } from './radar.js';
+export { CompareResult, LadoComparador, PuntosCerrables } from './compare.js';

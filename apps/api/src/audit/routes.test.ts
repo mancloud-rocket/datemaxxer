@@ -37,6 +37,7 @@ const FAKE_RESULT: AuditResult = {
   evidencia_por_foto: [
     { foto: 1, dice: 'profesional', señales: ['camisa'], calidad_tecnica: 62 },
   ],
+  indice: null,
   gap_analysis: null,
   plan_de_fotos: { conservar: [1], reemplazar: [], orden_sugerido: [1], briefs_faltantes: [] },
   quick_wins: ['probar otra primera foto'],
@@ -314,6 +315,7 @@ describe('rutas /audit (con auth)', () => {
       update: (id, p) => store.update(id, p),
       countForUser: (u) => store.countForUser(u),
       latestForUser: (u) => store.latestForUser(u),
+      latestIndiceForUser: (u) => store.latestIndiceForUser(u),
       listForUser: (u) => store.listForUser(u),
       failStale: (ms) => store.failStale(ms),
       createWithQuota: () => Promise.reject(new QuotaRpcMissingError()),

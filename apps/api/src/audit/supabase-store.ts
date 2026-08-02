@@ -1,5 +1,5 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import type { AuditResult, Region } from '@percentil/contracts';
+import type { AuditResult, IndiceAtractivo, Region } from '@percentil/contracts';
 import { AppError } from '../errors.js';
 import type { AuditProgress } from '../engines/audit.js';
 import {
@@ -141,6 +141,26 @@ export class SupabaseAuditStore implements AuditStore {
     if (error) throw storeError('select latest', error.message);
     if (!data) return undefined;
     return toRecord(data, data.profiles?.region ?? 'neutro');
+  }
+
+  async latestIndiceForUser(userId: string): Promise<IndiceAtractivo | null> {
+    // Solo `done`: una auditoría en curso no puede borrarle el índice al usuario.
+    // Se traen las últimas terminadas y se devuelve la primera que tenga índice
+    // (las anteriores a F1b no lo tienen y no deberían ganarle a una que sí).
+    const { data, error } = await this.db
+      .from('photo_sets')
+      .select('audit_result')
+      .eq('user_id', userId)
+      .eq('status', 'done')
+      .order('created_at', { ascending: false })
+      .limit(5)
+      .returns<Array<{ audit_result: AuditResult | null }>>();
+    if (error) throw storeError('select índice vigente', error.message);
+    for (const fila of data ?? []) {
+      const indice = fila.audit_result?.indice;
+      if (indice) return indice;
+    }
+    return null;
   }
 
   async failStale(maxAgeMs: number): Promise<number> {

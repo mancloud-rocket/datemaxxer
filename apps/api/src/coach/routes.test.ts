@@ -248,6 +248,18 @@ describe('contexto que recibe el coach', () => {
   it('arrastra siempre las reglas duras del prompt', () => {
     const system = armarSystem({ region: 'neutro', plan: 'free' });
     expect(system).toContain('No mentís para que se sienta bien');
-    expect(system).toContain('El enemigo nunca son las mujeres');
+    // v2: se puede decir que el juego está torcido, pero la respuesta cierra
+    // en algo que él ejecuta. Es regla de rendimiento, no de tono.
+    expect(system).toContain('Todo termina en algo que él controla');
+    // El piso de salud mental y el freno de acoso no se ablandan nunca.
+    expect(system).toContain('ideación suicida');
+    expect(system).toContain('No sugerís insistir después de un no');
+  });
+
+  it('v2 licencia explícitamente las verdades de mercado (si no, el modelo hedgea)', () => {
+    const system = armarSystem({ region: 'neutro', plan: 'free' });
+    expect(system).toContain('selectividad femenina en apps es alta y es racional');
+    expect(system).toContain('jerarquías de atractivo existen');
+    expect(system).not.toContain('El enemigo nunca son las mujeres');
   });
 });

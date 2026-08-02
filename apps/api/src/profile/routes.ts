@@ -26,8 +26,11 @@ export function registerProfileRoutes(app: FastifyInstance, deps: ProfileRoutesD
   const { profileStore, auditStore, authenticate } = deps;
 
   app.get('/me', { preHandler: [authenticate] }, async (request) => {
-    const row = await profileStore.get(request.userId);
-    return { ...(row ?? DEFAULTS), esAdmin: deps.esAdmin(request.userId) };
+    const [row, indice] = await Promise.all([
+      profileStore.get(request.userId),
+      auditStore.latestIndiceForUser(request.userId),
+    ]);
+    return { ...(row ?? DEFAULTS), esAdmin: deps.esAdmin(request.userId), indice };
   });
 
   app.patch('/me', { preHandler: [authenticate] }, async (request) => {
