@@ -13,6 +13,7 @@
   },
   "scripts": {
     "build:contracts": "pnpm --filter @percentil/contracts build",
+    "build:api": "pnpm build:contracts && pnpm --filter @percentil/api build",
     "dev": "pnpm build:contracts && pnpm --parallel --filter @percentil/contracts --filter @percentil/api --filter @percentil/web dev",
     "typecheck": "pnpm build:contracts && pnpm -r typecheck",
     "test": "pnpm build:contracts && pnpm -r test",

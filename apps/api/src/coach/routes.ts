@@ -134,9 +134,13 @@ export function registerCoachRoutes(app: FastifyInstance, deps: CoachRoutesDeps)
        * Por eso se arrastran las cabeceras ya seteadas. Los tests con `inject()`
        * no detectan esto porque no son un navegador y no aplican CORS.
        */
-      const previas = reply.getHeaders();
-      delete previas['content-type'];
-      delete previas['content-length'];
+      const previas: Record<string, number | string | string[]> = {};
+      for (const [clave, valor] of Object.entries(reply.getHeaders())) {
+        // Las de contenido las fija esta respuesta; el resto (CORS, seguridad)
+        // se arrastra tal cual.
+        if (valor === undefined || clave === 'content-type' || clave === 'content-length') continue;
+        previas[clave] = valor;
+      }
 
       reply.hijack();
       reply.raw.writeHead(200, {
