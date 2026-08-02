@@ -520,6 +520,79 @@
   .dmx-historial .entry .body{width:100%;order:3}
 }
 
+/* ============ COACH · la conversación ============
+   Sin set piece a propósito: el resto de la app es cine, acá la única
+   animación es el cursor mientras escribe. Quien abre esto no quiere show. */
+/* La altura descuenta el padding vertical de .dmx-content (3.2rem + 4rem): si no,
+   el hilo empuja y la página entera queda con scroll además del scroll del hilo. */
+.dmx-coach{width:min(640px,100%);display:flex;flex-direction:column;height:calc(100dvh - 7.2rem)}
+.dmx-coach .chead{flex:none;margin-bottom:1.4rem}
+.dmx-coach .chead .kicker{margin-bottom:.6rem}
+.dmx-coach .chead h1{font-size:clamp(1.8rem,6vw,2.4rem)}
+.dmx-coach .chead .hint{margin-top:.7rem;color:var(--ink-mute);font-size:.9rem;font-weight:500;line-height:1.5;max-width:32em}
+.dmx-coach .chead .cupo{margin-top:.9rem}
+.dmx-coach .chead .cupo .selloe{font-size:.55rem;padding:.42em .85em}
+
+.dmx-coach .hilo{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:1.5rem;
+  padding:.4rem .2rem 1.4rem;scrollbar-width:thin;scrollbar-color:var(--steel-dim) transparent}
+
+.dmx-coach .turno{display:flex;flex-direction:column;gap:.4rem;max-width:88%}
+.dmx-coach .turno.user{align-self:flex-end;align-items:flex-end}
+.dmx-coach .turno .quien{font-family:var(--font-mono),monospace;font-size:.54rem;letter-spacing:.24em;
+  text-transform:uppercase;color:var(--signal)}
+.dmx-coach .turno .burbuja p{font-size:1rem;line-height:1.6;color:var(--ink)}
+.dmx-coach .turno .burbuja p + p{margin-top:.75rem}
+
+/* El coach habla sin caja, con un riel cyan: se lee como voz, no como notificación. */
+.dmx-coach .turno.coach .burbuja{border-left:2px solid rgba(79,217,194,.45);padding-left:1.1rem}
+.dmx-coach .turno.user .burbuja{background:var(--surface-2);border:1px solid var(--line);
+  border-radius:12px 12px 3px 12px;padding:.85rem 1.1rem}
+.dmx-coach .turno.user .burbuja p{font-size:.96rem;color:var(--ink-mute)}
+
+.dmx-coach .cursor{display:inline-block;width:8px;height:1.05em;vertical-align:text-bottom;
+  margin-left:2px;background:var(--signal);animation:dmxCursor .9s steps(2) infinite}
+@keyframes dmxCursor{0%,100%{opacity:1}50%{opacity:0}}
+.dmx-coach .pensando{display:flex;gap:5px;align-items:center;height:1.6em}
+.dmx-coach .pensando i{width:5px;height:5px;border-radius:50%;background:var(--signal);opacity:.3;
+  animation:dmxLdot 1.2s ease-in-out infinite}
+.dmx-coach .pensando i:nth-child(2){animation-delay:.18s}
+.dmx-coach .pensando i:nth-child(3){animation-delay:.36s}
+
+.dmx-coach .arranque{padding:1.4rem 0}
+.dmx-coach .arranque .lead{color:var(--ink-mute);font-size:.95rem;line-height:1.55;margin-bottom:1.1rem}
+.dmx-coach .sugerencias{display:flex;flex-direction:column;gap:.55rem;align-items:flex-start}
+.dmx-coach .sug{text-align:left;font-family:var(--font-body),sans-serif;font-size:.92rem;font-weight:500;
+  color:var(--ink-mute);background:var(--surface-2);border:1px solid var(--line);border-radius:8px;
+  padding:.75rem 1rem;cursor:pointer;transition:color .25s,border-color .25s}
+.dmx-coach .sug:hover{color:var(--ink);border-color:var(--steel)}
+
+.dmx-coach .compositor{flex:none;display:flex;gap:.7rem;align-items:flex-end;padding-top:1rem;
+  border-top:1px solid var(--line)}
+.dmx-coach .campo-coach{flex:1;min-height:52px;max-height:180px;resize:none;background:var(--surface-2);
+  border:1px solid var(--line);border-radius:10px;color:var(--ink);padding:.95rem 1.1rem;font-size:1rem;
+  font-family:var(--font-body),sans-serif;line-height:1.5;field-sizing:content}
+.dmx-coach .campo-coach:focus{outline:none;border-color:var(--steel)}
+.dmx-coach .campo-coach::placeholder{color:var(--steel)}
+.dmx-coach .campo-coach:disabled{opacity:.6}
+.dmx-coach .btn.enviar{flex:none;padding:1rem 1.6rem;font-size:.94rem;border-radius:10px}
+
+.dmx-coach .tope{flex:none;text-align:center;padding:1.8rem 1.2rem;border-top:1px solid var(--line)}
+.dmx-coach .tope .lead{font-family:var(--font-body),sans-serif;font-weight:700;font-size:1.05rem;
+  color:var(--ink);margin-bottom:.4rem}
+.dmx-coach .tope .micro{margin-bottom:1.2rem}
+
+.dmx-coach .err-general{flex:none;color:var(--oxide);font-size:.88rem;margin-top:.8rem}
+.dmx-coach .loading-row{display:flex;align-items:center;gap:.7rem;color:var(--ink-mute);
+  font-family:var(--font-mono),monospace;font-size:.72rem;letter-spacing:.12em}
+.dmx-coach .loading-row .dot{width:6px;height:6px;border-radius:50%;background:var(--signal);animation:dmxLdot 1.1s ease-in-out infinite}
+
+@media (max-width:860px){
+  /* En mobile el sidebar colapsa a franja superior y el padding baja a 2.2/3rem. */
+  .dmx-coach{height:calc(100dvh - 5.2rem - 68px)}
+  .dmx-coach .turno{max-width:100%}
+  .dmx-coach .btn.enviar{padding:1rem 1.2rem}
+}
+
 /* ============ ADMIN · pantalla interna, sin set piece ============
    A propósito seca: es la consola de trabajo de Fernando, no una superficie
    de producto. Reusa los tokens y los bloques del resto, sin animación. */

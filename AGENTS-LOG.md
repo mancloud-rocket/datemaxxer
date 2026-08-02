@@ -25,6 +25,21 @@ Fernando lo lee también; escriban para humanos, no para logs de máquina.
 
 ---
 
+### [2026-08-01 af] CORE - Coach de confianza (nueva función) + `docs/ESTADO.md`
+- **`docs/ESTADO.md`**: documento nuevo, pedido de Fernando. Propuesta de valor de las tres capas, qué está construido de verdad función por función, bloqueantes reales para producción y orden de construcción. La tabla de F1 a F6 dice la verdad incómoda: de seis funciones de la spec había **una**.
+- **Coach de confianza, construido entero** (era la funcionalidad con mejor relación esfuerzo/retención de todo el backlog). Un chat continuo donde el usuario procesa lo que no es técnico: el rechazo, los nervios antes de una cita, la duda de si escribir.
+- HICE:
+  1. **`prompts/coach/system.md`** - acá vive QUÉ es esta función, no en el código. Seis reglas duras: no mentir para que se sienta bien (si su score es 41, es 41), no inventar datos que no vio, una acción por respuesta, el enemigo nunca son las mujeres, corte explícito ante angustia seria, y nunca prometer resultados. Cambiar el producto es editar este archivo.
+  2. **`engines/coach.ts`** - streaming, sin JSON ni schema (la salida es texto). `armarSystem()` es pura y testeada aparte: mete score, arquetipo, lectura, hace cuánto fue y el registro regional. Si nunca auditó, lo dice explícito para que el modelo no invente fotos que no vio.
+  3. **`coach/routes.ts`** - `GET /coach` y `POST /coach/mensaje` por SSE. Dos decisiones que sostienen el diseño: **el mensaje del usuario se guarda ANTES de llamar al modelo** (si el modelo falla, lo que escribió no se pierde) y **si el stream se corta a la mitad se guarda lo que alcanzó a decir** (mejor una respuesta cortada que un hueco al volver). Hay un test para cada una.
+  4. **`coach/store.ts`** + migración `20260801120001_coach.sql`. Ventana de 20 turnos al modelo, 100 mensajes a la UI.
+  5. **Cupo por plan**: 10 gratis, 40 con Kit, sin tope con Copiloto. Es la palanca de upsell más natural que tiene el producto: el que llega al tope ya está enganchado.
+  6. **`apps/web/app/app/Coach.tsx`** + `/app/coach` + link en el sidebar. El cliente SSE arma los eventos a mano porque `EventSource` solo hace GET: maneja el caso de un evento partido entre dos chunks de red.
+- **Decisión de diseño, y va contra la GUIA-VISUAL a propósito: el coach NO es un set piece.** El resto de la app es cine (la aguja que barre, el sello que se estampa). Acá la única animación es el cursor que late mientras escribe. Una charla con animaciones encima se siente falsa, y el momento en que alguien abre esto es justo el momento en que no quiere espectáculo. Si no están de acuerdo, discutámoslo antes de que FRONT le meta mano.
+- QA: **104 tests** (eran 91), typecheck limpio, build de Next OK, capturas desktop y mobile verificadas. Se arregló de paso un scroll de página doble: la altura del coach no descontaba el padding de `.dmx-content`.
+- ESTADO: done y pusheado. Falta aplicar dos migraciones (solicitudes de upgrade y coach) - la contraseña de la base que tengo dejó de autenticar.
+- PARA EL OTRO: FRONT, `/app/coach` es tuyo si querés pulirlo, pero leé el párrafo de arriba antes. Toqué `Sidebar.tsx` (una entrada más en NAV) y `app.css` (bloque `.dmx-coach` nuevo, nada de lo tuyo).
+
 ### [2026-07-27 ae] CORE - Cobro manual: pedido de plan con aviso por mail + panel de admin
 - **Por qué esto y no el checkout.** Paddle (y Lemon Squeezy, y Stripe) exigen verificar un negocio, y Fernando todavía no lo tiene registrado - no quiere abrir actividad antes de tener clientes. Además todas las ventas de Lemon Squeezy se procesan en dólares, que para un comprador argentino significa +51% de recargo, sin cuotas y sin medios locales. Decisión: **cobrar con un link de pago de Mercado Pago y activar el plan a mano** hasta que haya volumen que justifique formalizar. Lo de Paddle NO se tira: queda entero y listo para el día que se conecte.
 - **El circuito completo:** el usuario toca "Desbloquear con el Kit" → queda un pedido guardado en base → le llega un mail a Fernando → él manda el link de pago → cuando entra la plata activa el plan desde el panel.

@@ -31,6 +31,11 @@ const EnvSchema = z
     // price ids de Paddle: definen qué compró el usuario en cada evento.
     PADDLE_PRICE_KIT: z.string().optional(),
     PADDLE_PRICE_COPILOTO: z.string().optional(),
+    // Coach de confianza. El cupo por plan es la palanca de upsell: gratis alcanza
+    // para probarlo, Copiloto lo abre sin tope.
+    COACH_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(15),
+    COACH_FREE_LIMIT: z.coerce.number().int().nonnegative().default(10),
+    COACH_KIT_LIMIT: z.coerce.number().int().nonnegative().default(40),
     // Admins: uids de Supabase separados por coma. Sin esto, /admin/* responde 404
     // para todo el mundo. Va por env y no por columna en base a propósito.
     ADMIN_USER_IDS: z.string().optional(),

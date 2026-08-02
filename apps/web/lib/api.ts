@@ -85,6 +85,64 @@ export async function actualizarPerfil(token: string, patch: AccountProfileUpdat
   });
 }
 
+/* --- Coach de confianza --- */
+
+export interface MensajeCoach {
+  id: string;
+  rol: 'user' | 'coach';
+  texto: string;
+  created_at: string;
+}
+
+export async function estadoCoach(
+  token: string,
+): Promise<{ mensajes: MensajeCoach[]; restantes: number | null }> {
+  return request('/coach', token);
+}
+
+/**
+ * Manda un mensaje y va llamando a `onPedazo` con el texto que llega.
+ * No usa EventSource porque eso solo hace GET y acá hace falta POST con body.
+ */
+export async function enviarAlCoach(
+  token: string,
+  texto: string,
+  onPedazo: (t: string) => void,
+): Promise<void> {
+  const res = await fetch(`${API_URL}/coach/mensaje`, {
+    method: 'POST',
+    headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+    body: JSON.stringify({ texto }),
+  });
+
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string; message?: string };
+    throw new ApiError(body.error ?? 'error', body.message ?? `HTTP ${res.status}`, res.status);
+  }
+  if (res.body === null) throw new ApiError('stream', 'Respuesta sin cuerpo', 502);
+
+  const lector = res.body.getReader();
+  const decoder = new TextDecoder();
+  // Un evento SSE puede llegar partido entre dos chunks de red: lo que sobra
+  // después del último \n\n se guarda para pegarlo al chunk siguiente.
+  let resto = '';
+
+  for (;;) {
+    const { done, value } = await lector.read();
+    if (done) break;
+    resto += decoder.decode(value, { stream: true });
+    const partes = resto.split('\n\n');
+    resto = partes.pop() ?? '';
+    for (const parte of partes) {
+      const linea = parte.split('\n').find((l) => l.startsWith('data: '));
+      if (linea === undefined) continue;
+      const evento = JSON.parse(linea.slice(6)) as { t?: string; fin?: boolean; error?: string };
+      if (evento.error !== undefined) throw new ApiError('stream', evento.error, 502);
+      if (evento.t !== undefined) onPedazo(evento.t);
+    }
+  }
+}
+
 /* --- Pedir plan (el cobro todavía es a mano: link de pago + activación) --- */
 
 export async function pedirPlan(

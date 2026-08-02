@@ -20,6 +20,7 @@ import { getAccessToken, getSupabase, type DisplayUser } from '../../lib/supabas
 
 const NAV = [
   { href: '/app', label: 'Auditoría' },
+  { href: '/app/coach', label: 'Coach' },
   { href: '/app/historial', label: 'Historial' },
   { href: '/app/settings', label: 'Configuración' },
 ];

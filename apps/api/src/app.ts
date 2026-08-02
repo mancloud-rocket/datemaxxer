@@ -15,6 +15,13 @@ import { SupabaseAuditStore } from './audit/supabase-store.js';
 import { makeRequireAdmin, parsearAdmins } from './admin/guard.js';
 import { InMemoryAdminStore, SupabaseAdminStore, type AdminStore } from './admin/store.js';
 import { makeAuthenticate } from './auth.js';
+import { registerCoachRoutes } from './coach/routes.js';
+import { InMemoryCoachStore, SupabaseCoachStore, type CoachStore } from './coach/store.js';
+import {
+  buildCoachEngine,
+  coachClientFromSdk,
+  type CoachEngine,
+} from './engines/coach.js';
 import { registerBillingRoutes } from './billing/routes.js';
 import { InMemoryBillingStore, SupabaseBillingStore, type BillingStore } from './billing/store.js';
 import {
@@ -39,6 +46,8 @@ export interface AppDeps {
   upgradeStore?: UpgradeStore;
   adminStore?: AdminStore;
   notificador?: Notificador;
+  coachStore?: CoachStore;
+  coachEngine?: CoachEngine;
 }
 
 function resolveNotificador(env: Env, deps: AppDeps): Notificador {
@@ -61,19 +70,30 @@ declare module 'fastify' {
   }
 }
 
+function sdkAnthropic(apiKey: string): Anthropic {
+  return new Anthropic({
+    apiKey,
+    // Sin esto una llamada colgada deja la auditoría en "analizando" para
+    // siempre. Cada paso corta solo; el techo total lo pone AUDIT_TIMEOUT_MS.
+    timeout: 120_000,
+    maxRetries: 1,
+  });
+}
+
 function resolveAuditEngine(env: Env, deps: AppDeps): AuditEngine | undefined {
   if (deps.auditEngine) return deps.auditEngine;
   if (env.ANTHROPIC_API_KEY === undefined) return undefined;
   return buildAuditEngine({
-    client: claudeClientFromSdk(
-      new Anthropic({
-        apiKey: env.ANTHROPIC_API_KEY,
-        // Sin esto una llamada colgada deja la auditoría en "analizando" para
-        // siempre. Cada paso corta solo; el techo total lo pone AUDIT_TIMEOUT_MS.
-        timeout: 120_000,
-        maxRetries: 1,
-      }),
-    ),
+    client: claudeClientFromSdk(sdkAnthropic(env.ANTHROPIC_API_KEY)),
+    ...(env.AUDIT_MODEL !== undefined ? { model: env.AUDIT_MODEL } : {}),
+  });
+}
+
+function resolveCoachEngine(env: Env, deps: AppDeps): CoachEngine | undefined {
+  if (deps.coachEngine) return deps.coachEngine;
+  if (env.ANTHROPIC_API_KEY === undefined) return undefined;
+  return buildCoachEngine({
+    client: coachClientFromSdk(sdkAnthropic(env.ANTHROPIC_API_KEY)),
     ...(env.AUDIT_MODEL !== undefined ? { model: env.AUDIT_MODEL } : {}),
   });
 }
@@ -173,6 +193,24 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
     auditStore,
     authenticate,
     esAdmin: (userId) => admins.has(userId),
+  });
+
+  registerCoachRoutes(app, {
+    store:
+      deps.coachStore ??
+      (hasSupabase
+        ? new SupabaseCoachStore(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
+        : new InMemoryCoachStore()),
+    profileStore,
+    auditStore,
+    engine: resolveCoachEngine(env, deps),
+    authenticate,
+    rateLimitMax: env.COACH_RATE_LIMIT_MAX,
+    limites: {
+      free: env.COACH_FREE_LIMIT,
+      kit: env.COACH_KIT_LIMIT,
+      copilot: null,
+    },
   });
 
   registerUpgradeRoutes(app, {

@@ -1,6 +1,12 @@
 export { Arquetipo, Confianza, CONTRACTS_VERSION, Region, Score100 } from './shared.js';
 export { AccountProfile, AccountProfileUpdate, CuentaMe } from './account.js';
 export {
+  EstadoCoach,
+  MensajeCoach,
+  NuevoMensajeCoach,
+  RolCoach,
+} from './coach.js';
+export {
   CambioPlanAdmin,
   EstadoSolicitud,
   NuevaSolicitud,

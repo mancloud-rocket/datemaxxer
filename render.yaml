@@ -30,6 +30,14 @@ services:
       # (deploy o sleep del plan free) y se cosechan al arrancar.
       - key: AUDIT_STALE_AFTER_MS
         value: 900000
+      # Coach de confianza. El cupo por plan es la palanca de upsell: gratis
+      # alcanza para probarlo, Copiloto lo abre sin tope.
+      - key: COACH_RATE_LIMIT_MAX
+        value: 15
+      - key: COACH_FREE_LIMIT
+        value: 10
+      - key: COACH_KIT_LIMIT
+        value: 40
       - key: SUPABASE_URL
         sync: false
       - key: SUPABASE_JWT_SECRET
