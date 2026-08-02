@@ -8,6 +8,7 @@ import { loadEnv } from '../env.js';
 import type { AuditEngine } from '../engines/audit.js';
 import { InMemoryProfileStore } from '../profile/store.js';
 import { InMemoryAuditStore, QuotaRpcMissingError, type AuditStore } from './store.js';
+import { fotosParts, multipartPayload, TINY_PNG, type Part } from '../test-helpers/multipart.js';
 
 const TEST_SECRET = 'percentil-test-secret-32-chars-min';
 
@@ -54,51 +55,6 @@ function fakeEngine(behavior: 'ok' | 'fail' = 'ok'): AuditEngine {
   };
 }
 
-// PNG 1x1 válido
-const TINY_PNG = Buffer.from(
-  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-  'base64',
-);
-
-interface Part {
-  name: string;
-  value?: string;
-  filename?: string;
-  contentType?: string;
-  buffer?: Buffer;
-}
-
-function multipartPayload(parts: Part[]): { payload: Buffer; contentType: string } {
-  const boundary = '----percentil-test-boundary';
-  const chunks: Buffer[] = [];
-  for (const part of parts) {
-    chunks.push(Buffer.from(`--${boundary}\r\n`));
-    if (part.filename !== undefined) {
-      chunks.push(
-        Buffer.from(
-          `Content-Disposition: form-data; name="${part.name}"; filename="${part.filename}"\r\n` +
-            `Content-Type: ${part.contentType ?? 'application/octet-stream'}\r\n\r\n`,
-        ),
-        part.buffer ?? Buffer.alloc(0),
-      );
-    } else {
-      chunks.push(Buffer.from(`Content-Disposition: form-data; name="${part.name}"\r\n\r\n${part.value ?? ''}`));
-    }
-    chunks.push(Buffer.from('\r\n'));
-  }
-  chunks.push(Buffer.from(`--${boundary}--\r\n`));
-  return { payload: Buffer.concat(chunks), contentType: `multipart/form-data; boundary=${boundary}` };
-}
-
-function photosParts(n: number): Part[] {
-  return Array.from({ length: n }, (_, i) => ({
-    name: 'photos',
-    filename: `foto-${i + 1}.png`,
-    contentType: 'image/png',
-    buffer: TINY_PNG,
-  }));
-}
-
 const BASE_FIELDS: Part[] = [
   { name: 'bio', value: 'me gusta viajar' },
   { name: 'region', value: 'rioplatense' },
@@ -126,7 +82,7 @@ describe('rutas /audit (con auth)', () => {
   });
 
   it('POST /audit sin token → 401', async () => {
-    const { payload, contentType } = multipartPayload([...photosParts(4), ...BASE_FIELDS]);
+    const { payload, contentType } = multipartPayload([...fotosParts(4), ...BASE_FIELDS]);
     const res = await app.inject({
       method: 'POST',
       url: '/audit',
@@ -138,7 +94,7 @@ describe('rutas /audit (con auth)', () => {
 
   it('happy path: 202 → polling done → /me/audit la devuelve', async () => {
     const sub = 'user-happy';
-    const res = await postAudit(app, sub, [...photosParts(4), ...BASE_FIELDS]);
+    const res = await postAudit(app, sub, [...fotosParts(4), ...BASE_FIELDS]);
     expect(res.statusCode).toBe(202);
     const { audit_id } = res.json() as { audit_id: string };
 
@@ -157,10 +113,10 @@ describe('rutas /audit (con auth)', () => {
 
   it('límite 1 por cuenta: la segunda auditoría → 409 limit_reached', async () => {
     const sub = 'user-limite';
-    const first = await postAudit(app, sub, [...photosParts(4), ...BASE_FIELDS]);
+    const first = await postAudit(app, sub, [...fotosParts(4), ...BASE_FIELDS]);
     expect(first.statusCode).toBe(202);
     await flushTasks();
-    const second = await postAudit(app, sub, [...photosParts(4), ...BASE_FIELDS]);
+    const second = await postAudit(app, sub, [...fotosParts(4), ...BASE_FIELDS]);
     expect(second.statusCode).toBe(409);
     expect((second.json() as { error: string }).error).toBe('limit_reached');
   });
@@ -170,13 +126,13 @@ describe('rutas /audit (con auth)', () => {
     const sub = 'user-copilot';
     await profileStore.setPlan(sub, 'copilot');
     const plusApp = await buildApp(loadEnv(TEST_ENV), { auditEngine: fakeEngine(), profileStore });
-    const first = await postAudit(plusApp, sub, [...photosParts(4), ...BASE_FIELDS]);
+    const first = await postAudit(plusApp, sub, [...fotosParts(4), ...BASE_FIELDS]);
     expect(first.statusCode).toBe(202);
     await flushTasks();
-    const second = await postAudit(plusApp, sub, [...photosParts(4), ...BASE_FIELDS]);
+    const second = await postAudit(plusApp, sub, [...fotosParts(4), ...BASE_FIELDS]);
     expect(second.statusCode).toBe(202);
     await flushTasks();
-    const third = await postAudit(plusApp, sub, [...photosParts(4), ...BASE_FIELDS]);
+    const third = await postAudit(plusApp, sub, [...fotosParts(4), ...BASE_FIELDS]);
     expect(third.statusCode).toBe(202);
     await plusApp.close();
   });
@@ -187,8 +143,8 @@ describe('rutas /audit (con auth)', () => {
     const app2 = await buildApp(loadEnv(TEST_ENV), { auditEngine: fakeEngine(), auditStore: store });
     const sub = 'user-carrera';
     const [a, b] = await Promise.all([
-      postAudit(app2, sub, [...photosParts(4), ...BASE_FIELDS]),
-      postAudit(app2, sub, [...photosParts(4), ...BASE_FIELDS]),
+      postAudit(app2, sub, [...fotosParts(4), ...BASE_FIELDS]),
+      postAudit(app2, sub, [...fotosParts(4), ...BASE_FIELDS]),
     ]);
     const codigos = [a.statusCode, b.statusCode].sort();
     expect(codigos).toEqual([202, 409]); // una entra, la otra rebota
@@ -213,7 +169,7 @@ describe('rutas /audit (con auth)', () => {
     expect(await store.countForUser(sub)).toBe(1); // consume cupo
 
     const app2 = await buildApp(loadEnv(TEST_ENV), { auditEngine: fakeEngine(), auditStore: store });
-    const res = await postAudit(app2, sub, [...photosParts(4), ...BASE_FIELDS]);
+    const res = await postAudit(app2, sub, [...fotosParts(4), ...BASE_FIELDS]);
     expect(res.statusCode).toBe(202); // el cupo se liberó, puede reintentar
 
     const colgada = await store.get('auditoria-colgada');
@@ -243,7 +199,7 @@ describe('rutas /audit (con auth)', () => {
       loadEnv({ ...TEST_ENV, AUDIT_TIMEOUT_MS: '40' }),
       { auditEngine: colgado, auditStore: store },
     );
-    const res = await postAudit(app2, 'user-timeout', [...photosParts(4), ...BASE_FIELDS]);
+    const res = await postAudit(app2, 'user-timeout', [...fotosParts(4), ...BASE_FIELDS]);
     const { audit_id } = res.json() as { audit_id: string };
     await new Promise((r) => setTimeout(r, 120));
     expect((await store.get(audit_id))?.status).toBe('error');
@@ -253,7 +209,7 @@ describe('rutas /audit (con auth)', () => {
   it('una auditoría fallida NO quema el cupo gratis', async () => {
     const failApp = await buildApp(loadEnv(TEST_ENV), { auditEngine: fakeEngine('fail') });
     const sub = 'user-fail';
-    const res = await postAudit(failApp, sub, [...photosParts(4), ...BASE_FIELDS]);
+    const res = await postAudit(failApp, sub, [...fotosParts(4), ...BASE_FIELDS]);
     const { audit_id } = res.json() as { audit_id: string };
     await flushTasks();
     const poll = await failApp.inject({
@@ -263,13 +219,13 @@ describe('rutas /audit (con auth)', () => {
     });
     expect((poll.json() as { status: string }).status).toBe('error');
     // sigue teniendo cupo: el segundo intento se acepta
-    const retry = await postAudit(failApp, sub, [...photosParts(4), ...BASE_FIELDS]);
+    const retry = await postAudit(failApp, sub, [...fotosParts(4), ...BASE_FIELDS]);
     expect(retry.statusCode).toBe(202);
     await failApp.close();
   });
 
   it('otro usuario no puede ver mi auditoría → 404', async () => {
-    const res = await postAudit(app, 'user-a', [...photosParts(4), ...BASE_FIELDS]);
+    const res = await postAudit(app, 'user-a', [...fotosParts(4), ...BASE_FIELDS]);
     const { audit_id } = res.json() as { audit_id: string };
     await flushTasks();
     const spy = await app.inject({
@@ -291,13 +247,13 @@ describe('rutas /audit (con auth)', () => {
   });
 
   it('rechaza menos de 4 fotos con 400', async () => {
-    const res = await postAudit(app, 'user-pocas', [...photosParts(2), ...BASE_FIELDS]);
+    const res = await postAudit(app, 'user-pocas', [...fotosParts(2), ...BASE_FIELDS]);
     expect(res.statusCode).toBe(400);
   });
 
   it('rechaza mimetype no soportado con 400', async () => {
     const res = await postAudit(app, 'user-gif', [
-      ...photosParts(3),
+      ...fotosParts(3),
       { name: 'photos', filename: 'malo.gif', contentType: 'image/gif', buffer: TINY_PNG },
       ...BASE_FIELDS,
     ]);
@@ -321,11 +277,11 @@ describe('rutas /audit (con auth)', () => {
       createWithQuota: () => Promise.reject(new QuotaRpcMissingError()),
     };
     const app2 = await buildApp(loadEnv(TEST_ENV), { auditEngine: fakeEngine(), auditStore: sinRpc });
-    const res = await postAudit(app2, 'user-sin-migracion', [...photosParts(4), ...BASE_FIELDS]);
+    const res = await postAudit(app2, 'user-sin-migracion', [...fotosParts(4), ...BASE_FIELDS]);
     expect(res.statusCode).toBe(202);
     await flushTasks();
     // y el cupo se sigue respetando por el camino viejo
-    const segunda = await postAudit(app2, 'user-sin-migracion', [...photosParts(4), ...BASE_FIELDS]);
+    const segunda = await postAudit(app2, 'user-sin-migracion', [...fotosParts(4), ...BASE_FIELDS]);
     expect(segunda.statusCode).toBe(409);
     await app2.close();
   });
@@ -338,7 +294,7 @@ describe('rutas /audit (con auth)', () => {
       },
     };
     const app2 = await buildApp(loadEnv(TEST_ENV), { auditEngine: fakeEngine(), photoArchive: archive });
-    const res = await postAudit(app2, 'user-archivo', [...photosParts(5), ...BASE_FIELDS]);
+    const res = await postAudit(app2, 'user-archivo', [...fotosParts(5), ...BASE_FIELDS]);
     const { audit_id } = res.json() as { audit_id: string };
     await flushTasks();
     expect(guardadas).toEqual([{ auditId: audit_id, userId: 'user-archivo', n: 5 }]);
@@ -348,7 +304,7 @@ describe('rutas /audit (con auth)', () => {
   it('si el archivado falla, la auditoría igual termina bien', async () => {
     const archive = { save: async () => { throw new Error('storage caído'); } };
     const app2 = await buildApp(loadEnv(TEST_ENV), { auditEngine: fakeEngine(), photoArchive: archive });
-    const res = await postAudit(app2, 'user-storage-roto', [...photosParts(4), ...BASE_FIELDS]);
+    const res = await postAudit(app2, 'user-storage-roto', [...fotosParts(4), ...BASE_FIELDS]);
     expect(res.statusCode).toBe(202);
     const { audit_id } = res.json() as { audit_id: string };
     await flushTasks();
@@ -381,7 +337,7 @@ describe('rutas /audit (con auth)', () => {
 
   it('sin ANTHROPIC_API_KEY ni engine inyectado → 503 tipado', async () => {
     const bareApp = await buildApp(loadEnv(TEST_ENV));
-    const res = await postAudit(bareApp, 'user-sin-engine', [...photosParts(4), ...BASE_FIELDS]);
+    const res = await postAudit(bareApp, 'user-sin-engine', [...fotosParts(4), ...BASE_FIELDS]);
     expect(res.statusCode).toBe(503);
     expect((res.json() as { error: string }).error).toBe('engine_unavailable');
     await bareApp.close();

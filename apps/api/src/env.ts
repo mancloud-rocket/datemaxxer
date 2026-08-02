@@ -31,6 +31,14 @@ const EnvSchema = z
     // price ids de Paddle: definen qué compró el usuario en cada evento.
     PADDLE_PRICE_KIT: z.string().optional(),
     PADDLE_PRICE_COPILOTO: z.string().optional(),
+    // F5 - lectura de perfil ajeno. free y kit son cupo de por vida; copilot es
+    // mensual corredizo, porque es lo que sostiene la suscripción.
+    PROFILE_READ_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
+    PROFILE_READ_FREE_LIMIT: z.coerce.number().int().nonnegative().default(1),
+    PROFILE_READ_KIT_LIMIT: z.coerce.number().int().nonnegative().default(5),
+    PROFILE_READ_COPILOT_LIMIT: z.coerce.number().int().nonnegative().default(60),
+    PROFILE_READ_VENTANA_DIAS: z.coerce.number().int().positive().default(30),
+    PROFILE_READ_TIMEOUT_MS: z.coerce.number().int().positive().default(300_000),
     // Coach de confianza. El cupo por plan es la palanca de upsell: gratis alcanza
     // para probarlo, Copiloto lo abre sin tope.
     COACH_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(15),

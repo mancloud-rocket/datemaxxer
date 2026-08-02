@@ -30,3 +30,12 @@ void app.auditStore
     if (n > 0) app.log.warn({ cosechadas: n }, 'auditorías huérfanas marcadas como error');
   })
   .catch((err: unknown) => app.log.error({ err }, 'falló el barrido de auditorías huérfanas'));
+
+// Mismo barrido para las lecturas de perfil (F5): una colgada le come cupo al
+// usuario hasta que alguien la toque a mano.
+void app.profileReadStore
+  .failStale(env.AUDIT_STALE_AFTER_MS)
+  .then((n) => {
+    if (n > 0) app.log.warn({ cosechadas: n }, 'lecturas de perfil huérfanas marcadas como error');
+  })
+  .catch((err: unknown) => app.log.error({ err }, 'falló el barrido de lecturas huérfanas'));

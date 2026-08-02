@@ -94,7 +94,27 @@ F6 mida resultados reales se ajusta la función, no el prompt.
       entregar un informe con huecos.
 - [x] 19 tests del motor + 6 de `calcularInversion`.
 
-### 1.3 Persistencia y rutas
+### 1.3 Persistencia y rutas ✅ **HECHO (2-ago)**
+
+- [x] Tabla propia `percentil.profile_reads` (decisión tomada y aplicada).
+- [x] **Cupo atómico**: función `crear_profile_read_con_cupo` aplicada y **probada contra la
+      base real**: dos llamadas concurrentes con cupo para una dejan `[true, false]` y una
+      sola fila. Acá pesa más que en F1 porque el cupo es mensual y consumible, así que un
+      agujero se explota muchas veces y no una.
+- [x] **Ni los rechazos ni los errores queman cupo.** Verificado en la base y en tests: el
+      usuario no eligió que el screenshot fuera ilegible ni que el perfil fuera de un menor.
+- [x] `POST /profile-read` (202 + background), `GET /profile-read/:id`,
+      `GET /me/profile-reads`. Mismo 404 para "no existe" y "es de otro".
+- [x] Timeout con `Promise.race` y cosecha de colgadas al arrancar, igual que F1.
+- [x] Le pasa al motor el índice del usuario para que haya `gap`; sin auditoría propia manda
+      `null` y la lectura sale igual.
+- [x] **Los screenshots NO se archivan.** En F1 las fotos son del propio usuario; acá son de
+      un tercero que no dio consentimiento, y guardar las de un rechazo por menor aparente
+      sería el peor error posible del producto. Se procesan en memoria y se descartan.
+- [x] 16 tests de ruta. El helper de multipart se sacó a `src/test-helpers/` en vez de
+      duplicarlo, así F1 y F5 se prueban con el mismo armado.
+
+### 1.3 (referencia original)
 
 - [ ] 🔸 **Decisión: dónde vive una lectura de perfil.** `conversations.profile_read` ya
       existe en el schema y está pensado para eso, pero ata cada lectura a una

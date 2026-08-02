@@ -31,6 +31,16 @@ import {
 } from './engines/audit.js';
 import type { Env } from './env.js';
 import { AppError } from './errors.js';
+import {
+  buildProfileReadEngine,
+  type ProfileReadEngine,
+} from './engines/profileread.js';
+import { registerProfileReadRoutes } from './profile-read/routes.js';
+import {
+  InMemoryProfileReadStore,
+  SupabaseProfileReadStore,
+  type ProfileReadStore,
+} from './profile-read/store.js';
 import { registerProfileRoutes } from './profile/routes.js';
 import { InMemoryProfileStore, SupabaseProfileStore, type ProfileStore } from './profile/store.js';
 import { NoopNotificador, ResendNotificador, type Notificador } from './upgrades/notificador.js';
@@ -48,6 +58,8 @@ export interface AppDeps {
   notificador?: Notificador;
   coachStore?: CoachStore;
   coachEngine?: CoachEngine;
+  profileReadStore?: ProfileReadStore;
+  profileReadEngine?: ProfileReadEngine;
 }
 
 function resolveNotificador(env: Env, deps: AppDeps): Notificador {
@@ -65,8 +77,10 @@ function resolveNotificador(env: Env, deps: AppDeps): Notificador {
 
 declare module 'fastify' {
   interface FastifyInstance {
-    /** Store de auditorías, para mantenimiento fuera del ciclo de request. */
+    /** Stores expuestos para mantenimiento fuera del ciclo de request
+     *  (barrido de trabajos huérfanos al arrancar, ver server.ts). */
     auditStore: AuditStore;
+    profileReadStore: ProfileReadStore;
   }
 }
 
@@ -84,6 +98,15 @@ function resolveAuditEngine(env: Env, deps: AppDeps): AuditEngine | undefined {
   if (deps.auditEngine) return deps.auditEngine;
   if (env.ANTHROPIC_API_KEY === undefined) return undefined;
   return buildAuditEngine({
+    client: claudeClientFromSdk(sdkAnthropic(env.ANTHROPIC_API_KEY)),
+    ...(env.AUDIT_MODEL !== undefined ? { model: env.AUDIT_MODEL } : {}),
+  });
+}
+
+function resolveProfileReadEngine(env: Env, deps: AppDeps): ProfileReadEngine | undefined {
+  if (deps.profileReadEngine) return deps.profileReadEngine;
+  if (env.ANTHROPIC_API_KEY === undefined) return undefined;
+  return buildProfileReadEngine({
     client: claudeClientFromSdk(sdkAnthropic(env.ANTHROPIC_API_KEY)),
     ...(env.AUDIT_MODEL !== undefined ? { model: env.AUDIT_MODEL } : {}),
   });
@@ -195,6 +218,28 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
     esAdmin: (userId) => admins.has(userId),
   });
 
+  const profileReadStore =
+    deps.profileReadStore ??
+    (hasSupabase
+      ? new SupabaseProfileReadStore(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
+      : new InMemoryProfileReadStore());
+
+  registerProfileReadRoutes(app, {
+    store: profileReadStore,
+    profileStore,
+    auditStore,
+    engine: resolveProfileReadEngine(env, deps),
+    authenticate,
+    rateLimitMax: env.PROFILE_READ_RATE_LIMIT_MAX,
+    limites: {
+      free: env.PROFILE_READ_FREE_LIMIT,
+      kit: env.PROFILE_READ_KIT_LIMIT,
+      copilot: env.PROFILE_READ_COPILOT_LIMIT,
+    },
+    ventanaDiasCopilot: env.PROFILE_READ_VENTANA_DIAS,
+    timeoutMs: env.PROFILE_READ_TIMEOUT_MS,
+  });
+
   registerCoachRoutes(app, {
     store:
       deps.coachStore ??
@@ -243,6 +288,7 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
   // Expuesto para tareas de mantenimiento fuera del ciclo de request
   // (barrido de auditorías huérfanas al arrancar, ver server.ts).
   app.decorate('auditStore', auditStore);
+  app.decorate('profileReadStore', profileReadStore);
 
   return app;
 }

@@ -30,6 +30,20 @@ services:
       # (deploy o sleep del plan free) y se cosechan al arrancar.
       - key: AUDIT_STALE_AFTER_MS
         value: 900000
+      # F5 - lectura de perfil ajeno. free y kit son cupo de por vida; copilot
+      # es mensual corredizo, porque es lo que sostiene la suscripción.
+      - key: PROFILE_READ_RATE_LIMIT_MAX
+        value: 10
+      - key: PROFILE_READ_FREE_LIMIT
+        value: 1
+      - key: PROFILE_READ_KIT_LIMIT
+        value: 5
+      - key: PROFILE_READ_COPILOT_LIMIT
+        value: 60
+      - key: PROFILE_READ_VENTANA_DIAS
+        value: 30
+      - key: PROFILE_READ_TIMEOUT_MS
+        value: 300000
       # Coach de confianza. El cupo por plan es la palanca de upsell: gratis
       # alcanza para probarlo, Copiloto lo abre sin tope.
       - key: COACH_RATE_LIMIT_MAX
