@@ -5,8 +5,10 @@ el producto, qué está construido de verdad y qué falta. Sin optimismo: si alg
 medias, dice a medias.
 
 Documentos hermanos: `percentil-spec.md` (spec funcional completa, actualizada a v2.0 en la
-misma vuelta que este documento; su §14 es el changelog detallado), `GUIA-VISUAL.md`
-(reglas de toda superficie visual), `AGENTS-LOG.md` (changelog entre agentes).
+misma vuelta que este documento; su §14 es el changelog detallado), **`PLAN.md` (el to-do
+detallado de lo que falta, tarea por tarea, que es el documento que se usa para trabajar)**,
+`GUIA-VISUAL.md` (reglas de toda superficie visual), `AGENTS-LOG.md` (changelog entre
+agentes).
 
 ---
 
