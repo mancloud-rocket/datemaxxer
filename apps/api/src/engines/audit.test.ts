@@ -8,6 +8,7 @@ import { EngineError, ValidationError } from '../errors.js';
 import {
   buildAuditEngine,
   claudeClientFromSdk,
+  SYSTEM_PROMPT,
   type AuditInput,
   type ClaudeClient,
 } from './audit.js';
@@ -271,15 +272,22 @@ describe('engines/audit - índice de atractivo (F1b)', () => {
     expect(result.indice).toBeNull();
   });
 
-  it('el prompt le pide elegir bucket antes que número', () => {
-    // Si esta regla se cae del prompt, el índice deja de discriminar y nadie se
-    // entera hasta que un usuario mira su informe.
-    const system = readFileSync(
-      join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..', 'prompts', 'audit', 'system.md'),
+  it('el prompt que se manda incluye la calibración compartida', () => {
+    // Se assertea sobre SYSTEM_PROMPT y no sobre el archivo: lo que importa es
+    // lo que efectivamente llega al modelo. Si esta regla se cae, el índice deja
+    // de discriminar y nadie se entera hasta que un usuario mira su informe.
+    expect(SYSTEM_PROMPT).toContain('Primero elegís el bucket');
+    expect(SYSTEM_PROMPT).toContain('un_bucket_arriba');
+    expect(SYSTEM_PROMPT).toContain('La mitad del pool está debajo de 60');
+  });
+
+  it('la calibración es el MISMO texto que se le da a F5', () => {
+    // El gap resta un índice contra el otro. Si las dos escalas derivan, el gap
+    // deja de significar algo y no hay forma de notarlo mirando el output.
+    const compartido = readFileSync(
+      join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..', 'prompts', 'shared', 'calibracion-indice.md'),
       'utf8',
     );
-    expect(system).toContain('Primero elegís el bucket');
-    expect(system).toContain('ancla');
-    expect(system).toContain('La mitad del pool está debajo de 60');
+    expect(SYSTEM_PROMPT).toContain(compartido.trim());
   });
 });

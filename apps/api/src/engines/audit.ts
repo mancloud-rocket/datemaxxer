@@ -36,8 +36,20 @@ const BLOCKLIST = readFileSync(
   .map((l) => l.trim())
   .filter((l) => l !== '' && !l.startsWith('#'));
 
-const SYSTEM_PROMPT =
+/**
+ * La calibración del índice vive en un archivo compartido y se inyecta acá y en
+ * F5. No se copia: el `gap` resta un índice contra el otro, y dos escalas que
+ * derivaron aunque sea un poco vuelven el gap basura sin que se note en el output.
+ */
+const CALIBRACION = readFileSync(
+  join(promptsDir, '..', 'shared', 'calibracion-indice.md'),
+  'utf8',
+);
+
+/** Exportado para que los tests asserten sobre lo que REALMENTE se le manda al modelo. */
+export const SYSTEM_PROMPT =
   readFileSync(join(promptsDir, 'system.md'), 'utf8') +
+  `\n---\n\n${CALIBRACION}\n` +
   `\n## Blocklist anti-slop (contenido vigente, prohibido usar)\n\n` +
   BLOCKLIST.map((l) => `- ${l}`).join('\n') +
   '\n';
