@@ -520,6 +520,41 @@
   .dmx-historial .entry .body{width:100%;order:3}
 }
 
+/* ---- índice de mercado (F1b) ---- */
+.dmx-informe .indice .cabeza{display:flex;align-items:flex-start;gap:1.4rem;margin-bottom:1.6rem}
+.dmx-informe .indice .numero{flex:none;font-family:var(--font-display),sans-serif;font-size:clamp(3rem,11vw,4rem);
+  line-height:1;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums}
+/* El margen no es letra chica: es lo que hace honesto al número y lo que convierte. */
+.dmx-informe .indice .numero small{display:block;margin-top:.35rem;font-family:var(--font-mono),monospace;
+  font-size:.62rem;letter-spacing:.14em;color:var(--steel)}
+.dmx-informe .indice .etiqueta{flex:1;min-width:0;padding-top:.4rem}
+.dmx-informe .indice .etiqueta .selloe{font-size:.66rem}
+.dmx-informe .indice .aclara{margin-top:.7rem;color:var(--ink-mute);font-size:.85rem;font-weight:500;line-height:1.5}
+
+.dmx-informe .indice .desglose{display:flex;flex-direction:column;gap:1rem}
+.dmx-informe .indice .comp .ctop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.4rem}
+.dmx-informe .indice .comp .ctop b{font-weight:700;font-size:.94rem;color:var(--ink)}
+.dmx-informe .indice .comp .cnum{font-family:var(--font-mono),monospace;font-size:.78rem;color:var(--ink-mute);font-variant-numeric:tabular-nums}
+.dmx-informe .indice .comp .track{position:relative;height:7px;border-radius:4px;background:#1A202A;overflow:hidden}
+.dmx-informe .indice .comp .track i{display:block;height:100%;border-radius:4px;background:var(--signal);
+  box-shadow:0 0 10px rgba(79,217,194,.35)}
+.dmx-informe .indice .comp small{display:block;margin-top:.35rem;font-family:var(--font-mono),monospace;
+  font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--steel)}
+/* Un componente sin datos se ve apagado, no se rellena con un número inventado. */
+.dmx-informe .indice .comp.vacio .cnum,.dmx-informe .indice .comp.vacio small{color:var(--oxide)}
+.dmx-informe .indice .comp.vacio .track{background:repeating-linear-gradient(45deg,#1A202A,#1A202A 4px,#141A22 4px,#141A22 8px)}
+
+.dmx-informe .indice .afinar{margin-top:1.6rem;padding-top:1.2rem;border-top:1px solid var(--line)}
+.dmx-informe .indice .afinar b{display:block;font-size:.9rem;color:var(--ink);margin-bottom:.6rem}
+.dmx-informe .indice .afinar ul{list-style:none;display:flex;flex-direction:column;gap:.4rem;margin-bottom:.8rem}
+.dmx-informe .indice .afinar li{position:relative;padding-left:1.1rem;color:var(--ink-mute);font-size:.88rem;line-height:1.45}
+.dmx-informe .indice .afinar li::before{content:'';position:absolute;left:0;top:.55em;width:5px;height:5px;
+  border-radius:50%;background:var(--oxide)}
+
+@media (max-width:520px){
+  .dmx-informe .indice .cabeza{flex-direction:column;gap:.8rem}
+}
+
 /* ============ COACH · la conversación ============
    Sin set piece a propósito: el resto de la app es cine, acá la única
    animación es el cursor mientras escribe. Quien abre esto no quiere show. */

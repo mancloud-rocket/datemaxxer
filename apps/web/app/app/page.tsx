@@ -54,6 +54,22 @@ function faseDeQa(params: URLSearchParams): Fase | null {
             lectura_200ms: 'Tres señales distintas compitiendo: viaje, oficina, gimnasio.',
             evidencia_por_foto: Array.from({ length: total }, () => ({})),
             quick_wins: [{}, {}, {}],
+            // Datos calcados de una auditoría real, incluido un componente en
+            // null: es el caso que hay que poder ver sin inventar un número.
+            indice: {
+              facial: { bucket: 'medio', score: 50, evidencia: [], ancla: { un_bucket_arriba: '', un_bucket_abajo: '' }, confianza: 0.4 },
+              presentacion: null,
+              produccion: { bucket: 'medio', score: 54, evidencia: [], ancla: { un_bucket_arriba: '', un_bucket_abajo: '' }, confianza: 0.6 },
+              global: 57,
+              bucket_global: 'medio',
+              margen: 17,
+              fotos_evaluadas: total,
+              limitantes: [
+                'Cara nítida en cero fotos de cinco',
+                'Sin foto de cuerpo entero real, solo torso en selfie',
+                'Lentes de sol en la mejor foto',
+              ],
+            },
           } as unknown as NonNullable<AuditView['result']>,
         },
       };
@@ -184,6 +200,7 @@ export default function AppHome() {
         confianza={Math.round(fase.view.result.arquetipo_detectado.confianza * 100)}
         lectura={fase.view.result.lectura_200ms}
         nFotos={fase.view.result.evidencia_por_foto.length}
+        indice={fase.view.result.indice ?? null}
         qa={qa}
         onRehacer={() => setFase({ nombre: 'mesa', error: null, enviando: false })}
       />

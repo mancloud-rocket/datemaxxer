@@ -9,6 +9,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
+import type { IndiceAtractivo } from '@percentil/contracts';
 import { GLIFOS } from '../../lib/glifos';
 import { ApiError, pedirPlan } from '../../lib/api';
 import { getAccessToken } from '../../lib/supabase';
@@ -25,12 +26,29 @@ const NOMBRES: Record<string, string> = {
   hogareno: 'Hogareño',
 };
 
+const BUCKETS: Record<string, string> = {
+  bajo: 'Escalón bajo',
+  medio_bajo: 'Escalón medio-bajo',
+  medio: 'Escalón medio',
+  alto: 'Escalón alto',
+  muy_alto: 'Escalón muy alto',
+  top: 'Top del pool',
+};
+
+/** Qué tan controlable es cada componente. Es la mitad del valor del desglose. */
+const COMPONENTES = [
+  { clave: 'facial' as const, label: 'Cara', control: 'no lo controlás' },
+  { clave: 'presentacion' as const, label: 'Presentación', control: 'lo controlás en parte' },
+  { clave: 'produccion' as const, label: 'Producción', control: 'lo controlás entero' },
+];
+
 export function Informe(props: {
   score: number;
   arquetipo: string;
   confianza: number; // 0-100
   lectura: string;
   nFotos: number;
+  indice?: IndiceAtractivo | null;
   qa?: boolean;
   onRehacer?: (() => void) | undefined;
 }) {
@@ -138,7 +156,11 @@ export function Informe(props: {
       gsap.to(q('.apphud .progress i'), { scaleX: 1, duration: 0.6, ease: 'power2.out' });
 
       const tl = gsap.timeline({ paused: QA });
-      const paneles = ['.doc-head', '.medidor', '#pArq', '#pLectura', '#s1', '#s2', '#s3', '.unlock'].map((s) => q(s));
+      // #pIndice no existe en auditorías anteriores a F1b: se filtra en vez de
+      // meter un null en la timeline.
+      const paneles = ['.doc-head', '.medidor', '#pIndice', '#pArq', '#pLectura', '#s1', '#s2', '#s3', '.unlock']
+        .map((s) => q(s))
+        .filter((n): n is HTMLElement => n !== null);
       gsap.set(paneles, { autoAlpha: 0, y: 30 });
       tl.to(q('.doc-head'), { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 0)
         .to(q('.medidor'), { autoAlpha: 1, y: 0, duration: 0.65, ease: 'power2.out' }, 0.25);
@@ -152,6 +174,17 @@ export function Informe(props: {
       tl.fromTo(q('#zonaSello'), { scale: 1.8, autoAlpha: 0 }, { scale: 1, autoAlpha: 1, duration: 0.38, ease: 'power4.out' }, 2.1)
         .to(q('#pArq'), { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 2.3)
         .fromTo(q('#arqSeal'), { scale: 1.9, autoAlpha: 0, transformOrigin: 'center' }, { scale: 1, autoAlpha: 1, duration: 0.45, ease: 'power4.out' }, 2.55);
+      /* el índice entra entre el medidor y el arquetipo, si esta auditoría lo tiene */
+      const panelIndice = q('#pIndice');
+      if (panelIndice !== null) {
+        tl.to(panelIndice, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 2.15);
+        // Las barras crecen desde cero hasta el ancho que ya tienen puesto en
+        // el style inline, que es la fuente de verdad: si el JS no corre, el
+        // panel igual se ve completo.
+        panelIndice.querySelectorAll<HTMLElement>('.comp .track i').forEach((barra, k) => {
+          tl.fromTo(barra, { width: 0 }, { width: barra.style.width, duration: 0.8, ease: 'power3.out' }, 2.4 + k * 0.1);
+        });
+      }
       /* glifo del arquetipo detectado: 48x48 centrado en el sello 120x120 */
       const glyphG = q('#arqGlyph') as unknown as SVGGElement;
       glyphG.innerHTML = '';
@@ -230,6 +263,55 @@ export function Informe(props: {
           <div className="scoreline"><span id="scoreNum">0</span><small> / 100</small></div>
           <div className="zona"><span className="selloe" id="zonaSello" style={{ opacity: 0 }}>Zona de riesgo</span></div>
         </section>
+
+        {/* 1b · el índice de mercado (F1b). Solo si la auditoría lo trae:
+            las anteriores a F1b no tienen y no se inventa un número. */}
+        {props.indice && (
+          <section className="panel indice" id="pIndice">
+            <div className="plabel">Índice de mercado · en qué escalón estás parado</div>
+            <div className="cabeza">
+              <div className="numero">
+                {props.indice.global}
+                <small>± {props.indice.margen}</small>
+              </div>
+              <div className="etiqueta">
+                <span className="selloe s-cy">{BUCKETS[props.indice.bucket_global] ?? props.indice.bucket_global}</span>
+                <p className="aclara">
+                  Esto no es el score de arriba. Aquel mide si tu perfil se entiende;
+                  este mide contra quiénes competís.
+                </p>
+              </div>
+            </div>
+
+            <div className="desglose">
+              {COMPONENTES.map(({ clave, label, control }) => {
+                const c = props.indice![clave];
+                return (
+                  <div className={`comp${c === null ? ' vacio' : ''}`} key={clave}>
+                    <div className="ctop">
+                      <b>{label}</b>
+                      <span className="cnum">{c === null ? 'sin datos' : c.score}</span>
+                    </div>
+                    <div className="track">
+                      <i style={{ width: c === null ? '0%' : `${c.score}%` }} />
+                    </div>
+                    <small>{c === null ? 'faltan fotos para leerlo' : control}</small>
+                  </div>
+                );
+              })}
+            </div>
+
+            {props.indice.limitantes.length > 0 && (
+              <div className="afinar">
+                <b>Por qué el margen es de {props.indice.margen} puntos</b>
+                <ul>
+                  {props.indice.limitantes.map((l) => <li key={l}>{l}</li>)}
+                </ul>
+                <p className="micro">Arreglá esto y el número se afina. No sube solo: se vuelve más exacto.</p>
+              </div>
+            )}
+          </section>
+        )}
 
         {/* 2 · el arquetipo (glifo genérico: los 8 propios los debe FRONT) */}
         <section className="panel" id="pArq">

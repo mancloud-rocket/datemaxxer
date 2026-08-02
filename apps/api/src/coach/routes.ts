@@ -123,8 +123,24 @@ export function registerCoachRoutes(app: FastifyInstance, deps: CoachRoutesDeps)
       await store.guardar(request.userId, 'user', parsed.data.texto);
       const historial = await store.ultimos(request.userId, VENTANA);
 
+      /**
+       * `hijack()` saca la respuesta del ciclo de Fastify, así que `writeHead`
+       * manda EXACTAMENTE lo que le pasemos y nada más. Las cabeceras que el
+       * plugin de CORS dejó puestas en `reply` se perderían, y la web (que vive
+       * en otro dominio que la API) no podría leer ni un byte: el navegador
+       * bloquea la respuesta y el usuario ve "se cortó la respuesta" aunque el
+       * servidor haya contestado perfecto.
+       *
+       * Por eso se arrastran las cabeceras ya seteadas. Los tests con `inject()`
+       * no detectan esto porque no son un navegador y no aplican CORS.
+       */
+      const previas = reply.getHeaders();
+      delete previas['content-type'];
+      delete previas['content-length'];
+
       reply.hijack();
       reply.raw.writeHead(200, {
+        ...previas,
         'content-type': 'text/event-stream; charset=utf-8',
         'cache-control': 'no-cache, no-transform',
         connection: 'keep-alive',
