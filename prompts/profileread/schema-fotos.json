@@ -1,0 +1,29 @@
+{
+  "type": "object",
+  "description": "PASO 1. Lectura foto por foto del perfil de ella. Es la evidencia sobre la que se apoya la síntesis.",
+  "properties": {
+    "lectura_por_foto": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "foto": { "type": "integer", "description": "1-indexado" },
+          "muestra": { "type": "string", "description": "qué se ve, concreto y visible" },
+          "señales": {
+            "type": "array",
+            "description": "elementos visibles: ropa, locación, luz, encuadre, compañía, objetos, marcas",
+            "items": { "type": "string" }
+          },
+          "aporta_al_juicio": {
+            "type": "string",
+            "description": "qué suma o resta esta foto para leer atractivo, curaduría o autenticidad"
+          }
+        },
+        "required": ["foto", "muestra", "señales", "aporta_al_juicio"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["lectura_por_foto"],
+  "additionalProperties": false
+}

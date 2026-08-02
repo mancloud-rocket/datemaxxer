@@ -52,6 +52,7 @@ export const EjeDeclarado = z
     confianza: Confianza,
   })
   .strict();
+export type EjeDeclarado = z.infer<typeof EjeDeclarado>;
 
 export const DensidadCompetitiva = z
   .object({
@@ -59,6 +60,7 @@ export const DensidadCompetitiva = z
     implicancia: z.string().min(1),
   })
   .strict();
+export type DensidadCompetitiva = z.infer<typeof DensidadCompetitiva>;
 
 export const CoherenciaTextoFotos = z
   .object({
@@ -66,6 +68,7 @@ export const CoherenciaTextoFotos = z
     nota: z.string().min(1),
   })
   .strict();
+export type CoherenciaTextoFotos = z.infer<typeof CoherenciaTextoFotos>;
 
 /**
  * Gancho: punto de contacto concreto y cómo usarlo. `uso` tiene que ser
@@ -80,6 +83,7 @@ export const Gancho = z
     uso: z.string().min(1),
   })
   .strict();
+export type Gancho = z.infer<typeof Gancho>;
 
 export const RegistroSugerido = z
   .object({
@@ -87,6 +91,7 @@ export const RegistroSugerido = z
     evitar: z.array(z.string().min(1)),
   })
   .strict();
+export type RegistroSugerido = z.infer<typeof RegistroSugerido>;
 
 /**
  * Estándar de plan que su perfil vende, con traducción cruda al bolsillo.
@@ -100,6 +105,7 @@ export const ExpectativaDePlan = z
     confianza: Confianza,
   })
   .strict();
+export type ExpectativaDePlan = z.infer<typeof ExpectativaDePlan>;
 
 export const ProfileRead = z
   .object({

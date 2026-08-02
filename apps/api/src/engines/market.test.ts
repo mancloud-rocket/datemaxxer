@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import {
   GapAtractivo,
   IndiceAtractivo,
+  Inversion,
   ProbabilidadRespuesta,
   RANGO_BUCKET,
   VolumenMatches,
+  type Autenticidad,
   type Bucket,
   type ComponenteIndice,
   type Selectividad,
@@ -14,6 +16,7 @@ import {
   bucketDe,
   calcularGap,
   calcularGlobal,
+  calcularInversion,
   calcularMargen,
   calcularProbabilidadRespuesta,
   calcularVolumenMatches,
@@ -348,7 +351,7 @@ describe('calcularProbabilidadRespuesta', () => {
     }
   });
 
-  it('el nivel siempre concuerda con el multiplicador', () => {
+  it('el nivel siempre concuerda con el multiplicador (barrido)', () => {
     const CORTES: Array<[number, ProbabilidadRespuesta['nivel']]> = [
       [0.4, 'baja'],
       [0.9, 'media'],
@@ -364,6 +367,101 @@ describe('calcularProbabilidadRespuesta', () => {
             'muy_baja',
           );
           expect(p.nivel).toBe(esperado);
+        }
+      }
+    }
+  });
+});
+
+describe('calcularInversion', () => {
+  const genuino: Autenticidad = {
+    veredicto: 'genuino', tipo_sospecha: null, señales: ['fotos casuales y de sesion mezcladas'], confianza: 0.8,
+  };
+  const selectiva = (nivel: Selectividad['nivel']): Selectividad => ({
+    nivel,
+    filtros_declarados: nivel === 'muy_alta' ? ['+1.80', 'solo relacion seria'] : [],
+    evidencia: ['bio con requisitos'],
+    confianza: 0.7,
+  });
+  const base = {
+    gap: calcularGap(60, 60),
+    autenticidad: genuino,
+    selectividad: selectiva('media'),
+    tieneGanchos: false,
+  };
+
+  it('un perfil no genuino es no_vale aunque el gap sea inmejorable', () => {
+    // Es la regla que mas plata y tiempo le ahorra al usuario.
+    const r = calcularInversion({
+      ...base,
+      gap: calcularGap(90, 40),
+      autenticidad: {
+        veredicto: 'probable_no_genuino',
+        tipo_sospecha: 'vendedora_contenido',
+        señales: ['handle de otra red en la bio', 'todas las fotos son de sesion'],
+        confianza: 0.85,
+      },
+    });
+    expect(r.veredicto).toBe('no_vale');
+    expect(r.mensajes_antes_de_soltar).toBe(0);
+    expect(r.resumen).toContain('No gastes un mensaje');
+  });
+
+  it('nunca recomienda mas esfuerzo cuando el gap empeora', () => {
+    const orden = ['no_vale', 'volumen_bajo_esfuerzo', 'oportunista', 'perseguir'];
+    let previo = Infinity;
+    for (const ella of [40, 60, 75, 95]) {
+      const r = calcularInversion({ ...base, gap: calcularGap(60, ella) });
+      const idx = orden.indexOf(r.veredicto);
+      expect(idx).toBeLessThanOrEqual(previo);
+      previo = idx;
+    }
+  });
+
+  it('un perfil dudoso baja un escalon aunque el gap sea bueno', () => {
+    const limpio = calcularInversion(base);
+    const dudoso = calcularInversion({
+      ...base,
+      autenticidad: { veredicto: 'dudoso', tipo_sospecha: 'inactiva', señales: ['sin fotos nuevas hace mucho'], confianza: 0.6 },
+    });
+    const orden = ['no_vale', 'volumen_bajo_esfuerzo', 'oportunista', 'perseguir'];
+    expect(orden.indexOf(dudoso.veredicto)).toBeLessThan(orden.indexOf(limpio.veredicto));
+  });
+
+  it('filtrar muy duro baja el veredicto; un gancho concreto lo sube', () => {
+    const orden = ['no_vale', 'volumen_bajo_esfuerzo', 'oportunista', 'perseguir'];
+    const normal = calcularInversion({ ...base, gap: calcularGap(60, 75) });
+    const filtrona = calcularInversion({ ...base, gap: calcularGap(60, 75), selectividad: selectiva('muy_alta') });
+    const conGancho = calcularInversion({ ...base, gap: calcularGap(60, 75), tieneGanchos: true });
+    expect(orden.indexOf(filtrona.veredicto)).toBeLessThan(orden.indexOf(normal.veredicto));
+    expect(orden.indexOf(conGancho.veredicto)).toBeGreaterThan(orden.indexOf(normal.veredicto));
+  });
+
+  it('sin gap propio baja la confianza y lo dice en la evidencia', () => {
+    const r = calcularInversion({ ...base, gap: null });
+    expect(r.confianza).toBeLessThan(calcularInversion(base).confianza);
+    expect(r.evidencia.join(' ')).toMatch(/no mediste tu perfil/);
+  });
+
+  it('siempre trae evidencia y pasa el contrato, en toda combinacion', () => {
+    const gaps = [null, calcularGap(90, 40), calcularGap(60, 60), calcularGap(40, 95)];
+    const autenticidades: Autenticidad['veredicto'][] = ['genuino', 'dudoso', 'probable_no_genuino'];
+    const niveles: Selectividad['nivel'][] = ['baja', 'media', 'alta', 'muy_alta'];
+    for (const gap of gaps) {
+      for (const v of autenticidades) {
+        for (const nivel of niveles) {
+          for (const tieneGanchos of [true, false]) {
+            const r = calcularInversion({
+              gap,
+              autenticidad: { ...genuino, veredicto: v, tipo_sospecha: v === 'genuino' ? null : 'bot' },
+              selectividad: selectiva(nivel),
+              tieneGanchos,
+            });
+            expect(() => Inversion.parse(r)).not.toThrow();
+            expect(r.evidencia.length).toBeGreaterThanOrEqual(1);
+            if (r.veredicto === 'no_vale') expect(r.mensajes_antes_de_soltar).toBe(0);
+            else expect(r.mensajes_antes_de_soltar).toBeGreaterThan(0);
+          }
         }
       }
     }

@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "description": "PASO 0. Decide si el perfil se analiza. Ante la duda de menor de edad, se rechaza.",
+  "properties": {
+    "rechazado": { "type": "boolean" },
+    "motivo": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": ["menor_aparente", "sin_persona_identificable", "imagen_ilegible", "no_es_un_perfil"]
+        },
+        { "type": "null" }
+      ],
+      "description": "null si rechazado = false"
+    },
+    "detalle": {
+      "anyOf": [{ "type": "string" }, { "type": "null" }],
+      "description": "Una frase con qué viste, sin describir a la persona. null si rechazado = false."
+    }
+  },
+  "required": ["rechazado", "motivo", "detalle"],
+  "additionalProperties": false
+}

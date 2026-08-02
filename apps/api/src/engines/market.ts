@@ -1,11 +1,14 @@
 import {
   RANGO_BUCKET,
+  type Autenticidad,
   type Bucket,
   type ComponenteIndice,
   type GapAtractivo,
   type IndiceAtractivo,
+  type Inversion,
   type ProbabilidadRespuesta,
   type Selectividad,
+  type VeredictoInversion,
   type VolumenMatches,
 } from '@percentil/contracts';
 
@@ -294,6 +297,97 @@ export function calcularProbabilidadRespuesta(params: {
   const confianza = gap === null ? 0.4 : 0.7;
 
   return { nivel, vs_baseline, palancas, confianza };
+}
+
+/** Orden de menos a más esfuerzo recomendado. Sirve para subir o bajar un escalón. */
+const ESCALA_INVERSION: VeredictoInversion[] = [
+  'no_vale',
+  'volumen_bajo_esfuerzo',
+  'oportunista',
+  'perseguir',
+];
+
+/**
+ * Veredicto de inversión. Es la única línea que el usuario va a leer siempre, y
+ * por eso mismo no puede salir del modelo: tiene que ser consistente entre dos
+ * perfiles parecidos, y un LLM no garantiza eso.
+ *
+ * La autenticidad manda sobre todo lo demás. Un perfil de bucket top que es una
+ * cuenta de venta de contenido vale cero, y decir "perseguir" ahí sería el peor
+ * consejo que puede dar el producto.
+ */
+export function calcularInversion(params: {
+  gap: GapAtractivo | null;
+  autenticidad: Autenticidad;
+  selectividad: Selectividad;
+  tieneGanchos: boolean;
+}): Inversion {
+  const { gap, autenticidad, selectividad, tieneGanchos } = params;
+  const evidencia: string[] = [];
+
+  // 1. Autenticidad primero: si el perfil no es real, nada más importa.
+  if (autenticidad.veredicto === 'probable_no_genuino') {
+    return {
+      veredicto: 'no_vale',
+      resumen: `Esto no parece un perfil real${autenticidad.tipo_sospecha ? ` (${autenticidad.tipo_sospecha.replace('_', ' ')})` : ''}. No gastes un mensaje.`,
+      evidencia: autenticidad.señales.length > 0 ? autenticidad.señales : ['el perfil no pasa el chequeo de autenticidad'],
+      mensajes_antes_de_soltar: 0,
+      confianza: autenticidad.confianza,
+    };
+  }
+
+  // 2. Base por gap.
+  let idx: number;
+  if (gap === null) {
+    idx = ESCALA_INVERSION.indexOf('oportunista');
+    evidencia.push('todavía no mediste tu perfil, así que esto es una estimación sin tu escalón');
+  } else {
+    idx = ESCALA_INVERSION.indexOf(
+      gap.tier === 'el_arriba' || gap.tier === 'paridad'
+        ? 'perseguir'
+        : gap.tier === 'ella_un_tier'
+          ? 'oportunista'
+          : 'volumen_bajo_esfuerzo',
+    );
+    evidencia.push(gap.lectura);
+  }
+
+  // 3. Ajustes. Un perfil dudoso baja un escalón aunque el gap sea bueno.
+  if (autenticidad.veredicto === 'dudoso') {
+    idx -= 1;
+    evidencia.push(`hay señales de que el perfil puede no ser genuino: ${autenticidad.señales[0] ?? 'curaduría atípica'}`);
+  }
+  if (selectividad.nivel === 'muy_alta') {
+    idx -= 1;
+    evidencia.push(`filtra muy duro: ${selectividad.filtros_declarados[0] ?? selectividad.evidencia[0]}`);
+  }
+  if (tieneGanchos) {
+    idx += 1;
+    evidencia.push('hay al menos un gancho concreto en su perfil para abrir sin sonar genérico');
+  }
+
+  const veredicto = ESCALA_INVERSION[Math.min(ESCALA_INVERSION.length - 1, Math.max(0, idx))]!;
+
+  const RESUMEN: Record<VeredictoInversion, string> = {
+    perseguir: 'Vale el esfuerzo. Mandá algo pensado y sostené la conversación.',
+    oportunista: 'No es tu escalón, pero hay una grieta concreta. Un mensaje bueno y sin ansiedad.',
+    volumen_bajo_esfuerzo: 'Mandá algo decente y seguí swipeando. Anclarte acá es tiempo perdido.',
+    no_vale: 'Salteala. Lo que ves acá no se destraba con un mensaje mejor.',
+  };
+  const MENSAJES: Record<VeredictoInversion, number> = {
+    perseguir: 6,
+    oportunista: 3,
+    volumen_bajo_esfuerzo: 1,
+    no_vale: 0,
+  };
+
+  return {
+    veredicto,
+    resumen: RESUMEN[veredicto],
+    evidencia,
+    mensajes_antes_de_soltar: MENSAJES[veredicto],
+    confianza: gap === null ? 0.5 : 0.75,
+  };
 }
 
 /** Arma el índice completo a partir de lo que devolvió el modelo. */

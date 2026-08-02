@@ -1,0 +1,214 @@
+{
+  "type": "object",
+  "description": "PASO 2. Síntesis. NO incluye volumen_matches, probabilidad_respuesta, gap ni inversion: esos los calcula el código.",
+  "properties": {
+    "indice": {
+      "type": "object",
+      "description": "Solo los componentes percibidos. global, bucket_global y margen los calcula el código.",
+      "properties": {
+        "facial": { "$ref": "#/$defs/componente" },
+        "presentacion": { "$ref": "#/$defs/componente" },
+        "produccion": { "$ref": "#/$defs/componente" },
+        "limitantes": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["facial", "presentacion", "produccion", "limitantes"],
+      "additionalProperties": false
+    },
+    "selectividad": {
+      "type": "object",
+      "description": "Cuánto puede darse el lujo de filtrar. Se lee de señales declaradas y curaduría, no del atractivo solo.",
+      "properties": {
+        "nivel": { "type": "string", "enum": ["baja", "media", "alta", "muy_alta"] },
+        "filtros_declarados": {
+          "type": "array",
+          "description": "literales que escribió ella: altura, intención, verificación, etc.",
+          "items": { "type": "string" }
+        },
+        "evidencia": { "type": "array", "items": { "type": "string" } },
+        "confianza": { "type": "number", "description": "0 a 1" }
+      },
+      "required": ["nivel", "filtros_declarados", "evidencia", "confianza"],
+      "additionalProperties": false
+    },
+    "autenticidad": {
+      "type": "object",
+      "description": "Se juzgan artefactos del perfil (marcas de agua, handles, patrones de sesión), nunca a la persona.",
+      "properties": {
+        "veredicto": { "type": "string", "enum": ["genuino", "dudoso", "probable_no_genuino"] },
+        "tipo_sospecha": {
+          "anyOf": [
+            { "type": "string", "enum": ["bot", "vendedora_contenido", "catfish", "agencia", "inactiva"] },
+            { "type": "null" }
+          ],
+          "description": "null salvo que veredicto != genuino"
+        },
+        "señales": { "type": "array", "items": { "type": "string" } },
+        "confianza": { "type": "number", "description": "0 a 1" }
+      },
+      "required": ["veredicto", "tipo_sospecha", "señales", "confianza"],
+      "additionalProperties": false
+    },
+    "eje_declarado": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "principal": { "$ref": "#/$defs/eje" },
+            "secundario": { "anyOf": [{ "$ref": "#/$defs/eje" }, { "type": "null" }] },
+            "confianza": { "type": "number" }
+          },
+          "required": ["principal", "secundario", "confianza"],
+          "additionalProperties": false
+        },
+        { "type": "null" }
+      ]
+    },
+    "nivel_curaduria": { "type": "string", "enum": ["producido", "intermedio", "casual"] },
+    "densidad_competitiva": {
+      "type": "object",
+      "properties": {
+        "nivel": { "type": "string", "enum": ["alta", "media", "baja"] },
+        "implicancia": { "type": "string" }
+      },
+      "required": ["nivel", "implicancia"],
+      "additionalProperties": false
+    },
+    "intencion_declarada": {
+      "anyOf": [{ "type": "string" }, { "type": "null" }],
+      "description": "SOLO literal del texto del perfil. null si no está escrito. NUNCA inferida de fotos."
+    },
+    "coherencia_texto_fotos": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "coincide": { "type": "boolean" },
+            "nota": { "type": "string" }
+          },
+          "required": ["coincide", "nota"],
+          "additionalProperties": false
+        },
+        { "type": "null" }
+      ]
+    },
+    "expectativa_de_plan": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "nivel": { "type": "string", "enum": ["bajo", "medio", "alto", "muy_alto"] },
+            "evidencia": { "type": "array", "items": { "type": "string" } },
+            "traduccion": { "type": "string", "description": "cruda, al bolsillo del usuario" },
+            "confianza": { "type": "number" }
+          },
+          "required": ["nivel", "evidencia", "traduccion", "confianza"],
+          "additionalProperties": false
+        },
+        { "type": "null" }
+      ]
+    },
+    "ganchos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tipo": { "type": "string", "enum": ["lugar", "estudio", "hobby", "referencia"] },
+          "dato": { "type": "string" },
+          "uso": {
+            "type": "string",
+            "description": "accionable. No puede revelar que estuvo estudiando el perfil con lupa."
+          }
+        },
+        "required": ["tipo", "dato", "uso"],
+        "additionalProperties": false
+      }
+    },
+    "registro_sugerido": {
+      "type": "object",
+      "properties": {
+        "tono": { "type": "string" },
+        "evitar": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["tono", "evitar"],
+      "additionalProperties": false
+    },
+    "openers": {
+      "type": "array",
+      "description": "De 1 a 4, listos para mandar.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tono": {
+            "type": "string",
+            "enum": ["contexto", "humor", "directo", "desafiante", "sexual_indirecto"]
+          },
+          "texto": { "type": "string" },
+          "licencia": {
+            "type": "string",
+            "description": "OBLIGATORIO: qué mostró ella que habilita este tono. Sin licencia citable, baja el tono."
+          },
+          "riesgo": { "type": "string", "enum": ["bajo", "medio", "alto"] },
+          "por_que_funciona": { "type": "string", "description": "el mecanismo, no el elogio" }
+        },
+        "required": ["tono", "texto", "licencia", "riesgo", "por_que_funciona"],
+        "additionalProperties": false
+      }
+    },
+    "disclaimer": { "type": "string" }
+  },
+  "required": [
+    "indice",
+    "selectividad",
+    "autenticidad",
+    "eje_declarado",
+    "nivel_curaduria",
+    "densidad_competitiva",
+    "intencion_declarada",
+    "coherencia_texto_fotos",
+    "expectativa_de_plan",
+    "ganchos",
+    "registro_sugerido",
+    "openers",
+    "disclaimer"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "eje": {
+      "type": "string",
+      "enum": ["estetica", "aventura", "intelecto", "status", "cuerpo", "calidez"]
+    },
+    "componente": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "bucket": {
+              "type": "string",
+              "enum": ["bajo", "medio_bajo", "medio", "alto", "muy_alto", "top"],
+              "description": "Elegí el bucket ANTES que el score. bajo=p0-20, medio_bajo=p20-40, medio=p40-60, alto=p60-80, muy_alto=p80-95, top=p95-100"
+            },
+            "score": {
+              "type": "integer",
+              "description": "Tiene que caer en el rango de su bucket: bajo 0-19, medio_bajo 20-39, medio 40-59, alto 60-79, muy_alto 80-94, top 95-100"
+            },
+            "evidencia": { "type": "array", "items": { "type": "string" } },
+            "ancla": {
+              "type": "object",
+              "description": "Obligatorio. Es el mecanismo que evita que todo termine en medio/alto.",
+              "properties": {
+                "un_bucket_arriba": { "type": "string" },
+                "un_bucket_abajo": { "type": "string" }
+              },
+              "required": ["un_bucket_arriba", "un_bucket_abajo"],
+              "additionalProperties": false
+            },
+            "confianza": { "type": "number", "description": "0 a 1" }
+          },
+          "required": ["bucket", "score", "evidencia", "ancla", "confianza"],
+          "additionalProperties": false
+        },
+        { "type": "null" }
+      ]
+    }
+  }
+}

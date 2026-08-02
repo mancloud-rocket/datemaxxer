@@ -71,25 +71,28 @@ F6 mida resultados reales se ajusta la función, no el prompt.
 - [x] Tests: 35 en `market.test.ts` (eran 17). Monotonía de las tres funciones, bordes de
       tier, y barrido de todas las combinaciones contra el contrato.
 
-### 1.2 Motor F5
+### 1.2 Motor F5 ✅ **HECHO (2-ago)**
 
-- [ ] `engines/profileread.ts`, cadena de dos pasos como F1: paso 1 lee las fotos una por
-      una, paso 2 sintetiza. La evidencia del paso 1 se mergea en código.
-- [ ] **Filtro `menor_aparente` ANTES de puntuar nada.** Es un paso propio, no un campo del
-      paso 2: si el modelo cree que puede ser menor, la ruta corta con 422 y
-      `AnalisisRechazado`, y **nunca** devuelve scores. Lo único de este producto que puede
-      terminar en un problema penal.
-- [ ] `prompts/profileread/system.md` + `schema.json`. Reusar la sección de calibración de
-      `prompts/audit/system.md` (bucket antes que número, ancla obligatoria, "la mitad del
-      pool está debajo de 60"). **No la copies con variaciones**: si las dos escalas se
-      desalinean, el gap deja de significar algo.
-- [ ] El motor pide componentes percibidos; `global`, `bucket_global` y `margen` los pone
-      `market.ts` con `sujeto: 'objetivo'` (pesos distintos, ya están).
-- [ ] `Opener.licencia` obligatoria: el motor tiene que citar qué del perfil habilita ese
-      tono. Sin licencia visible, baja el tono solo. Test de que un opener sin licencia no
-      pasa el contrato.
-- [ ] Test: los campos de inferencia prohibida (orientación, salud, disponibilidad como
-      estado) hacen fallar el parse. Ya hay uno en contratos; falta el del motor.
+- [x] `engines/profileread.ts`, cadena de **tres** pasos: triage, lectura por foto,
+      síntesis. Terminó siendo tres y no dos por el filtro de rechazo.
+- [x] **Filtro `menor_aparente` como PASO 0 propio, antes de puntuar nada.** Si viviera
+      adentro de la síntesis, el modelo estaría puntuando atractivo en la misma pasada en
+      que decide si corresponde puntuarlo. Hay un test que verifica que ante un rechazo el
+      motor **no hace ninguna llamada más** y que la respuesta no contiene ningún score.
+- [x] `prompts/profileread/system.md` + los tres schemas JSON.
+- [x] **La calibración se extrajo a `prompts/shared/calibracion-indice.md`** y se inyecta en
+      F1 y F5. No se copió: hay un test en cada motor que verifica que el texto compartido
+      esté completo dentro del prompt que se manda. El error de desalineación pasa de
+      improbable a imposible.
+- [x] El motor aporta componentes percibidos; `global`, `bucket_global` y `margen` los pone
+      `market.ts` con `sujeto: 'objetivo'`. Test del cálculo exacto.
+- [x] `Opener.licencia` obligatoria, con test de que un opener sin licencia no pasa.
+- [x] `calcularInversion` (no estaba en la lista y el prompt lo daba por hecho): la
+      autenticidad manda sobre todo lo demás. Un perfil de bucket top que es cuenta de
+      venta de contenido da `no_vale`, y hay un test para eso.
+- [x] Si no se pudo evaluar ni un componente, rechaza por `imagen_ilegible` en vez de
+      entregar un informe con huecos.
+- [x] 19 tests del motor + 6 de `calcularInversion`.
 
 ### 1.3 Persistencia y rutas
 
