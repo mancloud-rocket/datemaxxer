@@ -23,6 +23,8 @@ const EnvSchema = z
     // Una auditoría "analizando" más vieja que esto quedó huérfana de un reinicio
     // (deploy o el sleep del plan free de Render): se cosecha como error.
     AUDIT_STALE_AFTER_MS: z.coerce.number().int().positive().default(900_000),
+    // Reporte de errores. Sin DSN no reporta nada y no rompe nada.
+    SENTRY_DSN: z.string().optional(),
     // Origins permitidos para la web app, separados por coma
     CORS_ORIGINS: z.string().optional(),
     // Facturación con Paddle (Merchant of Record). Sin el secreto, el webhook

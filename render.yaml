@@ -77,7 +77,13 @@ services:
         sync: false
       - key: ANTHROPIC_API_KEY
         sync: false
+      # OBLIGATORIA en produccion. Sin esto la API cae a la lista de dominios
+      # propios y lo loguea como error: no abre a todo el mundo, pero hay que
+      # setearla igual.
       - key: CORS_ORIGINS
+        sync: false
+      # Tracking de errores. Sin DSN no reporta y no rompe nada.
+      - key: SENTRY_DSN
         sync: false
       # Facturación con Paddle. Sin el secreto, el webhook responde 503 en vez de
       # aceptar eventos sin verificar la firma.

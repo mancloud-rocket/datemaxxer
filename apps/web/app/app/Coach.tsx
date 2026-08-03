@@ -20,6 +20,7 @@ import {
   type MensajeCoach,
 } from '../../lib/api';
 import { getAccessToken } from '../../lib/supabase';
+import { evento } from '../../lib/analitica';
 
 /** Arranques sugeridos, para que la pantalla vacía no sea un cursor mudo. */
 const ARRANQUES = [
@@ -129,6 +130,7 @@ export function Coach() {
             created_at: new Date().toISOString(),
           },
         ]);
+        evento('coach_usado');
         setRestantes((r) => (r === null ? null : Math.max(0, r - 1)));
       } catch (err) {
         if (err instanceof ApiError && err.code === 'coach_quota') {

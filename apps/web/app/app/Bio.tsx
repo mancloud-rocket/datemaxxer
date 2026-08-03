@@ -13,6 +13,7 @@ import { useCallback, useState } from 'react';
 import type { BioResult } from '@percentil/contracts';
 import { ApiError, escribirBio } from '../../lib/api';
 import { getAccessToken } from '../../lib/supabase';
+import { evento } from '../../lib/analitica';
 
 const INTENCIONES = [
   { v: 'relacion' as const, label: 'Algo serio' },
@@ -51,14 +52,15 @@ export function Bio() {
       return;
     }
     try {
-      setResultado(
-        await escribirBio(token, {
-          intencion,
-          plataforma: plataforma as 'tinder',
-          datos: limpios,
-          ...(bioActual.trim() !== '' ? { bio_actual: bioActual.trim() } : {}),
-        }),
-      );
+      const salida = await escribirBio(token, {
+        intencion,
+        plataforma: plataforma as 'tinder',
+        datos: limpios,
+        ...(bioActual.trim() !== '' ? { bio_actual: bioActual.trim() } : {}),
+      });
+      // Después de la llamada: si falla, no cuenta como bio generada.
+      evento('bio_generada', { intencion, plataforma });
+      setResultado(salida);
     } catch (err) {
       if (err instanceof ApiError && err.code === 'plan_requerido') setSinPlan(true);
       else setError(err instanceof ApiError ? err.message : 'No pudimos escribirla.');

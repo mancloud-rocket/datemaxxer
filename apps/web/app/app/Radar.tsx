@@ -16,6 +16,7 @@ import type { AnalisisRechazado, RadarRead } from '@percentil/contracts';
 import { ApiError, dispararRadar } from '../../lib/api';
 import { prepararFoto } from '../../lib/imagen';
 import { getAccessToken } from '../../lib/supabase';
+import { evento } from '../../lib/analitica';
 
 type Estado =
   | { t: 'listo' }
@@ -61,9 +62,11 @@ export function Radar() {
       const form = new FormData();
       for (const f of archivos) form.append('photos', await prepararFoto(f), f.name);
       const salida = await dispararRadar(token, form);
+      if (salida.ok) evento('radar_usado', { veredicto: salida.datos.veredicto });
       setEstado(salida.ok ? { t: 'resultado', radar: salida.datos } : { t: 'rechazado', rechazo: salida.rechazo });
     } catch (err) {
       if (err instanceof ApiError && err.code === 'limit_reached') {
+        evento('limite_alcanzado', { funcion: 'radar' });
         setEstado({ t: 'limite' });
         return;
       }

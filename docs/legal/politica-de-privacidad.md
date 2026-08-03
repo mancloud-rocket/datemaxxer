@@ -1,121 +1,140 @@
 # Política de Privacidad de Datemaxxer
 
-> **BORRADOR - no publicar sin revisión de un abogado.** Escrito por FRONT
-> (2026-07-19) a partir de lo que el producto realmente hace hoy, como primer
-> insumo. Los puntos marcados `[PENDIENTE: ...]` necesitan una decisión de
-> Fernando o una confirmación legal antes de que esto sea publicable. Ver
-> también `terminos-de-servicio.md` (documento hermano) y `docs/percentil-spec.md`
-> §13 para el estado general de salida a producción.
+> **BORRADOR - no publicar sin revisión de un abogado.**
+>
+> Reescrito el 2-ago-2026 sobre lo que el producto hace HOY, que es bastante más
+> que cuando FRONT escribió el borrador anterior (19-jul): ahora hay lectura de
+> perfiles de terceros, radar, comparador, auditoría de chats, coach, estudio de
+> fotos, tracking de errores y analítica.
+>
+> Lo marcado `[PENDIENTE]` necesita una decisión de Fernando o confirmación
+> legal. **Lo que hay que llevarle al abogado sí o sí está en la sección 4: el
+> tratamiento de datos de personas que no son usuarias y nunca dieron
+> consentimiento. Es el riesgo legal más grande del producto.**
 
 Última actualización: `[PENDIENTE: fecha de publicación real]`
 
-## 1. Quién es el responsable de tus datos
+---
 
-`[PENDIENTE: nombre de la persona o entidad responsable, domicilio legal,
-y - si corresponde en tu jurisdicción - identificador fiscal. Datemaxxer es
-hoy un proyecto personal de Fernando, no un producto de Rocketbot; hay que
-confirmar si opera a nombre de una persona física o si se constituye una
-entidad antes de lanzar]`
+## 1. Quién trata tus datos
 
-## 2. Qué datos recolectamos
+`[PENDIENTE - BLOQUEANTE: razón social o persona física responsable, domicilio y
+país. Hoy no hay empresa registrada. Una política de privacidad sin responsable
+identificado no se puede publicar.]`
 
-- **Fotos** que subís para el análisis (4 a 9 por auditoría).
-- **Texto de tu bio**, si la pegás.
-- **Correo electrónico**, para tu cuenta y el envío del código de acceso.
-- **Región** que elegís (rioplatense, chileno, mexicano, neutro) - se usa
-  para el registro de escritura del informe, no identifica tu ubicación real.
-- **Arquetipo objetivo**, si elegís uno, y **resultado de tu auditoría**
-  (score, arquetipo detectado, confianza, recomendaciones).
-- **Datos técnicos de la cuenta**: fecha de alta, si te autenticaste con
-  Google o con correo, y metadata operativa mínima para que el servicio
-  funcione (por ejemplo, cuándo se generó cada informe).
+Contacto: `[PENDIENTE: email de contacto para ejercer derechos]`
 
-No recolectamos analítica de comportamiento ni de terceros hoy
-(`[PENDIENTE: esto puede cambiar si se agrega analítica de producto - ver
-docs/percentil-spec.md §13 ítem 8 - actualizar esta sección cuando eso
-suceda, no antes]`).
+## 2. Qué datos nos das vos
 
-## 3. Con quién compartimos tus datos
+- **Cuenta:** tu email. Si entrás con Google, además tu nombre y foto de perfil.
+  La autenticación la maneja Supabase; no guardamos ni vemos tu contraseña.
+- **Tus fotos**, las que subís para medir tu perfil o para retocar.
+- **Tu bio actual y los datos personales** que escribís cuando pedís que te
+  escribamos una bio nueva.
+- **Región y nombre para mostrar**, si los configurás.
+- **Lo que le escribís al coach.**
 
-**Nunca vendemos tus datos.** Los compartimos únicamente con los proveedores
-que necesitamos para operar el servicio:
+## 3. Qué hacemos con eso
 
-- **Proveedor de inteligencia artificial** (`[PENDIENTE: nombrar
-  explícitamente: Anthropic]`): recibe tus fotos y tu bio para generar el
-  análisis. Es un proceso automático, no hay revisión humana de tu contenido
-  de nuestro lado salvo que nos escribas pidiendo soporte sobre tu caso.
-- **Proveedor de autenticación y base de datos** (Supabase): aloja tu cuenta,
-  tus fotos y el resultado de tu auditoría, con acceso restringido a tu
-  propio usuario.
-- **Proveedor de pagos** (`[PENDIENTE: nombrar cuando se elija - MercadoPago,
-  Stripe, etc. - ver docs/percentil-spec.md §13 ítem 1, hoy no existe
-  todavía]`), únicamente si comprás el Kit.
+- Tus fotos, tu bio y los textos de chat se mandan a **Anthropic (Claude)** para
+  analizarlos. Es el servicio que hace el análisis: sin eso no hay producto.
+- Tus fotos originales se guardan en **Supabase Storage** para que puedas ver tu
+  historial y comparar mediciones.
+- Las conversaciones con el coach se guardan para que la charla siga donde la
+  dejaste cuando volvés.
+- Las conversaciones que subís a la auditoría de chats se guardan (los mensajes
+  extraídos, no las capturas) porque el análisis de latencia solo tiene sentido
+  contra la historia.
 
-Cada uno de estos proveedores procesa tus datos bajo su propia política de
-privacidad y puede estar ubicado fuera de tu país (transferencia
-internacional de datos - por ejemplo, Anthropic y Supabase operan
-infraestructura en Estados Unidos). `[PENDIENTE: confirmar con un abogado si
-esto requiere una cláusula específica de transferencia internacional según
-la legislación aplicable a tus usuarios]`.
+`[PENDIENTE: confirmar la base legal. Para el usuario registrado que sube sus
+propias fotos, lo natural es "ejecución del contrato": pidió el servicio.
+Confirmar que alcanza bajo la Ley 18.331 de Uruguay, y en Argentina y Chile si
+se cobra ahí.]`
 
-## 4. Fotos donde aparecen otras personas
+## 4. Datos de OTRAS personas: el punto delicado
 
-Si subís una foto grupal, esa foto también contiene datos de otras personas.
-Sos responsable de tener su consentimiento antes de subirla. No usamos esas
-fotos para identificar ni analizar a las otras personas que aparecen: el
-análisis está dirigido a vos.
+El producto permite subir **capturas del perfil o del chat de otra persona**, que
+no es usuaria del servicio y nunca aceptó nada. Esto es lo más expuesto que tiene
+Datemaxxer y no hay que disimularlo.
 
-## 5. Lo que nunca inferimos
+Lo que el sistema hace hoy, por diseño y verificado en el código:
 
-Aunque el análisis lee estilo de vida y señales visibles en tus fotos, hay
-tres cosas que nunca generamos ni inferimos a partir de tu contenido: tu
-orientación sexual, tu disponibilidad para tener relaciones, y tu estado de
-salud. Esos campos no existen en el informe.
+- **Las capturas de perfiles ajenos NO se guardan.** Se procesan en memoria y se
+  descartan. Queda el análisis (texto y números), nunca las imágenes.
+- **El radar no guarda ni el análisis.** Solo queda que se usó, cuánto tardó, y
+  dos campos de calibración.
+- **El comparador tampoco guarda las fotos.**
+- De los chats se guardan los **mensajes extraídos**, no las capturas.
+- **Nunca se infiere** orientación sexual, salud ni disponibilidad sexual de
+  nadie. Son categorías especialmente protegidas y el sistema está construido
+  para que esos campos no puedan existir: el contrato de datos falla si el
+  modelo intenta devolverlos.
+- Si el sistema detecta que la persona de las capturas **podría ser menor de
+  edad**, corta antes de analizar, no genera ningún puntaje y no guarda nada.
 
-## 6. Cuánto tiempo guardamos tus datos
+`[PENDIENTE - PRIORIDAD MÁXIMA. Preguntas concretas para el abogado:]`
 
-`[PENDIENTE: definir política de retención real - opciones típicas: mientras
-la cuenta esté activa + N días tras la eliminación por si hay disputa de
-pago o requerimiento legal. Hoy no hay un job de borrado automatizado
-verificado en el código, confirmar con CORE antes de prometer un plazo
-específico]`
+1. `[¿Alcanza con no guardar las imágenes, o el tratamiento en sí (mandarlas a
+   Anthropic para analizarlas) ya requiere base legal propia respecto de esa
+   tercera persona?]`
+2. `[¿Hace falta que el usuario declare que tiene derecho a subir esas capturas,
+   y que esa declaración quede registrada?]`
+3. `[El análisis incluye una estimación de atractivo de una persona
+   identificable. ¿Eso cambia el encuadre, aunque la imagen no se guarde?]`
+4. `[¿Cómo se responde a una persona que pide acceso o borrado de "sus" datos si
+   nunca fue usuaria y no guardamos nada que la identifique?]`
+5. `[¿Conviene un canal público de contacto para terceros, aunque técnicamente
+   no haya nada que borrar?]`
+
+## 5. Con quién compartimos
+
+| Con quién | Qué recibe | Para qué |
+|---|---|---|
+| **Anthropic** (Claude) | fotos, bios, textos de chat | hacer el análisis |
+| **Supabase** | cuenta, tus fotos, análisis, conversaciones | base de datos y archivos |
+| **Render** | tráfico de la API | servidor |
+| **Vercel** | tráfico de la web | servidor |
+| **Resend** | tu email, solo si pedís un plan | avisarnos del pedido |
+| **Sentry** | errores técnicos | saber qué se rompe |
+| **PostHog** | eventos de uso, sin contenido | saber dónde se cae la gente |
+
+Sobre los dos últimos, que son los que más suelen filtrar de más: **no reciben
+fotos, ni textos de chats, ni bios, ni nada de lo que escribís.** Sentry recibe
+el error técnico con tu identificador interno, sin tu email ni tu nombre, y
+tiene desactivado el envío de cuerpos de request. PostHog recibe qué función
+usaste, no qué escribiste, y tiene desactivadas la captura automática y la
+grabación de sesión.
+
+`[PENDIENTE: ¿hace falta firmar acuerdos de tratamiento (DPA) con cada uno?]`
+
+`[PENDIENTE: todos procesan en Estados Unidos. Confirmar qué se necesita para la
+transferencia internacional desde Uruguay, y desde la UE si algún día hay
+usuarios europeos.]`
+
+## 6. Cuánto tiempo guardamos
+
+- **Tu cuenta y tus análisis:** mientras tengas cuenta.
+- **Capturas de perfiles ajenos:** no se guardan.
+
+`[PENDIENTE: definir un plazo concreto de retención. Hoy no hay borrado
+automático de nada, y "para siempre" no es una política defendible.]`
 
 ## 7. Tus derechos
 
-Podés pedirnos en cualquier momento:
-- **Ver** qué datos tenemos sobre vos.
-- **Corregir** datos incorrectos.
-- **Borrar** tu cuenta y todo tu contenido - fotos, bio, informes.
-- **Exportar** tu informe (recibís el resultado en el momento, no hace falta
-  pedirlo aparte).
+Podés pedir acceso, rectificación, borrado, portabilidad y oposición escribiendo
+a `[PENDIENTE: email]`.
 
-Para ejercer estos derechos, escribinos a `[PENDIENTE: correo de contacto
-real]`. `[PENDIENTE: si hay usuarios en la UE, esta sección necesita
-lenguaje específico de RGPD/GDPR - confirmar con abogado si aplica al
-mercado real del producto, hoy enfocado en LATAM]`.
+`[PENDIENTE - IMPORTANTE: hoy NO existe borrado de cuenta en la app; se decidió
+dejarlo para después. Antes de publicar esto hay que construirlo o comprometerse
+a un plazo de respuesta manual, porque prometer un derecho que no se puede
+ejercer es peor que no ofrecerlo.]`
 
-## 8. Seguridad
+## 8. Menores
 
-Tus fotos y tu informe están protegidos por reglas de acceso a nivel de base
-de datos: solo tu cuenta puede leer tu propio contenido (Row Level Security
-en Supabase). Las contraseñas no existen en este producto - te autenticás
-con Google o con un código de un solo uso por correo, así que no hay una
-contraseña que se pueda filtrar de nuestro lado.
+El servicio es solo para mayores de 18 años. No creamos cuentas a menores a
+sabiendas, y si el análisis detecta que la persona de una captura podría ser
+menor, corta sin generar resultado.
 
-`[PENDIENTE: agregar detalle de cifrado en tránsito/reposo una vez que CORE
-confirme la configuración exacta de Supabase Storage para las fotos]`
+## 9. Cambios
 
-## 9. Menores de edad
-
-Datemaxxer es para mayores de 18 años. No recolectamos a sabiendas datos de
-menores. Si detectamos una cuenta de un menor, la cerramos y borramos sus
-datos.
-
-## 10. Cambios a esta política
-
-Si cambiamos esta política de forma significativa, te avisamos por correo o
-dentro del producto antes de que entre en vigencia.
-
-## 11. Contacto
-
-`[PENDIENTE: correo de contacto real]`
+`[PENDIENTE: cómo se avisan los cambios y desde cuándo rigen.]`

@@ -28,6 +28,7 @@ import {
 } from '../../lib/api';
 import { prepararFoto } from '../../lib/imagen';
 import { getAccessToken } from '../../lib/supabase';
+import { evento } from '../../lib/analitica';
 
 const VEREDICTOS: Record<string, { label: string; clase: string }> = {
   invertir_mas: { label: 'Invertí más', clase: 'v-ok' },
@@ -195,6 +196,7 @@ function Detalle(props: { c: ConversacionDetalle; onVolver: () => void; onRecarg
       for (const f of archivos) form.append('capturas', await prepararFoto(f), f.name);
       if (pegado.trim() !== '') form.append('pegado', pegado.trim());
       await analizarTurno(token, c.id, form);
+      evento('chat_analizado');
       setArchivos([]);
       setPegado('');
       props.onRecargar();

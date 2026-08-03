@@ -17,6 +17,7 @@
 
 import { useEffect, useState } from 'react';
 import { getSupabase, displayUser, type DisplayUser } from '../../lib/supabase';
+import { evento, identificar, olvidar } from '../../lib/analitica';
 import { Login } from './Login';
 import { Sidebar } from './Sidebar';
 import './app.css';
@@ -46,9 +47,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     if (qa && !devSidebar) return;
     const supabase = getSupabase();
     void supabase.auth.getSession().then(({ data }) => {
+      if (data.session) identificar(data.session.user.id);
       setEstado(data.session ? { tipo: 'sesion', user: displayUser(data.session.user) } : { tipo: 'anonimo' });
     });
-    const { data } = supabase.auth.onAuthStateChange((_evento, session) => {
+    const { data } = supabase.auth.onAuthStateChange((tipo, session) => {
+      // Solo el id: alcanza para seguir el funnel de una persona sin exportar
+      // su identidad a un servicio de terceros.
+      if (session) identificar(session.user.id);
+      else olvidar(); // al cerrar sesión, para no mezclar dos usuarios en el mismo dispositivo
+      if (tipo === 'SIGNED_IN') evento('registro_completado');
       setEstado(session ? { tipo: 'sesion', user: displayUser(session.user) } : { tipo: 'anonimo' });
     });
     return () => data.subscription.unsubscribe();

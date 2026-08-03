@@ -14,6 +14,7 @@ import { GLIFOS } from '../../lib/glifos';
 import { ApiError, pedirPlan } from '../../lib/api';
 import { getAccessToken } from '../../lib/supabase';
 import { gsap, mk, setDraw } from '../../lib/motion';
+import { evento } from '../../lib/analitica';
 
 const NOMBRES: Record<string, string> = {
   viajero: 'Viajero',
@@ -75,6 +76,7 @@ export function Informe(props: {
     }
     try {
       await pedirPlan(token, 'kit');
+      evento('kit_pedido');
       setPedido('listo');
     } catch (err) {
       setErrorPedido(err instanceof ApiError ? err.message : 'No pudimos registrar tu pedido.');

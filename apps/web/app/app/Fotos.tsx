@@ -16,6 +16,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Arquetipo } from '@percentil/contracts';
 import { ApiError, retocarFoto, type FotoRetocada } from '../../lib/api';
 import { getAccessToken } from '../../lib/supabase';
+import { evento } from '../../lib/analitica';
 
 const ARQUETIPOS: Array<{ v: Arquetipo | ''; label: string }> = [
   { v: '', label: 'sin color' },
@@ -92,6 +93,7 @@ export function Fotos() {
       const salida = await retocarFoto(token, form);
       if (ultimaUrl.current) URL.revokeObjectURL(ultimaUrl.current);
       ultimaUrl.current = salida.url;
+      evento('foto_retocada', { operaciones: salida.aplicadas.length });
       setResultado(salida);
     } catch (err) {
       if (err instanceof ApiError && err.code === 'plan_requerido') setSinPlan(true);

@@ -18,6 +18,7 @@ import type { AnalisisRechazado, CompareResult } from '@percentil/contracts';
 import { ApiError, compararPerfiles } from '../../lib/api';
 import { prepararFoto } from '../../lib/imagen';
 import { getAccessToken } from '../../lib/supabase';
+import { evento } from '../../lib/analitica';
 
 type Estado =
   | { t: 'subir' }
@@ -78,6 +79,7 @@ export function Comparador() {
       form.append('usuario', await prepararFoto(mia), mia.name);
       form.append('objetivo', await prepararFoto(suya), suya.name);
       const salida = await compararPerfiles(token, form);
+      if (salida.ok) evento('comparacion_hecha', { delta: salida.datos.gap.delta });
       setEstado(salida.ok ? { t: 'resultado', r: salida.datos } : { t: 'rechazado', rechazo: salida.rechazo });
     } catch (err) {
       if (err instanceof ApiError && err.code === 'limit_reached') {
@@ -236,6 +238,7 @@ function Compartir(props: { delta: number; cerrables: number }) {
   const [copiado, setCopiado] = useState(false);
 
   async function compartir() {
+    evento('card_compartida', { delta: props.delta });
     const url = `${window.location.origin}/gap?d=${props.delta}&c=${props.cerrables}`;
     const texto = `${props.cerrables} de esos ${props.delta} puntos los recupero yo.`;
     if (navigator.share) {

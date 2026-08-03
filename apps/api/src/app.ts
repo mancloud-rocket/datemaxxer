@@ -15,6 +15,8 @@ import { SupabaseAuditStore } from './audit/supabase-store.js';
 import { makeRequireAdmin, parsearAdmins } from './admin/guard.js';
 import { InMemoryAdminStore, SupabaseAdminStore, type AdminStore } from './admin/store.js';
 import { makeAuthenticate } from './auth.js';
+import { construirCors } from './cors.js';
+import { construirReporter, type Reporter } from './observabilidad.js';
 import { registerCoachRoutes } from './coach/routes.js';
 import { InMemoryCoachStore, SupabaseCoachStore, type CoachStore } from './coach/store.js';
 import {
@@ -75,6 +77,7 @@ export interface AppDeps {
   radarEngine?: RadarEngine;
   compareEngine?: CompareEngine;
   bioEngine?: BioEngine;
+  reporter?: Reporter;
   chatStore?: ChatStore;
   chatEngine?: ChatEngine;
 }
@@ -203,9 +206,20 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
     limits: { fileSize: 8 * 1024 * 1024, files: 9, fields: 10 },
   });
 
-  await app.register(cors, {
-    origin: env.CORS_ORIGINS !== undefined ? env.CORS_ORIGINS.split(',') : true,
+  const politicaCors = construirCors({
+    corsOrigins: env.CORS_ORIGINS,
+    produccion: env.NODE_ENV === 'production',
   });
+  await app.register(cors, { origin: politicaCors.origin });
+  if (politicaCors.usandoFallback) {
+    app.log.error(
+      'FALTA CORS_ORIGINS en producción: se está usando la lista de dominios propios por defecto. Seteala.',
+    );
+  }
+
+  const reporter =
+    deps.reporter ??
+    construirReporter({ dsn: env.SENTRY_DSN, entorno: env.NODE_ENV });
 
   app.setErrorHandler((err, request, reply) => {
     if (err instanceof AppError) {
@@ -219,6 +233,12 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
       typeof e.statusCode === 'number' && e.statusCode >= 400 ? e.statusCode : 500;
     if (statusCode >= 500) {
       request.log.error({ err }, 'error no manejado');
+      // Solo 5xx: un 400 por un formato de foto equivocado es el sistema
+      // funcionando, y reportarlo ahoga el canal con ruido.
+      reporter.capturar(err, {
+        ruta: request.routeOptions?.url ?? request.url,
+        ...(request.userId ? { userId: request.userId } : {}),
+      });
       return reply.status(500).send({ error: 'internal', message: 'Error interno' });
     }
     return reply.status(statusCode).send({

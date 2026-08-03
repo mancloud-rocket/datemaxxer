@@ -16,6 +16,7 @@ import { ApiError, leerPerfil, obtenerLectura } from '../../lib/api';
 import { prepararFoto } from '../../lib/imagen';
 import { getAccessToken } from '../../lib/supabase';
 import { InformePerfil } from './InformePerfil';
+import { evento } from '../../lib/analitica';
 
 type Estado =
   | { t: 'subir'; error: string | null; enviando: boolean }
@@ -105,7 +106,10 @@ export function LeerPerfil() {
               return;
             }
             window.clearInterval(polling.current);
-            if (vista.status === 'done' && vista.result) setEstado({ t: 'informe', lectura: vista.result });
+            if (vista.status === 'done' && vista.result) {
+              evento('perfil_leido');
+              setEstado({ t: 'informe', lectura: vista.result });
+            }
             else if (vista.status === 'rechazado' && vista.rechazo) setEstado({ t: 'rechazado', rechazo: vista.rechazo });
             else setEstado({ t: 'subir', error: vista.error ?? 'No pudimos leer este perfil.', enviando: false });
           } catch {
@@ -115,6 +119,7 @@ export function LeerPerfil() {
       }, 2000);
     } catch (err) {
       if (err instanceof ApiError && err.code === 'limit_reached') {
+        evento('limite_alcanzado', { funcion: 'perfil' });
         setEstado({ t: 'limite' });
         return;
       }

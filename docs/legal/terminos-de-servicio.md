@@ -1,134 +1,134 @@
 # Términos de Servicio de Datemaxxer
 
-> **BORRADOR - no publicar sin revisión de un abogado.** Escrito por FRONT
-> (2026-07-19) a partir de lo que el producto realmente hace hoy, como primer
-> insumo. Los puntos marcados `[PENDIENTE: ...]` necesitan una decisión de
-> Fernando o una confirmación legal antes de que esto sea publicable. Ver
-> también `politica-de-privacidad.md` (documento hermano) y `docs/percentil-spec.md`
-> §13 para el estado general de salida a producción.
+> **BORRADOR - no publicar sin revisión de un abogado.**
+>
+> Reescrito el 2-ago-2026 sobre lo que el producto hace HOY. El borrador
+> anterior (FRONT, 19-jul) describía solo la auditoría de fotos; desde entonces
+> se sumaron lectura de perfiles ajenos, radar, comparador, auditoría de chats,
+> coach, bio y estudio de fotos, y varios de esos cambian el encuadre legal.
+>
+> Lo marcado `[PENDIENTE]` necesita decisión de Fernando o confirmación legal.
+> **Las secciones 4 y 5 son las que hay que revisar con más cuidado.**
 
 Última actualización: `[PENDIENTE: fecha de publicación real]`
 
+---
+
 ## 1. Qué es Datemaxxer
 
-Datemaxxer es un servicio que analiza tus fotos y tu biografía de perfiles de
-citas y te devuelve un informe: qué arquetipo transmitís hoy, qué tan
-coherente es tu perfil, y qué cambiar para mejorarlo. El análisis lo hace un
-modelo de inteligencia artificial de terceros (ver sección 6). El informe es
-orientativo. No es asesoramiento profesional de ningún tipo, no garantiza
-resultados en ninguna app de citas, y las opiniones que contiene son
-generadas automáticamente a partir de tus fotos y tu texto.
+Datemaxxer analiza tu perfil de apps de citas y te dice en qué escalón del
+mercado estás parado y qué podés cambiar. También te deja leer el perfil de otra
+persona, comparar tu foto con la suya, analizar una conversación y hablar con un
+coach.
 
-Datemaxxer no es una app de citas. No conectás con otras personas acá. No
-accedemos a tus cuentas en otras apps ni usamos APIs no oficiales de ellas:
-subís vos mismo tus fotos y tu bio.
+El análisis lo hace un modelo de inteligencia artificial de terceros. **Todo lo
+que devuelve es una estimación orientativa**, no un dato objetivo ni una verdad
+sobre nadie. No es asesoramiento profesional de ningún tipo y no garantiza
+resultados en ninguna app de citas.
 
-## 2. Quién puede usar Datemaxxer
+Datemaxxer no es una app de citas: no conectás con nadie acá. No accedemos a tus
+cuentas en otras apps ni usamos sus APIs. Todo entra porque vos lo subís.
 
-Tenés que tener 18 años o más para crear una cuenta. Si sabemos que un
-usuario es menor de edad, cerramos la cuenta y borramos sus datos.
+## 2. Quién puede usarlo
 
-`[PENDIENTE: confirmar si el servicio se ofrece solo en algunos países o sin
-restricción geográfica; hoy el producto tiene registros regionales
-rioplatense/chileno/mexicano/neutro pero eso es de tono de escritura, no una
-restricción de acceso]`
+Tenés que tener **18 años o más**. Si sabemos que un usuario es menor, cerramos
+la cuenta.
+
+`[PENDIENTE: ¿se ofrece solo en algunos países? Hoy se piensa cobrar en Uruguay,
+Argentina y Chile. Definir si eso limita dónde se ofrece el servicio.]`
 
 ## 3. Tu cuenta
 
-Te registrás con tu cuenta de Google o con tu correo electrónico (código de
-un solo uso, sin contraseña). Sos responsable de mantener el acceso a esa
-cuenta o correo bajo tu control. Si detectás uso no autorizado de tu cuenta,
-avisanos a `[PENDIENTE: correo de contacto/soporte]`.
+Sos responsable de lo que pase en tu cuenta. Entrás con Google o con un código
+por email; no manejamos contraseñas.
 
-## 4. Lo que subís
+`[PENDIENTE: hoy NO existe borrado de cuenta en la app. Definir el compromiso:
+construirlo antes de publicar, o comprometerse por escrito a un plazo de
+respuesta manual.]`
 
-Subís entre 4 y 9 fotos tuyas y, si querés, tu biografía actual y un
-arquetipo al que te gustaría apuntar. Al subir una foto o un texto, nos dás
-permiso para procesarlo con el único fin de generar tu informe y (si lo
-comprás) el Kit de mejora. No usamos tu contenido para entrenar modelos de
-terceros, no lo vendemos, y no lo mostramos a otros usuarios: es privado a tu
-cuenta.
+## 4. Contenido de terceros: lo que vos garantizás
 
-**Sos responsable de lo que subís.** No subas:
-- Fotos que no sean tuyas o de personas que no dieron su consentimiento para
-  aparecer (fotos grupales: revisá que quien está con vos no tenga problema
-  con que esa imagen se procese).
-- Contenido sexual explícito, de menores, o ilegal en tu jurisdicción.
-- Contenido que suplante la identidad de otra persona.
+Esta es la sección más importante y la que más te protege a vos y a nosotros.
 
-Si subís algo que viola esto, podemos suspender tu cuenta y borrar el
-contenido, sin previo aviso.
+Cuando subís capturas del perfil o del chat de otra persona:
 
-## 5. Cómo leemos tu perfil
+- **Declarás que accediste a ese contenido de forma legítima**, dentro de una
+  app de citas donde esa persona lo publicó, o en una conversación de la que
+  formás parte.
+- **Te comprometés a no usar lo que te devolvemos para acosar, hostigar,
+  extorsionar, exponer públicamente ni contactar por fuera** a esa persona.
+- **No podés publicar los análisis de una persona identificable.** La función de
+  compartir existe solo para números sin identidad (la distancia y cuánto es
+  recuperable), y así está construida: la card no lleva fotos ni nombres.
 
-El análisis lee estilo de vida, nivel socioeconómico aparente y señales de
-lo que mostrás en tus fotos y tu bio - con evidencia concreta y visible en lo
-que subiste. **Nunca inferimos** tu orientación sexual, tu disponibilidad
-para tener relaciones, ni tu estado de salud a partir de tus fotos: esos
-campos directamente no se generan.
+Lo que hacemos de nuestro lado:
 
-## 6. Uso de inteligencia artificial de terceros
+- No guardamos las capturas de perfiles ajenos.
+- No inferimos orientación sexual, salud ni disponibilidad sexual de nadie.
+- Si detectamos que la persona podría ser menor de edad, cortamos sin analizar.
+- El coach y el copiloto de chat **no sugieren insistir después de un no**, ni
+  buscar a alguien fuera de la app, ni contactar por otras redes.
 
-Para generar tu informe, tus fotos y tu texto se envían a un proveedor de
-inteligencia artificial (`[PENDIENTE: confirmar y nombrar explícitamente:
-Anthropic/Claude]`) que los procesa según sus propios términos y política de
-privacidad. Ese proveedor no usa tu contenido para entrenar sus modelos por
-default en el nivel de servicio que usamos (`[PENDIENTE: confirmar
-contractualmente con el proveedor, no asumir]`). No compartimos tu contenido
-con ningún otro tercero salvo lo necesario para operar el servicio (ver
-`politica-de-privacidad.md` sección 3).
+`[PENDIENTE - revisar con abogado: ¿alcanza con que el usuario lo declare al
+aceptar estos términos, o conviene una confirmación explícita en la pantalla
+donde sube capturas de terceros? Lo segundo es más fuerte legalmente y cuesta
+una casilla de verificación.]`
+
+## 5. Qué NO hacemos con tus fotos
+
+El estudio de fotos hace **corrección técnica y de color**: exposición, balance
+de blancos, contraste, ruido, nitidez, encuadre y color según tu arquetipo.
+
+**No modificamos tu cara ni tu cuerpo.** No hay deformación facial ni corporal,
+no adelgazamos, no alargamos, no suavizamos la piel más allá de la reducción de
+ruido, y no cambiamos proporciones. Esas operaciones no están desactivadas: no
+existen en el sistema, y la aplicación te muestra en cada resultado qué se
+aplicó y qué nunca se aplica.
+
+## 6. Terceros que intervienen
+
+El análisis lo procesa **Anthropic (Claude)**. El almacenamiento y la
+autenticación, **Supabase**. Los servidores, **Render** y **Vercel**. Detalle
+completo en la Política de Privacidad.
 
 ## 7. Planes y pagos
 
-- **Auditoría gratuita:** un informe gratis por cuenta.
-- **Kit de Perfil (US$ `[PENDIENTE: confirmar precio final, hoy US$19 en el
-  diseño del producto]`):** `[PENDIENTE: describir exactamente qué incluye el
-  Kit una vez que el checkout esté implementado - hoy es un botón sin cobro
-  real, ver docs/percentil-spec.md §13 ítem 1]`.
+- Hay una medición gratuita por cuenta.
+- El **Kit** es un pago único e incluye el análisis completo, el estudio de
+  fotos y la bio.
+- El **Copiloto** es una suscripción mensual e incluye lectura de perfiles,
+  radar, comparador, auditoría de chats y coach sin tope.
 
-**Reembolsos:** `[PENDIENTE: definir política de reembolso antes de activar
-cobros - por tratarse de un producto digital entregado inmediatamente, suele
-excluirse el derecho de arrepentimiento salvo falla del servicio, pero esto
-depende de la legislación de defensa del consumidor de cada país y necesita
-confirmación de un abogado, no una decisión de producto]`.
+`[PENDIENTE: precios finales por país y moneda.]`
 
-## 8. Lo que no podés hacer
+`[PENDIENTE - IMPORTANTE: hoy el cobro es manual (link de pago y activación a
+mano), no hay checkout automático ni renovación automática. Los términos tienen
+que describir el mecanismo REAL, incluida la baja: cómo se cancela y qué pasa con
+lo que queda del mes pago.]`
 
-No podés usar Datemaxxer para acosar, evaluar o generar contenido sobre
-otra persona sin su consentimiento (el servicio es para tu propio perfil).
-No podés intentar acceder a cuentas ajenas, hacer ingeniería inversa del
-servicio, ni usarlo de forma automatizada/masiva sin autorización nuestra.
+`[PENDIENTE: la garantía de devolución a 30 días que aparece en la aplicación
+necesita condiciones escritas: qué cubre, qué no, y cómo se pide.]`
 
-## 9. Cancelación
+## 8. Uso aceptable
 
-Podés borrar tu cuenta y todos tus datos cuando quieras, desde `[PENDIENTE:
-confirmar dónde vive esa opción en la app - hoy el copy de ingreso promete
-"podés borrar el expediente cuando quieras" pero no vimos el flujo
-implementado; si no existe todavía, hay que construirlo antes de publicar
-este párrafo o hay que ajustar la promesa]`. Podemos suspender o cerrar tu
-cuenta si violás estos términos.
+No podés usar Datemaxxer para acosar, extorsionar o exponer a nadie; para
+analizar a menores de edad; para revender el servicio; ni para automatizar el
+acceso sin permiso.
 
-## 10. Limitación de responsabilidad
+Podemos suspender cuentas que hagan cualquiera de esas cosas.
 
-El informe es una lectura automática, no una verdad objetiva sobre vos ni
-una garantía de resultados. No nos hacemos responsables por decisiones que
-tomes a partir del informe, ni por el contenido de terceros (otras apps de
-citas) fuera de nuestro control.
+## 9. Límite de responsabilidad
 
-`[PENDIENTE: esta sección típicamente necesita lenguaje legal específico de
-limitación de responsabilidad según jurisdicción - completar con abogado]`
+El servicio se ofrece **como está**. Las estimaciones pueden equivocarse: son
+juicios automáticos sobre fotos, no mediciones. No respondemos por decisiones que
+tomes a partir de un análisis, ni por lo que pase en tus conversaciones o citas.
 
-## 11. Cambios a estos términos
+`[PENDIENTE: redacción del límite de responsabilidad y del monto tope. Necesita
+abogado sí o sí.]`
 
-Podemos actualizar estos términos. Si el cambio es significativo, te
-avisamos por correo o dentro del producto antes de que entre en vigencia.
+## 10. Cambios y ley aplicable
 
-## 12. Ley aplicable
+`[PENDIENTE: cómo se avisan los cambios.]`
 
-`[PENDIENTE: definir jurisdicción y ley aplicable - depende de dónde se
-constituya la entidad responsable del servicio, si existe una, o del
-domicilio de Fernando como responsable individual]`
-
-## 13. Contacto
-
-`[PENDIENTE: correo de contacto real]`
+`[PENDIENTE: ley aplicable y jurisdicción. Depende de dónde se constituya la
+entidad de la sección 1 de la Política de Privacidad.]`
