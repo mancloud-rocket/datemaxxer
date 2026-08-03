@@ -220,8 +220,40 @@ function Resultado(props: { r: CompareResult; onOtra: () => void }) {
       </section>
 
       <div className="accion">
+        {delta > 0 && <Compartir delta={delta} cerrables={r.descomposicion.cerrables} />}
         <button className="btn btn-ghost" onClick={props.onOtra}>Comparar otra</button>
       </div>
     </div>
+  );
+}
+
+/**
+ * La card se comparte por URL con los números adentro: no se guarda nada y no
+ * lleva ninguna referencia a la otra persona, solo la distancia y cuánto es
+ * recuperable.
+ */
+function Compartir(props: { delta: number; cerrables: number }) {
+  const [copiado, setCopiado] = useState(false);
+
+  async function compartir() {
+    const url = `${window.location.origin}/gap?d=${props.delta}&c=${props.cerrables}`;
+    const texto = `${props.cerrables} de esos ${props.delta} puntos los recupero yo.`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: 'Datemaxxer', text: texto, url });
+        return;
+      } catch {
+        /* si cancela el diálogo nativo, cae al copiado */
+      }
+    }
+    await navigator.clipboard?.writeText(url);
+    setCopiado(true);
+    setTimeout(() => setCopiado(false), 2200);
+  }
+
+  return (
+    <button className="btn" onClick={() => void compartir()}>
+      {copiado ? 'Link copiado' : 'Compartir'}
+    </button>
   );
 }

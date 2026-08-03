@@ -57,5 +57,13 @@ export {
   VeredictoInversion,
   VolumenMatches,
 } from './market.js';
+export {
+  BioResult,
+  Intencion,
+  NuevaBio,
+  Plataforma,
+  RespuestaPrompt,
+  VarianteBio,
+} from './bio.js';
 export { IndiceRapido, RadarRead } from './radar.js';
 export { CompareResult, LadoComparador, PuntosCerrables } from './compare.js';

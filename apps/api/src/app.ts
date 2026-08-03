@@ -41,6 +41,8 @@ import {
   SupabaseProfileReadStore,
   type ProfileReadStore,
 } from './profile-read/store.js';
+import { buildBioEngine, type BioEngine } from './engines/bio.js';
+import { registerBioRoutes } from './bio/routes.js';
 import { buildCompareEngine, type CompareEngine } from './engines/compare.js';
 import { registerCompareRoutes } from './compare/routes.js';
 import { buildRadarEngine, type RadarEngine } from './engines/radar.js';
@@ -68,6 +70,7 @@ export interface AppDeps {
   radarStore?: RadarStore;
   radarEngine?: RadarEngine;
   compareEngine?: CompareEngine;
+  bioEngine?: BioEngine;
 }
 
 function resolveNotificador(env: Env, deps: AppDeps): Notificador {
@@ -127,6 +130,15 @@ function resolveRadarEngine(env: Env, deps: AppDeps): RadarEngine | undefined {
   return buildRadarEngine({
     client: claudeClientFromSdk(sdkAnthropic(env.ANTHROPIC_API_KEY)),
     model: env.RADAR_MODEL,
+  });
+}
+
+function resolveBioEngine(env: Env, deps: AppDeps): BioEngine | undefined {
+  if (deps.bioEngine) return deps.bioEngine;
+  if (env.ANTHROPIC_API_KEY === undefined) return undefined;
+  return buildBioEngine({
+    client: claudeClientFromSdk(sdkAnthropic(env.ANTHROPIC_API_KEY)),
+    ...(env.AUDIT_MODEL !== undefined ? { model: env.AUDIT_MODEL } : {}),
   });
 }
 
@@ -274,6 +286,14 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
     (hasSupabase
       ? new SupabaseRadarStore(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
       : new InMemoryRadarStore());
+
+  registerBioRoutes(app, {
+    profileStore,
+    auditStore,
+    engine: resolveBioEngine(env, deps),
+    authenticate,
+    rateLimitMax: env.AUDIT_RATE_LIMIT_MAX,
+  });
 
   registerCompareRoutes(app, {
     store: radarStore,

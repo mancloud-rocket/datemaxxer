@@ -1,0 +1,41 @@
+{
+  "type": "object",
+  "properties": {
+    "version": { "type": "string", "const": "1.0" },
+    "variantes": {
+      "type": "array",
+      "description": "Exactamente 3, con ángulos distintos: concreta, con filo, directa.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "angulo": { "type": "string", "description": "una frase con la estrategia de esta variante" },
+          "texto": { "type": "string" },
+          "por_que": { "type": "string", "description": "para que aprenda el patrón, no que copie a ciegas" },
+          "largo": { "type": "integer", "description": "caracteres del texto" }
+        },
+        "required": ["angulo", "texto", "por_que", "largo"],
+        "additionalProperties": false
+      }
+    },
+    "prompts": {
+      "type": "array",
+      "description": "Respuestas a prompts tipo Hinge. Vacío si la plataforma no los usa.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "prompt": { "type": "string" },
+          "respuesta": { "type": "string" },
+          "por_que": { "type": "string" }
+        },
+        "required": ["prompt", "respuesta", "por_que"],
+        "additionalProperties": false
+      }
+    },
+    "diagnostico_anterior": {
+      "anyOf": [{ "type": "string" }, { "type": "null" }],
+      "description": "Qué le estaba costando a la bio vieja. null si no había bio."
+    }
+  },
+  "required": ["version", "variantes", "prompts", "diagnostico_anterior"],
+  "additionalProperties": false
+}

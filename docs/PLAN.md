@@ -251,7 +251,17 @@ hace que abra la app todos los días; el Comparador es la card compartible.
 - [ ] `POST /compare` + cupo.
 - [ ] UI lado a lado, con el plan abajo.
 
-### 2.3 Card compartible
+### 2.3 Card compartible ✅ **HECHA (2-ago)**
+
+- [x] `/api/og/gap` (ImageResponse) + `/gap` como página pública con las meta og:, para que
+      al pegar el link en WhatsApp o Instagram salga la imagen.
+- [x] **Los datos viajan en la URL, no en la base.** La card solo lleva números (distancia,
+      recuperables) y ninguna referencia a la otra persona. Persistir el análisis de un
+      tercero para que alguien lo mire una vez en WhatsApp no hace falta.
+- [x] Botón de compartir en el Comparador, con `navigator.share` y caída a copiar el link.
+- [x] La card es la del **gap**, no la del arquetipo.
+
+### 2.3 (referencia original)
 
 - [ ] og-image dinámica del resultado del Comparador.
 - [ ] **La card que se comparte es la del gap, no la del arquetipo.** Un número contra otro
