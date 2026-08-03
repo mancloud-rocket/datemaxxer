@@ -1054,3 +1054,57 @@
 @media (max-width:520px){
   .dmx-chats .grilla{grid-template-columns:1fr}
 }
+
+/* ============ F2 · estudio de fotos ============ */
+.dmx-fotos{width:min(620px,100%)}
+.dmx-fotos .chead{margin-bottom:1.6rem}
+.dmx-fotos .chead h1{font-size:clamp(1.9rem,6.4vw,2.6rem)}
+.dmx-fotos .chead .hint{margin-top:.85rem;color:var(--ink-mute);font-size:.92rem;line-height:1.55;max-width:34em}
+.dmx-fotos .chead .hint b{color:var(--ink)}
+.dmx-fotos .rechazo{text-align:center;padding:3.6rem 1.2rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
+.dmx-fotos .rechazo h1{font-size:clamp(1.7rem,6vw,2.4rem)}
+.dmx-fotos .rechazo p{color:var(--ink-mute);max-width:32em;line-height:1.55}
+.dmx-fotos .zona{border:1.6px dashed var(--steel-dim);border-radius:12px;padding:3rem 1.4rem;text-align:center;cursor:pointer}
+.dmx-fotos .zona:hover{border-color:var(--signal)}
+.dmx-fotos .zona h3{font-family:var(--font-body),sans-serif;font-weight:700;font-size:1.05rem;color:var(--ink);margin-bottom:.4rem}
+.dmx-fotos .zona p{color:var(--ink-mute);font-size:.88rem}
+
+/* El comparador: ver las dos superpuestas y correr la linea es mas honesto
+   que dos miniaturas al lado, donde cualquiera puede disimular. */
+.dmx-fotos .comparador{position:relative;border-radius:12px;overflow:hidden;margin-bottom:1.4rem;
+  cursor:ew-resize;touch-action:none;user-select:none;background:#0F141A}
+.dmx-fotos .comparador img{display:block;width:100%;height:auto}
+.dmx-fotos .comparador .base{width:100%}
+.dmx-fotos .comparador .tapa{position:absolute;inset:0;overflow:hidden}
+.dmx-fotos .comparador .tapa img{width:100vw;max-width:none}
+.dmx-fotos .comparador .linea{position:absolute;top:0;bottom:0;width:2px;background:var(--signal);
+  box-shadow:0 0 12px rgba(79,217,194,.6);transform:translateX(-1px)}
+.dmx-fotos .comparador .linea span{position:absolute;top:50%;left:50%;width:30px;height:30px;transform:translate(-50%,-50%);
+  border-radius:50%;background:var(--void);border:2px solid var(--signal)}
+.dmx-fotos .comparador .etq{position:absolute;bottom:.7rem;font-family:var(--font-mono),monospace;font-size:.52rem;
+  letter-spacing:.18em;text-transform:uppercase;color:var(--ink);background:rgba(10,9,8,.7);padding:.35em .7em;border-radius:3px}
+.dmx-fotos .comparador .etq.izq{left:.7rem}
+.dmx-fotos .comparador .etq.der{right:.7rem}
+.dmx-fotos .comparador .trabajando{position:absolute;top:.7rem;right:.7rem;font-family:var(--font-mono),monospace;
+  font-size:.52rem;letter-spacing:.16em;text-transform:uppercase;color:var(--signal);background:rgba(10,9,8,.7);
+  padding:.35em .7em;border-radius:3px}
+
+.dmx-fotos .controles{display:flex;flex-direction:column;gap:1.2rem;margin-bottom:1.4rem}
+.dmx-fotos .desliza{display:block}
+.dmx-fotos .dlabel{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.4rem;
+  font-size:.9rem;color:var(--ink-mute)}
+.dmx-fotos .dlabel b{font-family:var(--font-mono),monospace;font-size:.76rem;color:var(--signal);font-variant-numeric:tabular-nums}
+.dmx-fotos input[type=range]{width:100%;accent-color:var(--signal)}
+.dmx-fotos .grupo .glabel{display:block;font-size:.9rem;color:var(--ink-mute);margin-bottom:.5rem}
+.dmx-fotos .chips{display:flex;flex-wrap:wrap;gap:.4rem}
+.dmx-fotos .chip{font-family:var(--font-mono),monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--steel);background:transparent;border:1px solid var(--line);border-radius:4px;padding:.55em .9em;cursor:pointer;
+  transition:color .25s,border-color .25s}
+.dmx-fotos .chip:hover{color:var(--ink);border-color:var(--steel)}
+.dmx-fotos .chip.on{color:var(--signal);border-color:rgba(79,217,194,.55);background:rgba(79,217,194,.07)}
+.dmx-fotos .accion{display:flex;flex-wrap:wrap;gap:.7rem;margin-bottom:1.2rem}
+.dmx-fotos .err-general{color:var(--oxide);font-size:.9rem;margin-bottom:1rem}
+/* La declaracion no es letra chica: es la promesa del producto, verificable. */
+.dmx-fotos .declaracion{color:var(--steel);font-size:.8rem;line-height:1.6;padding:.9rem 1rem;
+  border:1px solid var(--line);border-radius:8px}
+.dmx-fotos .declaracion b{color:var(--ink-mute)}

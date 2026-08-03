@@ -31,6 +31,10 @@ const EnvSchema = z
     // price ids de Paddle: definen qué compró el usuario en cada evento.
     PADDLE_PRICE_KIT: z.string().optional(),
     PADDLE_PRICE_COPILOTO: z.string().optional(),
+    // F2 - estudio de fotos. Límite propio y alto: es un editor con sliders, y
+    // cada ajuste es una request. Con el límite de auditoría (5/min) el usuario
+    // queda bloqueado a los tres movimientos. No llama al modelo, solo a sharp.
+    PHOTOS_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(90),
     // Radar. Va a un modelo chico a propósito: con el grande por swipe la
     // economía de la suscripción no cierra.
     RADAR_MODEL: z.string().min(1).default('claude-haiku-4-5-20251001'),

@@ -318,7 +318,7 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
     profileStore,
     auditStore,
     authenticate,
-    rateLimitMax: env.AUDIT_RATE_LIMIT_MAX,
+    rateLimitMax: env.PHOTOS_RATE_LIMIT_MAX,
   });
 
   registerBioRoutes(app, {

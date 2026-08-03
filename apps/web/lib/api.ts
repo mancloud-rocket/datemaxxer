@@ -122,6 +122,40 @@ export async function misLecturas(token: string): Promise<ProfileReadView[]> {
   return reads;
 }
 
+/* --- F2: estudio de fotos --- */
+
+export interface FotoRetocada {
+  /** Object URL del resultado. Quien lo recibe se encarga de revocarlo. */
+  url: string;
+  aplicadas: string[];
+  prohibidas: string[];
+  dimensiones: string;
+}
+
+/**
+ * Devuelve la imagen corregida como blob. No usa `request()` porque la respuesta
+ * es binaria y los metadatos vienen en headers, no en el cuerpo.
+ */
+export async function retocarFoto(token: string, form: FormData): Promise<FotoRetocada> {
+  const res = await fetch(`${API_URL}/photos/retoque`, {
+    method: 'POST',
+    headers: { authorization: `Bearer ${token}` },
+    body: form,
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string; message?: string };
+    throw new ApiError(body.error ?? 'error', body.message ?? `HTTP ${res.status}`, res.status);
+  }
+  const blob = await res.blob();
+  const lista = (h: string) => (res.headers.get(h) ?? '').split(',').filter((s) => s !== '');
+  return {
+    url: URL.createObjectURL(blob),
+    aplicadas: lista('x-operaciones-aplicadas'),
+    prohibidas: lista('x-operaciones-prohibidas'),
+    dimensiones: res.headers.get('x-dimensiones') ?? '',
+  };
+}
+
 /* --- F3: bio --- */
 
 export async function escribirBio(token: string, body: NuevaBio): Promise<BioResult> {

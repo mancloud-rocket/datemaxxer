@@ -30,6 +30,10 @@ services:
       # (deploy o sleep del plan free) y se cosechan al arrancar.
       - key: AUDIT_STALE_AFTER_MS
         value: 900000
+      # F2 - estudio de fotos: limite propio y alto, es un editor con sliders
+      # y cada ajuste es una request. No llama al modelo, solo a sharp.
+      - key: PHOTOS_RATE_LIMIT_MAX
+        value: 90
       # Radar: modelo chico a propósito, corre por swipe.
       - key: RADAR_MODEL
         value: claude-haiku-4-5-20251001

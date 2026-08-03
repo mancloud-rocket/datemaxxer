@@ -24,6 +24,7 @@ const NAV = [
   { href: '/app/perfil', label: 'Leer un perfil' },
   { href: '/app/comparar', label: 'Comparar' },
   { href: '/app/chats', label: 'Chats' },
+  { href: '/app/fotos', label: 'Mis fotos' },
   { href: '/app/bio', label: 'Mi bio' },
   { href: '/app/coach', label: 'Coach' },
   { href: '/app/historial', label: 'Historial' },
