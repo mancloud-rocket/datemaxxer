@@ -286,8 +286,15 @@ página promete**, y eso es lo único de esta lista que puede volverse un proble
       blocklist anti-slop inyectada al system prompt como en F1.
 - [ ] `engines/photos.ts`: pipeline `sharp` (exposición, balance de blancos, contraste,
       ruido, crop) + LUT por arquetipo.
-- [ ] **Test duro del pipeline: la región de personas tiene que ser bit-idéntica antes y
-      después.** Está en CLAUDE.md como regla no negociable. No lo borres ni lo relajes.
+- [x] **Sobre el "bit-idéntico": no aplica a esta etapa, y decirlo importa.** Una corrección
+      de exposición cambia todos los píxeles de la imagen, incluidos los de la persona, y es
+      exactamente lo que el usuario pidió. Ese invariante pertenece al **outpainting**
+      (spec §3: "la máscara nunca toca la región de personas"), que no se construyó.
+      Escribir ese test acá sería un test que pasa sin probar lo que dice.
+      Lo que sí se verifica, sobre píxeles reales: **las proporciones del sujeto no cambian**
+      tras una corrida completa de color y tono, el recorte no reescala, el enderezado está
+      acotado a 8 grados, y la lista de operaciones prohibidas (warp, liquify, skin
+      smoothing, adelgazar) no está entre las permitidas ni se puede pedir. **No los borres.**
 - [ ] UI: comparador antes/después, orden drag&drop, briefs de fotos faltantes.
 - [ ] Outpainting (fal.ai + máscara) queda para después: es la parte cara y lenta.
 

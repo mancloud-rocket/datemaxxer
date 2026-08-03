@@ -46,6 +46,7 @@ import { buildChatEngine, type ChatEngine } from './engines/chat.js';
 import { registerChatRoutes } from './chat/routes.js';
 import { InMemoryChatStore, SupabaseChatStore, type ChatStore } from './chat/store.js';
 import { registerBioRoutes } from './bio/routes.js';
+import { registerPhotosRoutes } from './photos/routes.js';
 import { buildCompareEngine, type CompareEngine } from './engines/compare.js';
 import { registerCompareRoutes } from './compare/routes.js';
 import { buildRadarEngine, type RadarEngine } from './engines/radar.js';
@@ -309,6 +310,13 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
         : new InMemoryChatStore()),
     profileStore,
     engine: resolveChatEngine(env, deps),
+    authenticate,
+    rateLimitMax: env.AUDIT_RATE_LIMIT_MAX,
+  });
+
+  registerPhotosRoutes(app, {
+    profileStore,
+    auditStore,
     authenticate,
     rateLimitMax: env.AUDIT_RATE_LIMIT_MAX,
   });
