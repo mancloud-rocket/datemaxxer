@@ -25,7 +25,9 @@ export interface Reporter {
 
 /** Sin DSN configurado: no reporta y no molesta. */
 export class NoopReporter implements Reporter {
-  capturar(): void {
+  // La firma repite la de la interfaz aunque no use los argumentos: si se
+  // declara sin parámetros, TypeScript rechaza cualquier llamada con ellos.
+  capturar(_error: unknown, _contexto?: Contexto): void {
     /* sin proveedor configurado */
   }
 }

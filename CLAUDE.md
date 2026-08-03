@@ -24,6 +24,7 @@ Copiloto de citas con IA. Spec completa en `docs/percentil-spec.md` — leela an
 - **`docs/GUIA-VISUAL.md` es OBLIGATORIA y a rajatabla para TODA superficie visual** (landing, apps/web, mobile, og-images, emails): narrativa forense, SVGs artesanales animados, vocabulario de motion GSAP, prohibiciones anti-slop y QA visual. Leerla antes de construir cualquier UI. Referencia canónica de patrones: `landing/cinema.html`.
 
 ## Comandos
+- **`pnpm verify` — correlo SIEMPRE antes de commitear.** Es exactamente lo que corre el CI: typecheck + tests + build de la API (Render) + build de la web (Vercel). No alcanza con `pnpm test` ni con `pnpm build:api`: **el build excluye los `*.test.ts`, así que un error de tipos en un test pasa el build y rompe el CI.** Ya pasó dos veces.
 - `pnpm dev` — api+web en watch
 - `pnpm eval <motor>` — corre los casos dorados del motor contra el prompt actual
 - `pnpm db:push` — migraciones Supabase

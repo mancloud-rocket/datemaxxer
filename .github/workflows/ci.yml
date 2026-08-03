@@ -20,20 +20,16 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Test
-        run: pnpm test
-
-      # Corre lo MISMO que corre Render al deployar. `typecheck` usa
-      # tsconfig.json y `build` usa tsconfig.build.json: son configs distintas
-      # y ya pasó una vez que el deploy se rompiera con el CI en verde.
-      - name: Build de producción (lo que corre Render)
-        run: pnpm build:api
-
-      - name: Build de la web (lo que corre Vercel)
-        run: pnpm --filter @percentil/web build
+      # Un solo comando, el MISMO que se corre antes de commitear (`pnpm verify`).
+      # Antes acá había una lista de pasos y localmente había otra, y las dos se
+      # mantenían a mano: ya pasó dos veces que algo pasara local y rompiera el
+      # deploy. Con un solo script las dos listas no pueden separarse.
+      #
+      # Cubre: typecheck (incluye los tests, que el build excluye), tests,
+      # build de la API (lo que corre Render) y build de la web (lo que corre
+      # Vercel).
+      - name: Verificar
+        run: pnpm verify
         env:
           NEXT_PUBLIC_SUPABASE_URL: https://ejemplo.supabase.co
           NEXT_PUBLIC_SUPABASE_ANON_KEY: llave-de-build

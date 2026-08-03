@@ -17,6 +17,8 @@
     "dev": "pnpm build:contracts && pnpm --parallel --filter @percentil/contracts --filter @percentil/api --filter @percentil/web dev",
     "typecheck": "pnpm build:contracts && pnpm -r typecheck",
     "test": "pnpm build:contracts && pnpm -r test",
+    "build:web": "pnpm build:contracts && pnpm --filter @percentil/web build",
+    "verify": "pnpm typecheck && pnpm test && pnpm build:api && pnpm build:web",
     "db:push": "supabase db push"
   }
 }
