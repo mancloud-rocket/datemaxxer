@@ -26,6 +26,7 @@ export const Comportamiento = z
     profundidad: z.enum(['pregunta', 'comparte', 'responde_solo']),
   })
   .strict();
+export type Comportamiento = z.infer<typeof Comportamiento>;
 
 export const RegistroDetectado = z
   .object({
@@ -35,6 +36,7 @@ export const RegistroDetectado = z
     humor: z.string().min(1),
   })
   .strict();
+export type RegistroDetectado = z.infer<typeof RegistroDetectado>;
 
 /** Sugerencia SIEMPRE con etiqueta de estrategia y por_que — nunca texto suelto (spec F4.3). */
 export const Sugerencia = z
@@ -44,6 +46,7 @@ export const Sugerencia = z
     por_que: z.string().min(1),
   })
   .strict();
+export type Sugerencia = z.infer<typeof Sugerencia>;
 
 /** Veredicto falseable: decisión + evidencia obligatoria (min 1) + cuándo revisar. */
 export const Veredicto = z
@@ -54,6 +57,7 @@ export const Veredicto = z
     revisar_en_dias: z.number().int().positive(),
   })
   .strict();
+export type Veredicto = z.infer<typeof Veredicto>;
 
 export const ChatTurnAnalysis = z
   .object({

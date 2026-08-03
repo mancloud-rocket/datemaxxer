@@ -9,7 +9,10 @@ import type {
 import type {
   AnalisisRechazado,
   AuditResult,
+  BioResult,
+  ChatTurnAnalysis,
   CompareResult,
+  NuevaBio,
   ProfileRead,
   RadarRead,
 } from '@percentil/contracts';
@@ -117,6 +120,69 @@ export async function obtenerLectura(token: string, id: string): Promise<Profile
 export async function misLecturas(token: string): Promise<ProfileReadView[]> {
   const { reads } = await request<{ reads: ProfileReadView[] }>('/me/profile-reads', token);
   return reads;
+}
+
+/* --- F3: bio --- */
+
+export async function escribirBio(token: string, body: NuevaBio): Promise<BioResult> {
+  return request('/bio', token, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+
+/* --- F4: copiloto de chat --- */
+
+export interface ConversacionVista {
+  id: string;
+  label: string;
+  platform: string | null;
+  mensajes: number;
+  ultimo_veredicto: string | null;
+  feedback: string | null;
+  created_at: string;
+}
+
+export interface ConversacionDetalle extends ConversacionVista {
+  turnos: Array<{ id: string; created_at: string; analisis: ChatTurnAnalysis | null }>;
+}
+
+export async function crearConversacion(token: string, label: string): Promise<ConversacionVista> {
+  return request('/conversations', token, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ label }),
+  });
+}
+
+export async function misConversaciones(token: string): Promise<ConversacionVista[]> {
+  const { conversations } = await request<{ conversations: ConversacionVista[] }>('/conversations', token);
+  return conversations;
+}
+
+export async function obtenerConversacion(token: string, id: string): Promise<ConversacionDetalle> {
+  return request(`/conversations/${id}`, token);
+}
+
+export async function analizarTurno(
+  token: string,
+  id: string,
+  form: FormData,
+): Promise<ChatTurnAnalysis> {
+  return request(`/conversations/${id}/snapshot`, token, { method: 'POST', body: form });
+}
+
+export async function mandarFeedback(
+  token: string,
+  id: string,
+  resultado: string,
+): Promise<void> {
+  await request(`/conversations/${id}/feedback`, token, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ resultado }),
+  });
 }
 
 /* --- Radar y Comparador --- */

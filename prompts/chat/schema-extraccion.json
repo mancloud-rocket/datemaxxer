@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "description": "PASO 1. Mensajes en orden. NO inventes horas: un timestamp inventado envenena la latencia.",
+  "properties": {
+    "mensajes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "de": { "type": "string", "enum": ["yo", "ella"], "description": "yo = el usuario (normalmente los globos de la derecha)" },
+          "texto": { "type": "string" },
+          "ts": {
+            "anyOf": [{ "type": "string" }, { "type": "null" }],
+            "description": "ISO 8601 SOLO si la captura muestra la hora. null si no. Nunca inventar."
+          }
+        },
+        "required": ["de", "texto", "ts"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["mensajes"],
+  "additionalProperties": false
+}

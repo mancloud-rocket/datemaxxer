@@ -1,0 +1,51 @@
+{
+  "type": "object",
+  "description": "PASO 2. NO incluye comportamiento: esos numeros los calcula el codigo y se te pasan hechos.",
+  "properties": {
+    "registro_detectado": {
+      "type": "object",
+      "properties": {
+        "formalidad": { "type": "string", "enum": ["baja", "media", "alta"] },
+        "mayusculas": { "type": "boolean" },
+        "emojis": { "type": "string", "enum": ["ninguno", "pocos", "muchos"] },
+        "humor": { "type": "string" }
+      },
+      "required": ["formalidad", "mayusculas", "emojis", "humor"],
+      "additionalProperties": false
+    },
+    "sugerencias": {
+      "type": "array",
+      "description": "De 1 a 3. SIEMPRE con etiqueta de estrategia: el objetivo es que aprenda el patron.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "estrategia": { "type": "string" },
+          "texto": { "type": "string" },
+          "por_que": { "type": "string" }
+        },
+        "required": ["estrategia", "texto", "por_que"],
+        "additionalProperties": false
+      }
+    },
+    "veredicto": {
+      "type": "object",
+      "properties": {
+        "decision": {
+          "type": "string",
+          "enum": ["invertir_mas", "mantener", "proponer_salida_ahora", "bajar_energia", "dejar_morir"]
+        },
+        "confianza": { "type": "number", "description": "0 a 1" },
+        "evidencia": {
+          "type": "array",
+          "description": "Minimo una, citando los numeros que se te pasaron.",
+          "items": { "type": "string" }
+        },
+        "revisar_en_dias": { "type": "integer", "description": "cuando volver a mirar" }
+      },
+      "required": ["decision", "confianza", "evidencia", "revisar_en_dias"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["registro_detectado", "sugerencias", "veredicto"],
+  "additionalProperties": false
+}

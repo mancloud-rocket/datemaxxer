@@ -23,6 +23,8 @@ const NAV = [
   { href: '/app/radar', label: 'Radar' },
   { href: '/app/perfil', label: 'Leer un perfil' },
   { href: '/app/comparar', label: 'Comparar' },
+  { href: '/app/chats', label: 'Chats' },
+  { href: '/app/bio', label: 'Mi bio' },
   { href: '/app/coach', label: 'Coach' },
   { href: '/app/historial', label: 'Historial' },
   { href: '/app/settings', label: 'Configuración' },

@@ -42,6 +42,9 @@ import {
   type ProfileReadStore,
 } from './profile-read/store.js';
 import { buildBioEngine, type BioEngine } from './engines/bio.js';
+import { buildChatEngine, type ChatEngine } from './engines/chat.js';
+import { registerChatRoutes } from './chat/routes.js';
+import { InMemoryChatStore, SupabaseChatStore, type ChatStore } from './chat/store.js';
 import { registerBioRoutes } from './bio/routes.js';
 import { buildCompareEngine, type CompareEngine } from './engines/compare.js';
 import { registerCompareRoutes } from './compare/routes.js';
@@ -71,6 +74,8 @@ export interface AppDeps {
   radarEngine?: RadarEngine;
   compareEngine?: CompareEngine;
   bioEngine?: BioEngine;
+  chatStore?: ChatStore;
+  chatEngine?: ChatEngine;
 }
 
 function resolveNotificador(env: Env, deps: AppDeps): Notificador {
@@ -130,6 +135,15 @@ function resolveRadarEngine(env: Env, deps: AppDeps): RadarEngine | undefined {
   return buildRadarEngine({
     client: claudeClientFromSdk(sdkAnthropic(env.ANTHROPIC_API_KEY)),
     model: env.RADAR_MODEL,
+  });
+}
+
+function resolveChatEngine(env: Env, deps: AppDeps): ChatEngine | undefined {
+  if (deps.chatEngine) return deps.chatEngine;
+  if (env.ANTHROPIC_API_KEY === undefined) return undefined;
+  return buildChatEngine({
+    client: claudeClientFromSdk(sdkAnthropic(env.ANTHROPIC_API_KEY)),
+    ...(env.AUDIT_MODEL !== undefined ? { model: env.AUDIT_MODEL } : {}),
   });
 }
 
@@ -286,6 +300,18 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
     (hasSupabase
       ? new SupabaseRadarStore(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
       : new InMemoryRadarStore());
+
+  registerChatRoutes(app, {
+    store:
+      deps.chatStore ??
+      (hasSupabase
+        ? new SupabaseChatStore(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
+        : new InMemoryChatStore()),
+    profileStore,
+    engine: resolveChatEngine(env, deps),
+    authenticate,
+    rateLimitMax: env.AUDIT_RATE_LIMIT_MAX,
+  });
 
   registerBioRoutes(app, {
     profileStore,
