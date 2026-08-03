@@ -1,0 +1,112 @@
+{
+  "type": "object",
+  "description": "Comparador. Los global de cada lado y el gap los calcula el código.",
+  "properties": {
+    "rechazado": {
+      "type": "boolean",
+      "description": "true si alguna de las dos personas podría ser menor de edad, no se ve a nadie, o no son fotos de personas."
+    },
+    "motivo_rechazo": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": ["menor_aparente", "sin_persona_identificable", "imagen_ilegible", "no_es_un_perfil"]
+        },
+        { "type": "null" }
+      ]
+    },
+    "usuario": { "$ref": "#/$defs/lado" },
+    "objetivo": { "$ref": "#/$defs/lado" },
+    "descomposicion": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "cerrables": {
+              "type": "integer",
+              "description": "Puntos del gap que salen de cosas que él controla."
+            },
+            "no_cerrables": {
+              "type": "integer",
+              "description": "Puntos que son rasgos. Se dicen sin vueltas y no se prometen cerrar."
+            },
+            "plan": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "accion": { "type": "string", "description": "concreta, se puede empezar" },
+                  "puntos": { "type": "integer", "description": "1 a 40" },
+                  "plazo": { "type": "string", "enum": ["hoy", "semana", "mes", "trimestre", "año"] }
+                },
+                "required": ["accion", "puntos", "plazo"],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": ["cerrables", "no_cerrables", "plan"],
+          "additionalProperties": false
+        },
+        { "type": "null" }
+      ]
+    },
+    "veredicto": {
+      "anyOf": [{ "type": "string" }, { "type": "null" }],
+      "description": "Una o dos frases. Duro sobre el diagnóstico, concreto sobre la salida, nunca lástima. Es el texto de la card."
+    },
+    "confianza": { "type": "number", "description": "0 a 1" }
+  },
+  "required": ["rechazado", "motivo_rechazo", "usuario", "objetivo", "descomposicion", "veredicto", "confianza"],
+  "additionalProperties": false,
+  "$defs": {
+    "componente": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "bucket": {
+              "type": "string",
+              "enum": ["bajo", "medio_bajo", "medio", "alto", "muy_alto", "top"],
+              "description": "Elegí el bucket ANTES que el score."
+            },
+            "score": {
+              "type": "integer",
+              "description": "Dentro del rango de su bucket: bajo 0-19, medio_bajo 20-39, medio 40-59, alto 60-79, muy_alto 80-94, top 95-100"
+            },
+            "evidencia": { "type": "array", "items": { "type": "string" } },
+            "ancla": {
+              "type": "object",
+              "properties": {
+                "un_bucket_arriba": { "type": "string" },
+                "un_bucket_abajo": { "type": "string" }
+              },
+              "required": ["un_bucket_arriba", "un_bucket_abajo"],
+              "additionalProperties": false
+            },
+            "confianza": { "type": "number" }
+          },
+          "required": ["bucket", "score", "evidencia", "ancla", "confianza"],
+          "additionalProperties": false
+        },
+        { "type": "null" }
+      ]
+    },
+    "lado": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "facial": { "$ref": "#/$defs/componente" },
+            "presentacion": { "$ref": "#/$defs/componente" },
+            "produccion": { "$ref": "#/$defs/componente" },
+            "fortaleza": { "type": "string", "description": "qué gana este lado si se los mira juntos" },
+            "debilidad": { "type": "string", "description": "qué pierde, sin eufemismos" }
+          },
+          "required": ["facial", "presentacion", "produccion", "fortaleza", "debilidad"],
+          "additionalProperties": false
+        },
+        { "type": "null" }
+      ]
+    }
+  }
+}

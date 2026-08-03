@@ -6,7 +6,13 @@ import type {
   Sku,
   SolicitudUpgrade,
 } from '@percentil/contracts';
-import type { AnalisisRechazado, AuditResult, ProfileRead } from '@percentil/contracts';
+import type {
+  AnalisisRechazado,
+  AuditResult,
+  CompareResult,
+  ProfileRead,
+  RadarRead,
+} from '@percentil/contracts';
 
 /** Cliente tipado de la API de Datemaxxer (contrato acordado en AGENTS-LOG, v2 con auth). */
 
@@ -111,6 +117,42 @@ export async function obtenerLectura(token: string, id: string): Promise<Profile
 export async function misLecturas(token: string): Promise<ProfileReadView[]> {
   const { reads } = await request<{ reads: ProfileReadView[] }>('/me/profile-reads', token);
   return reads;
+}
+
+/* --- Radar y Comparador --- */
+
+/** Un rechazo del motor no es un error: es una respuesta con su propia pantalla. */
+export type ConRechazo<T> = { ok: true; datos: T } | { ok: false; rechazo: AnalisisRechazado };
+
+/**
+ * POST con multipart que puede terminar en 422 + rechazo. Se trata aparte de
+ * `request()` porque ahí un 422 sería una excepción, y acá es un camino normal.
+ */
+async function postConRechazo<T>(path: string, token: string, form: FormData): Promise<ConRechazo<T>> {
+  const res = await fetch(`${API_URL}${path}`, {
+    method: 'POST',
+    headers: { authorization: `Bearer ${token}` },
+    body: form,
+  });
+  const body = (await res.json().catch(() => ({}))) as { error?: string; message?: string } & T & AnalisisRechazado;
+  if (res.status === 422 && body.rechazado === true) {
+    return { ok: false, rechazo: body };
+  }
+  if (!res.ok) {
+    throw new ApiError(body.error ?? 'error', body.message ?? `HTTP ${res.status}`, res.status);
+  }
+  return { ok: true, datos: body };
+}
+
+export async function dispararRadar(token: string, form: FormData): Promise<ConRechazo<RadarRead>> {
+  return postConRechazo<RadarRead>('/radar', token, form);
+}
+
+export async function compararPerfiles(
+  token: string,
+  form: FormData,
+): Promise<ConRechazo<CompareResult>> {
+  return postConRechazo<CompareResult>('/compare', token, form);
 }
 
 /* --- Coach de confianza --- */

@@ -217,7 +217,26 @@ hace que abra la app todos los días; el Comparador es la card compartible.
 - [ ] UI: pantalla de una sola pieza, pensada para el pulgar. Pegar/subir, esperar, leer,
       volver.
 
-### 2.2 Comparador (contrato `compare.ts` listo)
+### 2.2 Comparador ✅ **HECHO (2-ago)**
+
+- [x] `engines/compare.ts`: una sola llamada con las dos fotos. El juicio
+      comparativo es justo lo que hay que hacer en una pasada, porque la gracia está en
+      mirarlas juntas.
+- [x] **El código hace cumplir la aritmética**: `cerrables + no_cerrables` da el gap real.
+      Si el modelo promete 35 puntos sobre un gap de 24, se recorta a 24. Prometer que una
+      foto mejor arregla la estructura ósea es la forma más rápida de perder credibilidad.
+- [x] `techo_estimado` = su global + lo recuperable. **Nunca el de ella**, con test.
+- [x] Si el usuario está arriba, la descomposición se vuelve cero: no hay nada que cerrar.
+- [x] Si una de las dos fotos no permite juzgar, rechaza en vez de inventar.
+- [x] `POST /compare`, síncrono, **compartiendo el pozo de cupo del radar**: misma familia
+      de uso, y dos contadores separados le darían al usuario dos presupuestos sin que eso
+      signifique nada.
+- [x] UI: marcador lado a lado, veredicto, y la **barra partida en cerrable/rasgo**, que es
+      el corazón de la función. Un número solo deprime; partido en "nueve los cerrás en seis
+      semanas" es el argumento de venta del Kit.
+- [x] 11 tests de ruta.
+
+### 2.2 (referencia original)
 
 - [ ] `engines/compare.ts`: arma los dos lados, calcula el gap con `market.ts` y produce
       `descomposicion`.

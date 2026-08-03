@@ -41,6 +41,8 @@ import {
   SupabaseProfileReadStore,
   type ProfileReadStore,
 } from './profile-read/store.js';
+import { buildCompareEngine, type CompareEngine } from './engines/compare.js';
+import { registerCompareRoutes } from './compare/routes.js';
 import { buildRadarEngine, type RadarEngine } from './engines/radar.js';
 import { registerRadarRoutes } from './radar/routes.js';
 import { InMemoryRadarStore, SupabaseRadarStore, type RadarStore } from './radar/store.js';
@@ -65,6 +67,7 @@ export interface AppDeps {
   profileReadEngine?: ProfileReadEngine;
   radarStore?: RadarStore;
   radarEngine?: RadarEngine;
+  compareEngine?: CompareEngine;
 }
 
 function resolveNotificador(env: Env, deps: AppDeps): Notificador {
@@ -124,6 +127,16 @@ function resolveRadarEngine(env: Env, deps: AppDeps): RadarEngine | undefined {
   return buildRadarEngine({
     client: claudeClientFromSdk(sdkAnthropic(env.ANTHROPIC_API_KEY)),
     model: env.RADAR_MODEL,
+  });
+}
+
+function resolveCompareEngine(env: Env, deps: AppDeps): CompareEngine | undefined {
+  if (deps.compareEngine) return deps.compareEngine;
+  if (env.ANTHROPIC_API_KEY === undefined) return undefined;
+  // Modelo grande: acá la calibración importa y el usuario espera.
+  return buildCompareEngine({
+    client: claudeClientFromSdk(sdkAnthropic(env.ANTHROPIC_API_KEY)),
+    ...(env.AUDIT_MODEL !== undefined ? { model: env.AUDIT_MODEL } : {}),
   });
 }
 
@@ -255,12 +268,29 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
     timeoutMs: env.PROFILE_READ_TIMEOUT_MS,
   });
 
+  // El comparador comparte el pozo de cupo del radar: misma familia de uso.
+  const radarStore =
+    deps.radarStore ??
+    (hasSupabase
+      ? new SupabaseRadarStore(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
+      : new InMemoryRadarStore());
+
+  registerCompareRoutes(app, {
+    store: radarStore,
+    profileStore,
+    engine: resolveCompareEngine(env, deps),
+    authenticate,
+    rateLimitMax: env.RADAR_RATE_LIMIT_MAX,
+    limites: {
+      free: env.RADAR_FREE_LIMIT,
+      kit: env.RADAR_KIT_LIMIT,
+      copilot: env.RADAR_COPILOT_LIMIT,
+    },
+    ventanaDias: env.RADAR_VENTANA_DIAS,
+  });
+
   registerRadarRoutes(app, {
-    store:
-      deps.radarStore ??
-      (hasSupabase
-        ? new SupabaseRadarStore(env.SUPABASE_URL!, env.SUPABASE_SERVICE_ROLE_KEY!)
-        : new InMemoryRadarStore()),
+    store: radarStore,
     profileStore,
     auditStore,
     engine: resolveRadarEngine(env, deps),

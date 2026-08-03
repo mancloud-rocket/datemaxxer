@@ -20,7 +20,9 @@ import { getAccessToken, getSupabase, type DisplayUser } from '../../lib/supabas
 
 const NAV = [
   { href: '/app', label: 'Mi perfil' },
+  { href: '/app/radar', label: 'Radar' },
   { href: '/app/perfil', label: 'Leer un perfil' },
+  { href: '/app/comparar', label: 'Comparar' },
   { href: '/app/coach', label: 'Coach' },
   { href: '/app/historial', label: 'Historial' },
   { href: '/app/settings', label: 'Configuración' },
