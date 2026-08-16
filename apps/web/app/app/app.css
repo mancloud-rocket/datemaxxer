@@ -691,7 +691,8 @@
 .dmx-radar .zona{border:1.6px dashed var(--steel-dim);border-radius:12px;padding:1.8rem 1.2rem;text-align:center;
   cursor:pointer;margin-bottom:1.2rem;transition:border-color .25s}
 .dmx-radar .zona:hover{border-color:var(--signal)}
-.dmx-radar .zona p{color:var(--ink-mute);font-size:.9rem}
+.dmx-radar .zona h3{font-family:var(--font-body),sans-serif;font-weight:700;font-size:1.05rem;color:var(--ink);margin-bottom:.4rem}
+.dmx-radar .zona p{color:var(--ink-mute);font-size:.88rem}
 .dmx-radar .miniaturas{display:flex;gap:.5rem;justify-content:center}
 .dmx-radar .miniaturas img{width:58px;height:80px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
 .dmx-radar .accion{display:flex;gap:.7rem}
@@ -751,11 +752,15 @@
 .dmx-comparador .ranura{flex:1;cursor:pointer;text-align:center}
 .dmx-comparador .ranura img,.dmx-comparador .ranura .hueco{width:100%;aspect-ratio:3/4;border-radius:10px;
   object-fit:cover;border:1px solid var(--line);display:block}
-.dmx-comparador .ranura .hueco{display:grid;place-items:center;border:1.6px dashed var(--steel-dim);background:var(--surface-2)}
-.dmx-comparador .ranura .hueco span{font-size:1.8rem;color:var(--steel)}
-.dmx-comparador .ranura:hover .hueco{border-color:var(--signal)}
-.dmx-comparador .ranura small{display:block;margin-top:.5rem;font-family:var(--font-mono),monospace;font-size:.75rem;
-  letter-spacing:.12em;text-transform:uppercase;color:var(--steel)}
+/* El hueco dice adentro qué foto espera: es la información que decide todo. */
+.dmx-comparador .ranura .hueco{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.45rem;padding:1rem .8rem;border:1.6px dashed var(--steel-dim);background:var(--surface-2)}
+.dmx-comparador .ranura .hueco .mas{font-size:1.7rem;line-height:1;color:var(--steel)}
+.dmx-comparador .ranura .hueco b{font-weight:700;font-size:1rem;color:var(--ink);line-height:1.3}
+.dmx-comparador .ranura .hueco p{color:var(--ink-mute);font-size:.85rem;line-height:1.4}
+.dmx-comparador .ranura:hover .hueco,.dmx-comparador .ranura.drag .hueco{border-color:var(--signal);
+  background:rgba(79,217,194,.04)}
+.dmx-comparador .ranura small{display:block;margin-top:.5rem;font-size:.82rem;font-weight:600;color:var(--steel)}
 .dmx-comparador .versus{font-family:var(--font-display),sans-serif;font-size:1.1rem;color:var(--steel);flex:none}
 .dmx-comparador .accion{display:flex;gap:.7rem}
 .dmx-comparador .err-general{color:var(--oxide);font-size:.9rem;margin-bottom:.9rem}
@@ -1048,6 +1053,7 @@
 .dmx-chats .zona{border:1.6px dashed var(--steel-dim);border-radius:10px;padding:1.4rem;text-align:center;
   cursor:pointer;margin-bottom:.8rem}
 .dmx-chats .zona:hover{border-color:var(--signal)}
+.dmx-chats .zona h3{font-family:var(--font-body),sans-serif;font-weight:700;font-size:1rem;color:var(--ink);margin-bottom:.35rem}
 .dmx-chats .zona p{color:var(--ink-mute);font-size:.88rem}
 .dmx-chats textarea.campo{resize:vertical;line-height:1.5;margin-bottom:.9rem}
 
@@ -1064,8 +1070,9 @@
 .dmx-fotos .rechazo{text-align:center;padding:3.6rem 1.2rem;display:flex;flex-direction:column;align-items:center;gap:1rem}
 .dmx-fotos .rechazo h1{font-size:clamp(1.7rem,6vw,2.4rem)}
 .dmx-fotos .rechazo p{color:var(--ink-mute);max-width:32em;line-height:1.55}
-.dmx-fotos .zona{border:1.6px dashed var(--steel-dim);border-radius:12px;padding:3rem 1.4rem;text-align:center;cursor:pointer}
-.dmx-fotos .zona:hover{border-color:var(--signal)}
+.dmx-fotos .zona{border:1.6px dashed var(--steel-dim);border-radius:12px;padding:3rem 1.4rem;text-align:center;cursor:pointer;
+  transition:border-color .25s,background .25s}
+.dmx-fotos .zona:hover,.dmx-fotos .zona.drag{border-color:var(--signal);background:rgba(79,217,194,.04)}
 .dmx-fotos .zona h3{font-family:var(--font-body),sans-serif;font-weight:700;font-size:1.05rem;color:var(--ink);margin-bottom:.4rem}
 .dmx-fotos .zona p{color:var(--ink-mute);font-size:.88rem}
 

@@ -35,10 +35,26 @@ const PLAZOS: Record<string, string> = {
   año: 'un año',
 };
 
-function Ranura(props: { label: string; file: File | null; onPick: (f: File | null) => void }) {
+/**
+ * Cada ranura dice adentro QUÉ foto espera. Antes el único cartel era un
+ * mono de 8.6px debajo del hueco, y no se entendía cuál era cuál.
+ */
+function Ranura(props: {
+  titulo: string;
+  detalle: string;
+  file: File | null;
+  onPick: (f: File | null) => void;
+}) {
   const input = useRef<HTMLInputElement>(null);
+  const [drag, setDrag] = useState(false);
   return (
-    <div className="ranura" onClick={() => input.current?.click()}>
+    <div
+      className={`ranura${drag ? ' drag' : ''}`}
+      onClick={() => input.current?.click()}
+      onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
+      onDragLeave={() => setDrag(false)}
+      onDrop={(e) => { e.preventDefault(); setDrag(false); props.onPick(e.dataTransfer.files?.[0] ?? null); }}
+    >
       <input
         ref={input}
         type="file"
@@ -48,11 +64,15 @@ function Ranura(props: { label: string; file: File | null; onPick: (f: File | nu
       />
       {props.file ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={URL.createObjectURL(props.file)} alt="" />
+        <img src={URL.createObjectURL(props.file)} alt={props.titulo} />
       ) : (
-        <div className="hueco"><span>+</span></div>
+        <div className="hueco">
+          <span className="mas">+</span>
+          <b>{props.titulo}</b>
+          <p>{props.detalle}</p>
+        </div>
       )}
-      <small>{props.label}</small>
+      <small>{props.file ? 'Tocá para cambiarla' : 'Tocá o arrastrá la imagen'}</small>
     </div>
   );
 }
@@ -138,9 +158,19 @@ export function Comparador() {
       </header>
 
       <div className="ranuras">
-        <Ranura label="tu mejor foto" file={mia} onPick={setMia} />
+        <Ranura
+          titulo="Tu mejor foto"
+          detalle="Con la que abrís tu perfil"
+          file={mia}
+          onPick={setMia}
+        />
         <span className="versus">vs</span>
-        <Ranura label="la de ella" file={suya} onPick={setSuya} />
+        <Ranura
+          titulo="La foto de ella"
+          detalle="Una captura clara de su perfil"
+          file={suya}
+          onPick={setSuya}
+        />
       </div>
 
       {error && <p className="err-general">{error}</p>}

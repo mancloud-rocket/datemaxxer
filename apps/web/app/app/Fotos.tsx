@@ -53,6 +53,7 @@ const INICIAL: Ajustes = {
 export function Fotos() {
   const [original, setOriginal] = useState<File | null>(null);
   const [urlOriginal, setUrlOriginal] = useState<string | null>(null);
+  const [drag, setDrag] = useState(false);
   const [ajustes, setAjustes] = useState<Ajustes>(INICIAL);
   const [resultado, setResultado] = useState<FotoRetocada | null>(null);
   const [procesando, setProcesando] = useState(false);
@@ -153,7 +154,13 @@ export function Fotos() {
       </header>
 
       {!original ? (
-        <div className="zona" onClick={() => input.current?.click()}>
+        <div
+          className={`zona${drag ? ' drag' : ''}`}
+          onClick={() => input.current?.click()}
+          onDragOver={(e) => { e.preventDefault(); setDrag(true); }}
+          onDragLeave={() => setDrag(false)}
+          onDrop={(e) => { e.preventDefault(); setDrag(false); elegir(e.dataTransfer.files?.[0] ?? null); }}
+        >
           <input
             ref={input}
             type="file"
@@ -161,8 +168,8 @@ export function Fotos() {
             hidden
             onChange={(e) => elegir(e.target.files?.[0] ?? null)}
           />
-          <h3>Subí una foto</h3>
-          <p>Una a la vez. La que quieras poner de apertura.</p>
+          <h3>Subí una foto tuya</h3>
+          <p>Tocá acá o arrastrala. Una a la vez; empezá por la que abre tu perfil.</p>
         </div>
       ) : (
         <>

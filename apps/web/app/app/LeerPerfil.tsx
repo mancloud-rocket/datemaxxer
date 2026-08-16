@@ -211,8 +211,8 @@ export function LeerPerfil() {
         />
         {archivos.length === 0 ? (
           <>
-            <h3>Subí las capturas de su perfil</h3>
-            <p>Hasta {MAX}. Cuantas más fotos suyas se vean, más exacta la lectura.</p>
+            <h3>Las capturas del perfil de ella</h3>
+            <p>Tocá acá o arrastralas. Hasta {MAX}: cuantas más fotos suyas se vean, más exacta la lectura.</p>
           </>
         ) : (
           <div className="miniaturas">

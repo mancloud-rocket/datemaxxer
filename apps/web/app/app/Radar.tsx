@@ -119,7 +119,7 @@ export function Radar() {
       <header className="chead">
         <p className="kicker"><i />Antes de dar like</p>
         <h1 className="display">Radar.</h1>
-        <p className="hint">Subí una captura y en segundos sabés si vale el like o seguís swipeando.</p>
+        <p className="hint">Subí una captura del perfil de ella y en segundos sabés si vale el like o seguís swipeando.</p>
       </header>
 
       {estado.t !== 'resultado' && (
@@ -139,7 +139,10 @@ export function Radar() {
               onChange={(e) => agregar(e.target.files)}
             />
             {archivos.length === 0 ? (
-              <p>Tocá para subir. Hasta {MAX} capturas.</p>
+              <>
+                <h3>Capturas del perfil de ella</h3>
+                <p>Tocá acá o arrastralas. Hasta {MAX}; con una alcanza.</p>
+              </>
             ) : (
               <div className="miniaturas">
                 {archivos.map((f, i) => (

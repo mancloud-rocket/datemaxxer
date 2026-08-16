@@ -244,7 +244,15 @@ function Detalle(props: { c: ConversacionDetalle; onVolver: () => void; onRecarg
 
       <section className="panel">
         <div className="plabel">Subir un turno nuevo</div>
-        <div className="zona" onClick={() => input.current?.click()}>
+        <div
+          className="zona"
+          onClick={() => input.current?.click()}
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={(e) => {
+            e.preventDefault();
+            setArchivos((cur) => [...cur, ...[...(e.dataTransfer.files ?? [])]].slice(0, 6));
+          }}
+        >
           <input
             ref={input}
             type="file"
@@ -253,7 +261,14 @@ function Detalle(props: { c: ConversacionDetalle; onVolver: () => void; onRecarg
             hidden
             onChange={(e) => setArchivos((cur) => [...cur, ...[...(e.target.files ?? [])]].slice(0, 6))}
           />
-          {archivos.length === 0 ? <p>Capturas del chat (hasta 6)</p> : <p>{archivos.length} capturas listas</p>}
+          {archivos.length === 0 ? (
+            <>
+              <h3>Capturas de la conversación</h3>
+              <p>Tocá acá o arrastralas, en orden. Hasta 6 por turno.</p>
+            </>
+          ) : (
+            <p>{archivos.length} {archivos.length === 1 ? 'captura lista' : 'capturas listas'}</p>
+          )}
         </div>
         <textarea
           className="campo"
