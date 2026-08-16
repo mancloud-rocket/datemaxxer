@@ -29,9 +29,9 @@
 
 /* HUD de la app: utilería persistente entre pantallas */
 .dmx .apphud{position:fixed;inset:0;z-index:50;pointer-events:none;font-family:var(--font-mono),monospace;text-transform:uppercase}
-.dmx .apphud .chip{position:absolute;top:1rem;left:1rem;display:inline-block;font-size:.55rem;letter-spacing:.24em;color:var(--oxide);border:1px solid var(--stamp);padding:.5em 1em;border-radius:2px;transform:rotate(-1.6deg);background:rgba(16,19,24,.5);backdrop-filter:blur(3px)}
-.dmx .apphud .fase{position:absolute;top:1.1rem;right:1rem;text-align:right;font-size:.6rem;letter-spacing:.22em;color:var(--ink);font-variant-numeric:tabular-nums;text-shadow:0 1px 8px rgba(6,8,11,.9)}
-.dmx .apphud .fase small{display:block;margin-top:.35rem;font-size:.52rem;color:var(--ink-mute)}
+.dmx .apphud .chip{position:absolute;top:1rem;left:1rem;display:inline-block;font-size:.75rem;letter-spacing:.14em;color:var(--oxide);border:1px solid var(--stamp);padding:.5em 1em;border-radius:2px;transform:rotate(-1.6deg);background:rgba(16,19,24,.5);backdrop-filter:blur(3px)}
+.dmx .apphud .fase{position:absolute;top:1.1rem;right:1rem;text-align:right;font-size:.78rem;letter-spacing:.14em;color:var(--ink);font-variant-numeric:tabular-nums;text-shadow:0 1px 8px rgba(6,8,11,.9)}
+.dmx .apphud .fase small{display:block;margin-top:.35rem;font-size:.75rem;color:var(--ink-mute)}
 .dmx .apphud .progress{position:absolute;bottom:0;left:0;right:0;height:2px;background:rgba(38,44,54,.55)}
 .dmx .apphud .progress i{display:block;height:100%;width:100%;background:var(--oxide);transform-origin:left;transform:scaleX(0);transition:background .6s}
 .dmx .apphud.fase-cyan .progress i{background:var(--signal);box-shadow:0 0 10px rgba(79,217,194,.6)}
@@ -41,10 +41,10 @@
 .dmx .kicker{font-weight:600;font-size:clamp(.92rem,2.6vw,1.05rem);color:var(--ink);display:flex;align-items:center;gap:.6rem}
 .dmx .kicker i{flex:none;width:8px;height:8px;border-radius:50%;background:var(--signal);box-shadow:0 0 12px rgba(79,217,194,.8)}
 .dmx .kicker.k-ox i{background:var(--oxide);box-shadow:0 0 12px rgba(201,75,50,.8)}
-.dmx .mono{font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.2em}
+.dmx .mono{font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.14em}
 
 /* sellos: siempre rotados, entran estampándose */
-.dmx .selloe{display:inline-block;font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.22em;font-size:.62rem;color:var(--oxide);border:1.5px solid var(--stamp);padding:.55em 1.1em;border-radius:2px;transform:rotate(-3deg);background:rgba(16,19,24,.4)}
+.dmx .selloe{display:inline-block;font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.14em;font-size:.78rem;color:var(--oxide);border:1.5px solid var(--stamp);padding:.55em 1.1em;border-radius:2px;transform:rotate(-3deg);background:rgba(16,19,24,.4)}
 .dmx .selloe.s-cy{color:var(--signal);border-color:rgba(79,217,194,.6)}
 .dmx .selloe.s-mute{color:var(--ink-mute);border-color:var(--steel-dim)}
 
@@ -110,7 +110,7 @@
 .dmx-escaner .errbox .btn{margin:0 .4rem .6rem}
 
 .dmx-escaner .status{position:relative;z-index:5;margin-top:2rem;text-align:center}
-.dmx-escaner .status .mono{font-size:.7rem;color:var(--ink);letter-spacing:.26em;font-variant-numeric:tabular-nums}
+.dmx-escaner .status .mono{font-size:.8rem;color:var(--ink);letter-spacing:.14em;font-variant-numeric:tabular-nums}
 .dmx-escaner .status .sub{margin-top:.5rem;color:var(--steel);font-size:.85rem;font-weight:600}
 
 @media (max-width:520px){
@@ -131,7 +131,7 @@
 .dmx-informe .doc-head .caso{margin-top:.8rem}
 
 .dmx-informe .panel{position:relative;background:var(--surface-2);border-radius:16px;padding:1.8rem 1.5rem;margin-bottom:1.4rem}
-.dmx-informe .panel .plabel{font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.24em;font-size:.6rem;color:var(--ink-mute);margin-bottom:1.1rem}
+.dmx-informe .panel .plabel{font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.14em;font-size:.78rem;color:var(--ink-mute);margin-bottom:1.1rem}
 
 /* medidor */
 .dmx-informe .medidor{text-align:center}
@@ -139,7 +139,7 @@
 .dmx-informe .scoreline{margin-top:.4rem;font-family:var(--font-display),sans-serif;font-size:clamp(3.2rem,12vw,4.6rem);letter-spacing:-.03em;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
 .dmx-informe .scoreline small{font-size:.38em;color:var(--steel);letter-spacing:0}
 .dmx-informe .zona{margin-top:.6rem}
-.dmx-informe .zona .selloe{font-size:.72rem}
+.dmx-informe .zona .selloe{font-size:.8rem}
 
 /* arquetipo */
 .dmx-informe .arq{display:flex;align-items:center;gap:1.4rem}
@@ -168,7 +168,7 @@
 .dmx-informe .sellado .contenido svg{width:100%;height:auto}
 .dmx-informe .velo{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.8rem;background:rgba(13,17,22,.32);backdrop-filter:blur(1.5px)}
 .dmx-informe .velo svg.sutura{position:absolute;inset:-4px;width:calc(100% + 8px);height:calc(100% + 8px)}
-.dmx-informe .velo .selloe{position:relative;font-size:.7rem;background:rgba(16,19,24,.75)}
+.dmx-informe .velo .selloe{position:relative;font-size:.8rem;background:rgba(16,19,24,.75)}
 .dmx-informe .velo .queHay{position:relative;font-weight:700;font-size:1.02rem;color:var(--ink);text-align:center;text-shadow:0 2px 12px rgba(6,8,11,.9);padding:0 1.4rem}
 .dmx-informe .velo .queHay small{display:block;margin-top:.3rem;font-weight:600;font-size:.82rem;color:var(--ink-mute)}
 
@@ -206,7 +206,7 @@
 .dmx-ingreso .gbtn:hover{border-color:var(--steel);background:var(--surface-2)}
 .dmx-ingreso .gbtn svg{width:20px;height:20px;flex:none}
 
-.dmx-ingreso .sep{display:flex;align-items:center;gap:1rem;color:var(--steel);font-family:var(--font-mono),monospace;font-size:.58rem;letter-spacing:.24em;text-transform:uppercase;margin:.5rem 0}
+.dmx-ingreso .sep{display:flex;align-items:center;gap:1rem;color:var(--steel);font-family:var(--font-mono),monospace;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;margin:.5rem 0}
 .dmx-ingreso .sep::before,.dmx-ingreso .sep::after{content:'';flex:1;height:1px;background:var(--line)}
 
 .dmx-ingreso .input{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:8px;color:var(--ink);font-family:var(--font-body),sans-serif;font-size:1.02rem;padding:1.05rem 1.15rem;transition:border-color .3s}
@@ -223,7 +223,7 @@
 .dmx-ingreso .otp.good input{border-color:rgba(79,217,194,.6);background:rgba(79,217,194,.05)}
 @keyframes dmxShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
 
-.dmx-ingreso .otp-msg{text-align:center;font-family:var(--font-mono),monospace;font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;min-height:1em}
+.dmx-ingreso .otp-msg{text-align:center;font-family:var(--font-mono),monospace;font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;min-height:1em}
 .dmx-ingreso .otp-msg.err{color:var(--oxide)}
 .dmx-ingreso .otp-msg.ok{color:var(--signal)}
 
@@ -252,7 +252,7 @@
 .dmx-mesa .expediente .marco path{stroke:var(--steel);stroke-width:2;fill:none;stroke-linecap:round}
 
 .dmx-mesa .tallybar{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-bottom:1rem;padding:0 2px}
-.dmx-mesa .tallybar .n{font-family:var(--font-mono),monospace;font-size:.72rem;letter-spacing:.22em;color:var(--ink);text-transform:uppercase;font-variant-numeric:tabular-nums}
+.dmx-mesa .tallybar .n{font-family:var(--font-mono),monospace;font-size:.8rem;letter-spacing:.14em;color:var(--ink);text-transform:uppercase;font-variant-numeric:tabular-nums}
 .dmx-mesa .tallybar .n b{color:var(--sodium);font-weight:500}
 .dmx-mesa .tallybar .n.ok b{color:var(--signal)}
 .dmx-mesa .tallybar .pips{display:flex;gap:5px}
@@ -270,8 +270,8 @@
 .dmx-mesa .ev .corner.tr{top:7px;right:7px;border-left:0;border-bottom:0}
 .dmx-mesa .ev .corner.bl{bottom:7px;left:7px;border-right:0;border-top:0}
 .dmx-mesa .ev .corner.br{bottom:7px;right:7px;border-left:0;border-top:0}
-.dmx-mesa .ev .tag{position:absolute;top:9px;left:14px;font-family:var(--font-mono),monospace;font-size:.6rem;letter-spacing:.18em;color:var(--ink);text-transform:uppercase;text-shadow:0 1px 6px rgba(6,8,11,.9)}
-.dmx-mesa .ev .portada{position:absolute;bottom:10px;left:12px;display:none;font-family:var(--font-mono),monospace;font-size:.54rem;letter-spacing:.2em;color:var(--sodium);border:1px solid rgba(232,176,75,.5);padding:.3em .6em;border-radius:2px;text-transform:uppercase;transform:rotate(-3deg);background:rgba(16,19,24,.45)}
+.dmx-mesa .ev .tag{position:absolute;top:9px;left:14px;font-family:var(--font-mono),monospace;font-size:.78rem;letter-spacing:.12em;color:var(--ink);text-transform:uppercase;text-shadow:0 1px 6px rgba(6,8,11,.9)}
+.dmx-mesa .ev .portada{position:absolute;bottom:10px;left:12px;display:none;font-family:var(--font-mono),monospace;font-size:.75rem;letter-spacing:.14em;color:var(--sodium);border:1px solid rgba(232,176,75,.5);padding:.3em .6em;border-radius:2px;text-transform:uppercase;transform:rotate(-3deg);background:rgba(16,19,24,.45)}
 .dmx-mesa .ev.first .portada{display:inline-block}
 .dmx-mesa .ev.first{border-color:rgba(232,176,75,.45)}
 .dmx-mesa .ev .acts{position:absolute;top:7px;right:7px;display:flex;gap:5px;opacity:0;transition:opacity .25s}
@@ -285,7 +285,7 @@
 .dmx-mesa .addtile:hover{border-color:var(--signal);color:var(--ink)}
 .dmx-mesa .addtile .plus{width:34px;height:34px}
 .dmx-mesa .addtile .plus line{stroke:currentColor;stroke-width:2;stroke-linecap:round}
-.dmx-mesa .addtile span{font-size:.72rem;font-weight:600;letter-spacing:.02em;padding:0 .6rem;text-align:center;line-height:1.3}
+.dmx-mesa .addtile span{font-size:.8rem;font-weight:600;letter-spacing:.02em;padding:0 .6rem;text-align:center;line-height:1.3}
 .dmx-mesa .addtile.drag{border-color:var(--signal);color:var(--ink);background:rgba(79,217,194,.05)}
 
 .dmx-mesa .empty{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3.2rem 1.4rem;gap:1rem;cursor:pointer;border-radius:6px;transition:background .3s}
@@ -305,19 +305,19 @@
 .dmx-mesa .ctx{display:flex;flex-direction:column;gap:2.2rem}
 .dmx-mesa .field > .lab{display:flex;align-items:baseline;gap:.7rem;margin-bottom:.8rem}
 .dmx-mesa .field > .lab .k{font-family:var(--font-body),sans-serif;font-weight:700;font-size:1.08rem;color:var(--ink)}
-.dmx-mesa .field > .lab .opt{font-family:var(--font-mono),monospace;font-size:.58rem;letter-spacing:.2em;color:var(--steel);text-transform:uppercase}
+.dmx-mesa .field > .lab .opt{font-family:var(--font-mono),monospace;font-size:.78rem;letter-spacing:.14em;color:var(--steel);text-transform:uppercase}
 .dmx-mesa .field > .hint{color:var(--ink-mute);font-size:.85rem;font-weight:500;margin:-.5rem 0 .85rem;line-height:1.45}
 
 .dmx-mesa textarea{width:100%;min-height:96px;resize:vertical;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-family:var(--font-body),sans-serif;font-size:.98rem;line-height:1.55;padding:.95rem 1.05rem;transition:border-color .3s}
 .dmx-mesa textarea:focus{outline:none;border-color:var(--steel)}
 .dmx-mesa textarea::placeholder{color:var(--steel)}
-.dmx-mesa .counter{text-align:right;margin-top:.45rem;font-family:var(--font-mono),monospace;font-size:.6rem;letter-spacing:.14em;color:var(--steel);font-variant-numeric:tabular-nums}
+.dmx-mesa .counter{text-align:right;margin-top:.45rem;font-family:var(--font-mono),monospace;font-size:.78rem;letter-spacing:.14em;color:var(--steel);font-variant-numeric:tabular-nums}
 
 .dmx-mesa .glifsel{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 .dmx-mesa .glif{position:relative;display:flex;flex-direction:column;align-items:center;gap:.55rem;padding:.95rem .4rem .8rem;background:var(--surface-2);border:1px solid var(--line);border-radius:7px;cursor:pointer;color:var(--steel);transition:color .25s,border-color .25s,background .25s}
 .dmx-mesa .glif:hover{color:var(--ink-mute);border-color:var(--steel-dim)}
 .dmx-mesa .glif svg{width:34px;height:34px}
-.dmx-mesa .glif .gl{font-size:.68rem;font-weight:600;letter-spacing:.01em;color:var(--ink-mute);transition:color .25s}
+.dmx-mesa .glif .gl{font-size:.8rem;font-weight:600;letter-spacing:.01em;color:var(--ink-mute);transition:color .25s}
 .dmx-mesa .glif.on{color:var(--signal);border-color:rgba(79,217,194,.5);background:rgba(79,217,194,.06)}
 .dmx-mesa .glif.on .gl{color:var(--ink)}
 .dmx-mesa .glif .check{position:absolute;top:6px;right:6px;width:14px;height:14px;opacity:0;transform:scale(.6);transition:opacity .2s,transform .2s;color:var(--signal)}
@@ -326,16 +326,16 @@
 
 .dmx-mesa .regsel{display:flex;flex-wrap:wrap;gap:9px}
 .dmx-mesa .reg{font-family:var(--font-body),sans-serif;font-weight:600;font-size:.9rem;color:var(--ink-mute);background:var(--surface-2);border:1px solid var(--line);border-radius:100px;padding:.6rem 1.15rem;cursor:pointer;transition:color .25s,border-color .25s,background .25s}
-.dmx-mesa .reg small{display:block;font-family:var(--font-mono),monospace;font-size:.54rem;letter-spacing:.12em;color:var(--steel);text-transform:uppercase;margin-top:.15rem}
+.dmx-mesa .reg small{display:block;font-family:var(--font-mono),monospace;font-size:.75rem;letter-spacing:.12em;color:var(--steel);text-transform:uppercase;margin-top:.15rem}
 .dmx-mesa .reg:hover{color:var(--ink)}
 .dmx-mesa .reg.on{color:var(--ink);border-color:var(--steel);background:var(--surface)}
 .dmx-mesa .reg.on small{color:var(--ink-mute)}
 
 .dmx-mesa .ctabar{position:fixed;left:0;right:0;bottom:0;z-index:55;background:linear-gradient(180deg,transparent,rgba(16,19,24,.86) 34%,var(--void) 100%);padding:1.4rem 0 1.15rem;pointer-events:none}
 .dmx-mesa .ctabar .inner{width:min(660px,92vw);margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:1.2rem}
-.dmx-mesa .ctabar .count{font-family:var(--font-mono),monospace;font-size:.68rem;letter-spacing:.16em;color:var(--ink-mute);text-transform:uppercase;font-variant-numeric:tabular-nums;line-height:1.4}
+.dmx-mesa .ctabar .count{font-family:var(--font-mono),monospace;font-size:.8rem;letter-spacing:.12em;color:var(--ink-mute);text-transform:uppercase;font-variant-numeric:tabular-nums;line-height:1.4}
 .dmx-mesa .ctabar .count b{color:var(--ink);font-weight:500}
-.dmx-mesa .ctabar .count small{display:block;color:var(--steel);font-size:.58rem;margin-top:.25rem}
+.dmx-mesa .ctabar .count small{display:block;color:var(--steel);font-size:.78rem;margin-top:.25rem}
 .dmx-mesa .ctabar .btn{pointer-events:auto;padding:1rem 2.1rem;font-size:.96rem}
 .dmx-mesa .ctabar .btn[disabled]{opacity:.4;pointer-events:none;filter:grayscale(.4)}
 
@@ -344,7 +344,7 @@
   .dmx-mesa .glifsel{grid-template-columns:repeat(4,1fr);gap:7px}
   .dmx-mesa .glif{padding:.7rem .2rem .6rem}
   .dmx-mesa .glif svg{width:28px;height:28px}
-  .dmx-mesa .glif .gl{font-size:.58rem}
+  .dmx-mesa .glif .gl{font-size:.78rem}
   .dmx-mesa .ctabar .btn{padding:.9rem 1.4rem;font-size:.9rem}
 }
 
@@ -399,12 +399,12 @@
 .dmx-sidebar-user{display:flex;align-items:center;gap:.7rem;margin-top:auto}
 .dmx-avatar-wrap{position:relative;flex:none;width:38px;height:38px}
 .dmx-avatar{width:100%;height:100%;border-radius:8px;object-fit:cover;display:block;background:var(--surface)}
-.dmx-avatar-fallback{display:flex;align-items:center;justify-content:center;font-family:var(--font-mono),monospace;font-weight:500;font-size:.72rem;color:var(--ink-mute);border:1px solid var(--line)}
+.dmx-avatar-fallback{display:flex;align-items:center;justify-content:center;font-family:var(--font-mono),monospace;font-weight:500;font-size:.8rem;color:var(--ink-mute);border:1px solid var(--line)}
 .dmx-avatar-corners{position:absolute;inset:-3px;pointer-events:none;overflow:visible}
 .dmx-avatar-corners path{fill:none;stroke:var(--steel);stroke-width:1.6;stroke-linecap:round}
 .dmx-sidebar-user-info{min-width:0}
 .dmx-sidebar-user-name{font-size:.84rem;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dmx-sidebar-user-email{font-family:var(--font-mono),monospace;font-size:.56rem;letter-spacing:.02em;color:var(--steel);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:.15rem}
+.dmx-sidebar-user-email{font-family:var(--font-mono),monospace;font-size:.75rem;letter-spacing:.02em;color:var(--steel);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:.15rem}
 
 .dmx-sidebar-salir{display:flex;align-items:center;justify-content:center;gap:.55rem;width:100%;
   padding:.7rem .8rem;border-radius:7px;background:transparent;border:1px solid var(--line);
@@ -453,7 +453,7 @@
 .dmx-settings .regsel{display:flex;flex-wrap:wrap;gap:9px}
 .dmx-settings .reg{font-family:var(--font-body),sans-serif;font-weight:600;font-size:.9rem;color:var(--ink-mute);background:var(--surface-2);
   border:1px solid var(--line);border-radius:100px;padding:.6rem 1.15rem;cursor:pointer;transition:color .25s,border-color .25s,background .25s}
-.dmx-settings .reg small{display:block;font-family:var(--font-mono),monospace;font-size:.54rem;letter-spacing:.12em;color:var(--steel);text-transform:uppercase;margin-top:.15rem}
+.dmx-settings .reg small{display:block;font-family:var(--font-mono),monospace;font-size:.75rem;letter-spacing:.12em;color:var(--steel);text-transform:uppercase;margin-top:.15rem}
 .dmx-settings .reg:hover{color:var(--ink)}
 .dmx-settings .reg.on{color:var(--ink);border-color:var(--steel);background:var(--surface)}
 .dmx-settings .reg.on small{color:var(--ink-mute)}
@@ -470,7 +470,7 @@
 .dmx-settings .port.on .socket .core{stroke:rgba(79,217,194,.55);stroke-dasharray:0}
 .dmx-settings .port .plabel{flex:1;min-width:0}
 .dmx-settings .port .plabel b{display:block;font-weight:700;font-size:.96rem;color:var(--ink)}
-.dmx-settings .port .plabel small{display:block;font-family:var(--font-mono),monospace;font-size:.56rem;letter-spacing:.1em;color:var(--steel);margin-top:.2rem;text-transform:uppercase}
+.dmx-settings .port .plabel small{display:block;font-family:var(--font-mono),monospace;font-size:.75rem;letter-spacing:.1em;color:var(--steel);margin-top:.2rem;text-transform:uppercase}
 .dmx-settings .port .act{flex:none}
 .dmx-settings .err-vinculo{color:var(--oxide);font-size:.85rem;margin-top:.7rem}
 
@@ -481,7 +481,7 @@
 .dmx-settings .err-general{color:var(--oxide);font-size:.9rem;margin-top:1rem}
 .dmx-settings .divider{border-top:1px solid var(--line);margin-top:2.8rem;padding-top:1.6rem}
 
-.dmx-settings .loading-row{display:flex;align-items:center;gap:.7rem;color:var(--ink-mute);font-family:var(--font-mono),monospace;font-size:.72rem;letter-spacing:.12em}
+.dmx-settings .loading-row{display:flex;align-items:center;gap:.7rem;color:var(--ink-mute);font-family:var(--font-mono),monospace;font-size:.8rem;letter-spacing:.12em}
 .dmx-settings .loading-row .dot{width:6px;height:6px;border-radius:50%;background:var(--signal);animation:dmxLdot 1.1s ease-in-out infinite}
 @keyframes dmxLdot{0%,100%{opacity:.25}50%{opacity:1}}
 
@@ -494,7 +494,7 @@
 .dmx-historial .log{display:flex;flex-direction:column;gap:.85rem}
 .dmx-historial .entry{position:relative;display:flex;align-items:center;gap:1.2rem;padding:1.05rem 1.3rem;
   background:var(--surface-2);border:1px solid var(--line);border-radius:10px}
-.dmx-historial .entry .fecha{flex:none;width:88px;font-family:var(--font-mono),monospace;font-size:.62rem;
+.dmx-historial .entry .fecha{flex:none;width:88px;font-family:var(--font-mono),monospace;font-size:.78rem;
   letter-spacing:.06em;color:var(--steel);text-transform:uppercase;line-height:1.4}
 .dmx-historial .entry .gauge{flex:none;width:58px;height:36px;overflow:visible}
 .dmx-historial .entry .body{flex:1;min-width:0;display:flex;align-items:baseline;gap:.75rem}
@@ -510,7 +510,7 @@
 .dmx-historial .empty h3{font-family:var(--font-body),sans-serif;font-weight:700;font-size:1.1rem;color:var(--ink)}
 .dmx-historial .empty p{color:var(--ink-mute);font-size:.9rem;max-width:26em;line-height:1.5}
 
-.dmx-historial .loading-row{display:flex;align-items:center;gap:.7rem;color:var(--ink-mute);font-family:var(--font-mono),monospace;font-size:.72rem;letter-spacing:.12em}
+.dmx-historial .loading-row{display:flex;align-items:center;gap:.7rem;color:var(--ink-mute);font-family:var(--font-mono),monospace;font-size:.8rem;letter-spacing:.12em}
 .dmx-historial .loading-row .dot{width:6px;height:6px;border-radius:50%;background:var(--signal);animation:dmxLdot 1.1s ease-in-out infinite}
 .dmx-historial .err-general{color:var(--oxide);font-size:.9rem}
 
@@ -526,9 +526,9 @@
   line-height:1;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums}
 /* El margen no es letra chica: es lo que hace honesto al número y lo que convierte. */
 .dmx-informe .indice .numero small{display:block;margin-top:.35rem;font-family:var(--font-mono),monospace;
-  font-size:.62rem;letter-spacing:.14em;color:var(--steel)}
+  font-size:.78rem;letter-spacing:.14em;color:var(--steel)}
 .dmx-informe .indice .etiqueta{flex:1;min-width:0;padding-top:.4rem}
-.dmx-informe .indice .etiqueta .selloe{font-size:.66rem}
+.dmx-informe .indice .etiqueta .selloe{font-size:.8rem}
 .dmx-informe .indice .aclara{margin-top:.7rem;color:var(--ink-mute);font-size:.85rem;font-weight:500;line-height:1.5}
 
 .dmx-informe .indice .desglose{display:flex;flex-direction:column;gap:1rem}
@@ -539,7 +539,7 @@
 .dmx-informe .indice .comp .track i{display:block;height:100%;border-radius:4px;background:var(--signal);
   box-shadow:0 0 10px rgba(79,217,194,.35)}
 .dmx-informe .indice .comp small{display:block;margin-top:.35rem;font-family:var(--font-mono),monospace;
-  font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:var(--steel)}
+  font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--steel)}
 /* Un componente sin datos se ve apagado, no se rellena con un número inventado. */
 .dmx-informe .indice .comp.vacio .cnum,.dmx-informe .indice .comp.vacio small{color:var(--oxide)}
 .dmx-informe .indice .comp.vacio .track{background:repeating-linear-gradient(45deg,#1A202A,#1A202A 4px,#141A22 4px,#141A22 8px)}
@@ -578,7 +578,7 @@
 .dmx-perfil .campos{display:flex;flex-direction:column;gap:1.3rem;margin-bottom:1.6rem}
 .dmx-perfil .campo-label>span{display:block;font-weight:700;font-size:.94rem;color:var(--ink);margin-bottom:.55rem}
 .dmx-perfil .chips{display:flex;flex-wrap:wrap;gap:.4rem}
-.dmx-perfil .chip{font-family:var(--font-mono),monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;
+.dmx-perfil .chip{font-family:var(--font-mono),monospace;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;
   color:var(--steel);background:transparent;border:1px solid var(--line);border-radius:4px;padding:.6em 1em;cursor:pointer;
   transition:color .25s,border-color .25s}
 .dmx-perfil .chip:hover{color:var(--ink);border-color:var(--steel)}
@@ -591,7 +591,7 @@
 /* -- leyendo -- */
 .dmx-perfil .leyendo{text-align:center;padding:4rem 1rem}
 .dmx-perfil .leyendo h1{font-size:clamp(1.7rem,6vw,2.3rem);margin:1rem 0 1.4rem}
-.dmx-perfil .leyendo .mono{font-size:.72rem;letter-spacing:.22em;color:var(--ink-mute);margin-bottom:.8rem}
+.dmx-perfil .leyendo .mono{font-size:.8rem;letter-spacing:.14em;color:var(--ink-mute);margin-bottom:.8rem}
 .dmx-perfil .leyendo .track{width:min(320px,80%);height:5px;margin:0 auto 1.2rem;border-radius:3px;background:#1A202A;overflow:hidden}
 .dmx-perfil .leyendo .track i{display:block;height:100%;background:var(--signal);transition:width .5s ease-out;
   box-shadow:0 0 10px rgba(79,217,194,.4)}
@@ -605,8 +605,8 @@
 /* -- informe -- */
 .dmx-perfil .bloque{margin-bottom:1.3rem}
 .dmx-perfil .panel{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:1.5rem 1.4rem}
-.dmx-perfil .plabel{font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.22em;
-  font-size:.58rem;color:var(--ink-mute);margin-bottom:1.1rem}
+.dmx-perfil .plabel{font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.14em;
+  font-size:.78rem;color:var(--ink-mute);margin-bottom:1.1rem}
 
 .dmx-perfil .alerta{background:rgba(201,75,50,.08);border:1px solid var(--stamp);border-radius:14px;padding:1.2rem 1.3rem}
 .dmx-perfil .alerta ul{list-style:none;margin-top:.8rem;display:flex;flex-direction:column;gap:.35rem}
@@ -616,12 +616,12 @@
 .dmx-perfil .veredicto{border-radius:14px;padding:1.6rem 1.4rem;border:1px solid var(--line);background:var(--surface-2)}
 .dmx-perfil .veredicto.v-ok{border-color:rgba(79,217,194,.5);background:rgba(79,217,194,.06)}
 .dmx-perfil .veredicto.v-mal{border-color:var(--stamp);background:rgba(201,75,50,.07)}
-.dmx-perfil .veredicto .vlabel{font-family:var(--font-mono),monospace;font-size:.6rem;letter-spacing:.24em;
+.dmx-perfil .veredicto .vlabel{font-family:var(--font-mono),monospace;font-size:.78rem;letter-spacing:.14em;
   text-transform:uppercase;color:var(--ink-mute);margin-bottom:.7rem}
 .dmx-perfil .veredicto .vresumen{font-family:var(--font-body),sans-serif;font-weight:700;
   font-size:clamp(1.1rem,4.2vw,1.35rem);line-height:1.4;color:var(--ink)}
-.dmx-perfil .veredicto .vmeta{margin-top:.7rem;font-family:var(--font-mono),monospace;font-size:.58rem;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--signal)}
+.dmx-perfil .veredicto .vmeta{margin-top:.7rem;font-family:var(--font-mono),monospace;font-size:.78rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--signal)}
 .dmx-perfil .veredicto.v-mal .vmeta{color:var(--oxide)}
 .dmx-perfil .vevidencia{list-style:none;margin-top:1rem;display:flex;flex-direction:column;gap:.4rem}
 .dmx-perfil .vevidencia li{position:relative;padding-left:1rem;color:var(--ink-mute);font-size:.88rem;line-height:1.45}
@@ -631,7 +631,7 @@
 .dmx-perfil .gapfila .numero{flex:none;font-family:var(--font-display),sans-serif;font-size:clamp(2.6rem,9vw,3.4rem);
   line-height:1;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums}
 .dmx-perfil .gapfila .numero small{display:block;margin-top:.3rem;font-family:var(--font-mono),monospace;
-  font-size:.58rem;letter-spacing:.14em;color:var(--steel)}
+  font-size:.78rem;letter-spacing:.14em;color:var(--steel)}
 .dmx-perfil .getiqueta{flex:1;min-width:0}
 .dmx-perfil .gtier{display:block;margin-top:.6rem;font-weight:700;font-size:.98rem;color:var(--ink)}
 .dmx-perfil .glectura{margin-top:.35rem;color:var(--ink-mute);font-size:.88rem;line-height:1.5}
@@ -642,7 +642,7 @@
 .dmx-perfil .desglose{display:flex;flex-direction:column;gap:.8rem}
 .dmx-perfil .comp .ctop{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:.35rem}
 .dmx-perfil .comp .ctop b{font-weight:600;font-size:.88rem;color:var(--ink-mute)}
-.dmx-perfil .comp .cnum{font-family:var(--font-mono),monospace;font-size:.72rem;color:var(--ink-mute);font-variant-numeric:tabular-nums}
+.dmx-perfil .comp .cnum{font-family:var(--font-mono),monospace;font-size:.8rem;color:var(--ink-mute);font-variant-numeric:tabular-nums}
 .dmx-perfil .comp .track{height:6px;border-radius:3px;background:#1A202A;overflow:hidden}
 .dmx-perfil .comp .track i{display:block;height:100%;border-radius:3px;background:var(--signal)}
 .dmx-perfil .comp.vacio .cnum{color:var(--oxide)}
@@ -650,7 +650,7 @@
 
 .dmx-perfil .probfila{display:flex;align-items:baseline;gap:.9rem;margin-bottom:.9rem}
 .dmx-perfil .pnivel{font-family:var(--font-display),sans-serif;font-size:1.7rem;letter-spacing:-.02em;color:var(--ink)}
-.dmx-perfil .pvs{font-family:var(--font-mono),monospace;font-size:.68rem;letter-spacing:.14em;color:var(--signal)}
+.dmx-perfil .pvs{font-family:var(--font-mono),monospace;font-size:.8rem;letter-spacing:.14em;color:var(--signal)}
 .dmx-perfil .palancas{list-style:none;display:flex;flex-direction:column;gap:.4rem;margin-bottom:.9rem}
 .dmx-perfil .palancas li{position:relative;padding-left:1rem;color:var(--ink-mute);font-size:.88rem;line-height:1.45}
 .dmx-perfil .palancas li::before{content:'';position:absolute;left:0;top:.55em;width:4px;height:4px;border-radius:50%;background:var(--signal)}
@@ -658,14 +658,14 @@
 .dmx-perfil .openers{display:flex;flex-direction:column;gap:.9rem}
 .dmx-perfil .opener{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1rem 1.1rem}
 .dmx-perfil .otop{display:flex;justify-content:space-between;align-items:center;margin-bottom:.6rem}
-.dmx-perfil .otono,.dmx-perfil .oriesgo{font-family:var(--font-mono),monospace;font-size:.54rem;letter-spacing:.16em;text-transform:uppercase}
+.dmx-perfil .otono,.dmx-perfil .oriesgo{font-family:var(--font-mono),monospace;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase}
 .dmx-perfil .otono{color:var(--signal)}
 .dmx-perfil .oriesgo.r-bajo{color:var(--steel)}
 .dmx-perfil .oriesgo.r-medio{color:#E8B04B}
 .dmx-perfil .oriesgo.r-alto{color:var(--oxide)}
 .dmx-perfil .otexto{font-size:1rem;line-height:1.5;color:var(--ink);font-weight:600}
 .dmx-perfil .oporque{margin-top:.5rem;color:var(--ink-mute);font-size:.86rem;line-height:1.45}
-.dmx-perfil .olicencia{margin-top:.4rem;font-family:var(--font-mono),monospace;font-size:.56rem;
+.dmx-perfil .olicencia{margin-top:.4rem;font-family:var(--font-mono),monospace;font-size:.75rem;
   letter-spacing:.08em;color:var(--steel);line-height:1.5}
 
 .dmx-perfil .ganchos{display:flex;flex-direction:column;gap:.8rem}
@@ -715,8 +715,8 @@
 .dmx-radar .cifra b{display:block;font-family:var(--font-display),sans-serif;font-size:1.5rem;color:var(--ink);
   letter-spacing:-.02em;font-variant-numeric:tabular-nums}
 .dmx-radar .cifra.gap b{color:var(--signal)}
-.dmx-radar .cifra small{display:block;margin-top:.15rem;font-family:var(--font-mono),monospace;font-size:.52rem;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--steel)}
+.dmx-radar .cifra small{display:block;margin-top:.15rem;font-family:var(--font-mono),monospace;font-size:.75rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--steel)}
 .dmx-radar .lectura{color:var(--ink-mute);font-size:.92rem;line-height:1.5}
 
 .dmx-radar .medite{display:block;padding:.9rem 1.1rem;margin-bottom:1rem;border-radius:10px;
@@ -727,14 +727,14 @@
 .dmx-radar .openers{display:flex;flex-direction:column;gap:.7rem;margin-bottom:1.1rem}
 .dmx-radar .opener{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:.9rem 1rem;position:relative}
 .dmx-radar .otop{display:flex;justify-content:space-between;margin-bottom:.45rem}
-.dmx-radar .otono,.dmx-radar .oriesgo{font-family:var(--font-mono),monospace;font-size:.52rem;letter-spacing:.16em;text-transform:uppercase}
+.dmx-radar .otono,.dmx-radar .oriesgo{font-family:var(--font-mono),monospace;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase}
 .dmx-radar .otono{color:var(--signal)}
 .dmx-radar .oriesgo.r-bajo{color:var(--steel)}
 .dmx-radar .oriesgo.r-medio{color:#E8B04B}
 .dmx-radar .oriesgo.r-alto{color:var(--oxide)}
 .dmx-radar .otexto{font-size:.98rem;line-height:1.45;color:var(--ink);font-weight:600;padding-right:4.5rem}
-.dmx-radar .copiar{position:absolute;right:.8rem;bottom:.8rem;font-family:var(--font-mono),monospace;font-size:.52rem;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--steel);background:transparent;border:1px solid var(--line);
+.dmx-radar .copiar{position:absolute;right:.8rem;bottom:.8rem;font-family:var(--font-mono),monospace;font-size:.75rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--steel);background:transparent;border:1px solid var(--line);
   border-radius:4px;padding:.45em .8em;cursor:pointer}
 .dmx-radar .copiar:hover{color:var(--signal);border-color:rgba(79,217,194,.5)}
 
@@ -754,8 +754,8 @@
 .dmx-comparador .ranura .hueco{display:grid;place-items:center;border:1.6px dashed var(--steel-dim);background:var(--surface-2)}
 .dmx-comparador .ranura .hueco span{font-size:1.8rem;color:var(--steel)}
 .dmx-comparador .ranura:hover .hueco{border-color:var(--signal)}
-.dmx-comparador .ranura small{display:block;margin-top:.5rem;font-family:var(--font-mono),monospace;font-size:.54rem;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--steel)}
+.dmx-comparador .ranura small{display:block;margin-top:.5rem;font-family:var(--font-mono),monospace;font-size:.75rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--steel)}
 .dmx-comparador .versus{font-family:var(--font-display),sans-serif;font-size:1.1rem;color:var(--steel);flex:none}
 .dmx-comparador .accion{display:flex;gap:.7rem}
 .dmx-comparador .err-general{color:var(--oxide);font-size:.9rem;margin-bottom:.9rem}
@@ -768,8 +768,8 @@
 .dmx-comparador .lado{text-align:center}
 .dmx-comparador .lado b{display:block;font-family:var(--font-display),sans-serif;font-size:clamp(2.4rem,10vw,3.4rem);
   line-height:1;letter-spacing:-.03em;color:var(--ink);font-variant-numeric:tabular-nums}
-.dmx-comparador .lado small{display:block;margin-top:.3rem;font-family:var(--font-mono),monospace;font-size:.54rem;
-  letter-spacing:.18em;text-transform:uppercase;color:var(--steel)}
+.dmx-comparador .lado small{display:block;margin-top:.3rem;font-family:var(--font-mono),monospace;font-size:.75rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--steel)}
 .dmx-comparador .delta{font-family:var(--font-mono),monospace;font-size:1.1rem;color:var(--oxide);
   border:1.5px solid var(--stamp);border-radius:4px;padding:.4em .7em}
 .dmx-comparador .veredicto{font-family:var(--font-body),sans-serif;font-weight:700;
@@ -787,14 +787,14 @@
 
 .dmx-comparador .panel{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;
   padding:1.4rem 1.3rem;margin-bottom:1.2rem}
-.dmx-comparador .plabel{font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.22em;
-  font-size:.56rem;color:var(--ink-mute);margin-bottom:1rem}
+.dmx-comparador .plabel{font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.14em;
+  font-size:.75rem;color:var(--ink-mute);margin-bottom:1rem}
 .dmx-comparador .plan{display:flex;flex-direction:column;gap:.9rem}
 .dmx-comparador .paso{display:flex;gap:.9rem;align-items:flex-start}
-.dmx-comparador .puntos{flex:none;font-family:var(--font-mono),monospace;font-size:.72rem;color:var(--signal);
+.dmx-comparador .puntos{flex:none;font-family:var(--font-mono),monospace;font-size:.8rem;color:var(--signal);
   border:1px solid rgba(79,217,194,.4);border-radius:4px;padding:.35em .6em;font-variant-numeric:tabular-nums}
 .dmx-comparador .qué b{display:block;font-weight:600;font-size:.94rem;color:var(--ink);line-height:1.4}
-.dmx-comparador .qué small{display:block;margin-top:.2rem;font-family:var(--font-mono),monospace;font-size:.54rem;
+.dmx-comparador .qué small{display:block;margin-top:.2rem;font-family:var(--font-mono),monospace;font-size:.75rem;
   letter-spacing:.14em;text-transform:uppercase;color:var(--steel)}
 .dmx-comparador .techo{margin-top:1.2rem;padding-top:1rem;border-top:1px solid var(--line);
   color:var(--ink-mute);font-size:.88rem;line-height:1.5}
@@ -821,14 +821,14 @@
 .dmx-coach .chead h1{font-size:clamp(1.8rem,6vw,2.4rem)}
 .dmx-coach .chead .hint{margin-top:.7rem;color:var(--ink-mute);font-size:.9rem;font-weight:500;line-height:1.5;max-width:32em}
 .dmx-coach .chead .cupo{margin-top:.9rem}
-.dmx-coach .chead .cupo .selloe{font-size:.55rem;padding:.42em .85em}
+.dmx-coach .chead .cupo .selloe{font-size:.75rem;padding:.42em .85em}
 
 .dmx-coach .hilo{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:1.5rem;
   padding:.4rem .2rem 1.4rem;scrollbar-width:thin;scrollbar-color:var(--steel-dim) transparent}
 
 .dmx-coach .turno{display:flex;flex-direction:column;gap:.4rem;max-width:88%}
 .dmx-coach .turno.user{align-self:flex-end;align-items:flex-end}
-.dmx-coach .turno .quien{font-family:var(--font-mono),monospace;font-size:.54rem;letter-spacing:.24em;
+.dmx-coach .turno .quien{font-family:var(--font-mono),monospace;font-size:.75rem;letter-spacing:.14em;
   text-transform:uppercase;color:var(--signal)}
 .dmx-coach .turno .burbuja p{font-size:1rem;line-height:1.6;color:var(--ink)}
 .dmx-coach .turno .burbuja p + p{margin-top:.75rem}
@@ -873,7 +873,7 @@
 
 .dmx-coach .err-general{flex:none;color:var(--oxide);font-size:.88rem;margin-top:.8rem}
 .dmx-coach .loading-row{display:flex;align-items:center;gap:.7rem;color:var(--ink-mute);
-  font-family:var(--font-mono),monospace;font-size:.72rem;letter-spacing:.12em}
+  font-family:var(--font-mono),monospace;font-size:.8rem;letter-spacing:.12em}
 .dmx-coach .loading-row .dot{width:6px;height:6px;border-radius:50%;background:var(--signal);animation:dmxLdot 1.1s ease-in-out infinite}
 
 @media (max-width:860px){
@@ -895,7 +895,7 @@
 .dmx-admin .bloque{margin-bottom:2.8rem}
 .dmx-admin .bhead{display:flex;align-items:center;gap:.9rem;margin-bottom:1rem}
 .dmx-admin .bhead h2{font-family:var(--font-body),sans-serif;font-weight:700;font-size:1.02rem;color:var(--ink)}
-.dmx-admin .bhead .selloe{font-size:.58rem;padding:.4em .8em;transform:rotate(-2deg)}
+.dmx-admin .bhead .selloe{font-size:.78rem;padding:.4em .8em;transform:rotate(-2deg)}
 
 .dmx-admin .input{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:6px;
   color:var(--ink);padding:.7rem .95rem;font-size:.92rem;font-family:var(--font-body),sans-serif;margin-bottom:1rem}
@@ -909,7 +909,7 @@
 .dmx-admin .fila .quien{flex:1;min-width:0}
 .dmx-admin .fila .quien b{display:block;font-weight:700;font-size:.94rem;color:var(--ink);
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dmx-admin .fila .quien small{display:block;font-family:var(--font-mono),monospace;font-size:.56rem;
+.dmx-admin .fila .quien small{display:block;font-family:var(--font-mono),monospace;font-size:.75rem;
   letter-spacing:.1em;color:var(--steel);margin-top:.25rem;text-transform:uppercase}
 .dmx-admin .fila .quien .nota{margin-top:.5rem;font-size:.85rem;color:var(--ink-mute);line-height:1.45;
   border-left:2px solid var(--stamp);padding-left:.7rem}
@@ -919,7 +919,7 @@
 .dmx-admin .btn-sm:hover{transform:none;box-shadow:none}
 
 .dmx-admin .planes{flex:none;display:flex;gap:.35rem}
-.dmx-admin .chip{font-family:var(--font-mono),monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;
+.dmx-admin .chip{font-family:var(--font-mono),monospace;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;
   color:var(--steel);background:transparent;border:1px solid var(--line);border-radius:4px;padding:.55em .9em;
   cursor:pointer;transition:color .25s,border-color .25s}
 .dmx-admin .chip:hover:not(:disabled){color:var(--ink);border-color:var(--steel)}
@@ -929,7 +929,7 @@
 .dmx-admin .vacio{color:var(--ink-mute);font-size:.88rem;font-weight:500}
 .dmx-admin .err-general{color:var(--oxide);font-size:.9rem;margin-bottom:1.2rem}
 .dmx-admin .loading-row{display:flex;align-items:center;gap:.7rem;color:var(--ink-mute);
-  font-family:var(--font-mono),monospace;font-size:.72rem;letter-spacing:.12em}
+  font-family:var(--font-mono),monospace;font-size:.8rem;letter-spacing:.12em}
 .dmx-admin .loading-row .dot{width:6px;height:6px;border-radius:50%;background:var(--signal);animation:dmxLdot 1.1s ease-in-out infinite}
 
 @media (max-width:560px){
@@ -946,7 +946,7 @@
 .dmx-bio .campo-label>span{display:block;font-weight:700;font-size:.96rem;color:var(--ink);margin-bottom:.5rem}
 .dmx-bio .campo-label .ayuda{color:var(--ink-mute);font-size:.85rem;line-height:1.45;margin-bottom:.7rem}
 .dmx-bio .chips{display:flex;flex-wrap:wrap;gap:.4rem}
-.dmx-bio .chip{font-family:var(--font-mono),monospace;font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;
+.dmx-bio .chip{font-family:var(--font-mono),monospace;font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;
   color:var(--steel);background:transparent;border:1px solid var(--line);border-radius:4px;padding:.6em 1em;cursor:pointer;
   transition:color .25s,border-color .25s}
 .dmx-bio .chip:hover{color:var(--ink);border-color:var(--steel)}
@@ -965,19 +965,19 @@
 .dmx-bio .diagnostico p{color:var(--ink-mute);font-size:.9rem;line-height:1.5}
 .dmx-bio .variante{position:relative;background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:1.2rem 1.3rem}
 .dmx-bio .vtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:.7rem}
-.dmx-bio .angulo{font-family:var(--font-mono),monospace;font-size:.54rem;letter-spacing:.18em;text-transform:uppercase;color:var(--signal)}
-.dmx-bio .largo{font-family:var(--font-mono),monospace;font-size:.58rem;color:var(--steel);font-variant-numeric:tabular-nums}
+.dmx-bio .angulo{font-family:var(--font-mono),monospace;font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--signal)}
+.dmx-bio .largo{font-family:var(--font-mono),monospace;font-size:.78rem;color:var(--steel);font-variant-numeric:tabular-nums}
 .dmx-bio .largo.pasado{color:var(--oxide)}
 .dmx-bio .texto{font-size:1rem;line-height:1.55;color:var(--ink);white-space:pre-wrap}
 .dmx-bio .porque{margin-top:.7rem;padding-left:.8rem;border-left:2px solid var(--steel-dim);
   color:var(--ink-mute);font-size:.86rem;line-height:1.45}
-.dmx-bio .copiar{margin-top:.9rem;font-family:var(--font-mono),monospace;font-size:.54rem;letter-spacing:.16em;
+.dmx-bio .copiar{margin-top:.9rem;font-family:var(--font-mono),monospace;font-size:.75rem;letter-spacing:.12em;
   text-transform:uppercase;color:var(--steel);background:transparent;border:1px solid var(--line);border-radius:4px;
   padding:.5em .9em;cursor:pointer}
 .dmx-bio .copiar:hover{color:var(--signal);border-color:rgba(79,217,194,.5)}
 .dmx-bio .prompts{background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:1.2rem 1.3rem}
-.dmx-bio .plabel{font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.22em;
-  font-size:.56rem;color:var(--ink-mute);margin-bottom:1rem}
+.dmx-bio .plabel{font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.14em;
+  font-size:.75rem;color:var(--ink-mute);margin-bottom:1rem}
 .dmx-bio .prompt{margin-bottom:1.1rem}
 .dmx-bio .prompt b{display:block;font-size:.88rem;color:var(--ink-mute);margin-bottom:.35rem}
 
@@ -987,7 +987,7 @@
 .dmx-chats .chead h1{font-size:clamp(1.9rem,6.6vw,2.6rem)}
 .dmx-chats .chead .hint{margin-top:.8rem;color:var(--ink-mute);font-size:.9rem;line-height:1.5}
 .dmx-chats .volver{background:transparent;border:0;color:var(--steel);font-family:var(--font-mono),monospace;
-  font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;margin-bottom:1.2rem;padding:0}
+  font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;margin-bottom:1.2rem;padding:0}
 .dmx-chats .volver:hover{color:var(--signal)}
 .dmx-chats .nueva{display:flex;gap:.6rem;margin-bottom:1.4rem}
 .dmx-chats .nueva .campo{flex:1}
@@ -997,7 +997,7 @@
 .dmx-chats .rechazo h1{font-size:clamp(1.6rem,5.4vw,2.2rem)}
 .dmx-chats .rechazo p{color:var(--ink-mute);max-width:32em;line-height:1.55}
 .dmx-chats .loading-row{display:flex;align-items:center;gap:.7rem;color:var(--ink-mute);
-  font-family:var(--font-mono),monospace;font-size:.72rem;letter-spacing:.12em}
+  font-family:var(--font-mono),monospace;font-size:.8rem;letter-spacing:.12em}
 .dmx-chats .loading-row .dot{width:6px;height:6px;border-radius:50%;background:var(--signal);animation:dmxLdot 1.1s ease-in-out infinite}
 
 .dmx-chats .lista{display:flex;flex-direction:column;gap:.7rem}
@@ -1006,7 +1006,7 @@
   transition:border-color .25s}
 .dmx-chats .fila:hover{border-color:var(--steel)}
 .dmx-chats .fila .quien b{display:block;font-weight:700;font-size:.98rem;color:var(--ink)}
-.dmx-chats .fila .quien small{display:block;margin-top:.25rem;font-family:var(--font-mono),monospace;font-size:.54rem;
+.dmx-chats .fila .quien small{display:block;margin-top:.25rem;font-family:var(--font-mono),monospace;font-size:.75rem;
   letter-spacing:.12em;text-transform:uppercase;color:var(--steel)}
 
 .dmx-chats .veredicto{border:1px solid var(--line);border-radius:14px;padding:1.5rem 1.4rem;
@@ -1020,28 +1020,28 @@
 .dmx-chats .vevidencia li::before{content:'';position:absolute;left:0;top:.55em;width:4px;height:4px;border-radius:50%;background:var(--steel)}
 
 .dmx-chats .panel{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:1.4rem 1.3rem;margin-bottom:1.2rem}
-.dmx-chats .plabel{font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.22em;
-  font-size:.56rem;color:var(--ink-mute);margin-bottom:1rem}
+.dmx-chats .plabel{font-family:var(--font-mono),monospace;text-transform:uppercase;letter-spacing:.14em;
+  font-size:.75rem;color:var(--ink-mute);margin-bottom:1rem}
 .dmx-chats .grilla{display:grid;grid-template-columns:repeat(2,1fr);gap:1.2rem}
 .dmx-chats .dato b{display:block;font-family:var(--font-display),sans-serif;font-size:1.7rem;color:var(--ink);
   letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.dmx-chats .dato small{display:block;margin-top:.15rem;font-family:var(--font-mono),monospace;font-size:.52rem;
+.dmx-chats .dato small{display:block;margin-top:.15rem;font-family:var(--font-mono),monospace;font-size:.75rem;
   letter-spacing:.14em;text-transform:uppercase;color:var(--steel)}
 .dmx-chats .dato span{display:block;margin-top:.3rem;color:var(--ink-mute);font-size:.82rem}
 
 .dmx-chats .sugerencias{display:flex;flex-direction:column;gap:.9rem}
 .dmx-chats .sug{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:1rem}
-.dmx-chats .estrategia{font-family:var(--font-mono),monospace;font-size:.52rem;letter-spacing:.16em;
+.dmx-chats .estrategia{font-family:var(--font-mono),monospace;font-size:.75rem;letter-spacing:.12em;
   text-transform:uppercase;color:var(--signal)}
 .dmx-chats .sug .texto{margin-top:.5rem;font-size:1rem;line-height:1.5;color:var(--ink);font-weight:600}
 .dmx-chats .sug .porque{margin-top:.5rem;color:var(--ink-mute);font-size:.85rem;line-height:1.45}
-.dmx-chats .copiar{margin-top:.8rem;font-family:var(--font-mono),monospace;font-size:.52rem;letter-spacing:.16em;
+.dmx-chats .copiar{margin-top:.8rem;font-family:var(--font-mono),monospace;font-size:.75rem;letter-spacing:.12em;
   text-transform:uppercase;color:var(--steel);background:transparent;border:1px solid var(--line);border-radius:4px;
   padding:.45em .85em;cursor:pointer}
 .dmx-chats .copiar:hover{color:var(--signal);border-color:rgba(79,217,194,.5)}
 
 .dmx-chats .feedback .chips{display:flex;flex-wrap:wrap;gap:.4rem}
-.dmx-chats .chip{font-family:var(--font-mono),monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;
+.dmx-chats .chip{font-family:var(--font-mono),monospace;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;
   color:var(--steel);background:transparent;border:1px solid var(--line);border-radius:4px;padding:.6em 1em;cursor:pointer}
 .dmx-chats .chip:hover{color:var(--signal);border-color:rgba(79,217,194,.5)}
 .dmx-chats .yadicho{color:var(--ink-mute);font-size:.9rem}
@@ -1081,12 +1081,12 @@
   box-shadow:0 0 12px rgba(79,217,194,.6);transform:translateX(-1px)}
 .dmx-fotos .comparador .linea span{position:absolute;top:50%;left:50%;width:30px;height:30px;transform:translate(-50%,-50%);
   border-radius:50%;background:var(--void);border:2px solid var(--signal)}
-.dmx-fotos .comparador .etq{position:absolute;bottom:.7rem;font-family:var(--font-mono),monospace;font-size:.52rem;
-  letter-spacing:.18em;text-transform:uppercase;color:var(--ink);background:rgba(10,9,8,.7);padding:.35em .7em;border-radius:3px}
+.dmx-fotos .comparador .etq{position:absolute;bottom:.7rem;font-family:var(--font-mono),monospace;font-size:.75rem;
+  letter-spacing:.12em;text-transform:uppercase;color:var(--ink);background:rgba(10,9,8,.7);padding:.35em .7em;border-radius:3px}
 .dmx-fotos .comparador .etq.izq{left:.7rem}
 .dmx-fotos .comparador .etq.der{right:.7rem}
 .dmx-fotos .comparador .trabajando{position:absolute;top:.7rem;right:.7rem;font-family:var(--font-mono),monospace;
-  font-size:.52rem;letter-spacing:.16em;text-transform:uppercase;color:var(--signal);background:rgba(10,9,8,.7);
+  font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;color:var(--signal);background:rgba(10,9,8,.7);
   padding:.35em .7em;border-radius:3px}
 
 .dmx-fotos .controles{display:flex;flex-direction:column;gap:1.2rem;margin-bottom:1.4rem}
@@ -1097,7 +1097,7 @@
 .dmx-fotos input[type=range]{width:100%;accent-color:var(--signal)}
 .dmx-fotos .grupo .glabel{display:block;font-size:.9rem;color:var(--ink-mute);margin-bottom:.5rem}
 .dmx-fotos .chips{display:flex;flex-wrap:wrap;gap:.4rem}
-.dmx-fotos .chip{font-family:var(--font-mono),monospace;font-size:.56rem;letter-spacing:.14em;text-transform:uppercase;
+.dmx-fotos .chip{font-family:var(--font-mono),monospace;font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;
   color:var(--steel);background:transparent;border:1px solid var(--line);border-radius:4px;padding:.55em .9em;cursor:pointer;
   transition:color .25s,border-color .25s}
 .dmx-fotos .chip:hover{color:var(--ink);border-color:var(--steel)}
@@ -1105,6 +1105,30 @@
 .dmx-fotos .accion{display:flex;flex-wrap:wrap;gap:.7rem;margin-bottom:1.2rem}
 .dmx-fotos .err-general{color:var(--oxide);font-size:.9rem;margin-bottom:1rem}
 /* La declaracion no es letra chica: es la promesa del producto, verificable. */
-.dmx-fotos .declaracion{color:var(--steel);font-size:.8rem;line-height:1.6;padding:.9rem 1rem;
+.dmx-fotos .declaracion{color:var(--steel);font-size:.88rem;line-height:1.6;padding:.9rem 1rem;
   border:1px solid var(--line);border-radius:8px}
 .dmx-fotos .declaracion b{color:var(--ink-mute)}
+
+/* =====================================================================
+   PISO DE LEGIBILIDAD (pedido explícito de Fernando, 16-ago).
+   1. Ningún texto de la app baja de .75rem (12px). Los tamaños micro del
+      porteo original (.52-.72rem) se subieron arriba, en sus reglas.
+   2. Los labels de panel dejan de ser eyebrows: eran mono uppercase de
+      9.6px con tracking .24em (ej: "ARQUETIPO DETECTADO · ..."). Pasan a
+      titular en cuerpo legible, sentence case, sin tracking. El texto
+      fuente ya estaba escrito en sentence case, así que alcanza con
+      apagar el uppercase.
+   Esta regla va al final a propósito: pisa a las definiciones de arriba
+   sin tocarlas una por una. .dmx-settings .port .plabel es otra cosa
+   (contenedor de los puertos) y NO entra acá.
+   ===================================================================== */
+.dmx-informe .panel .plabel,
+.dmx-perfil .plabel,
+.dmx-comparador .plabel,
+.dmx-bio .plabel,
+.dmx-chats .plabel{
+  font-family:var(--font-body),sans-serif;text-transform:none;letter-spacing:0;
+  font-size:1rem;font-weight:700;color:var(--ink);margin-bottom:1rem}
+
+/* La fecha del historial creció con el piso nuevo: la columna acompaña. */
+.dmx-historial .entry .fecha{width:104px}
