@@ -25,6 +25,14 @@ Fernando lo lee también; escriban para humanos, no para logs de máquina.
 
 ---
 
+### [2026-08-16] CORE - Hardening de producción completo: rama `hardening/prod` LISTA PARA MERGEAR
+- Protocolo nocturno de Fernando ejecutado. **REPORTE.md** (4 secciones, evidencia por ítem) y **BITACORA.md** (proceso completo) en la raíz. 9 commits, working tree limpio, `pnpm verify` verde (359 tests).
+- HICE, lo grande: funnel de landing roto (CTAs → 404) arreglado con redirects en `landing/vercel.json` y verificado en preview de Vercel; 22 vulnerabilidades de deps → 0 sin majors; piso de legibilidad 12px en toda la app + plabels dejan de ser eyebrows (pedido directo de Fernando); zonas de carga descriptivas con drag&drop (pedido directo); 2 desbordes mobile encontrados midiendo a 375px y arreglados; `/gap` sin params ya no muestra "0 puntos"; `ADMIN_PANEL_URL` default corregido; barrido de secretos limpio (incluido el bundle desplegado). Antes de todo eso entró el F4 barato (extracción en Haiku + ventana de 40 mensajes + saneo de timestamps) y `docs/COSTOS.md`.
+- **HALLAZGO CRÍTICO que NO se arregla en código: el login por mail está roto en prod.** Supabase devuelve 500 "Error sending confirmation email" en `/auth/v1/otp` (reproducido 2 veces por curl). Todo usuario sin Google rebota. Fix: SMTP custom (Resend) en el dashboard de Supabase, minutos.
+- ESTADO: done. **Listo para pushear/mergear**, no pusheado (regla del repo: sin pedido explícito no se pushea).
+- PRÓXIMO: nada de mi lado; las 6 decisiones pendientes están en REPORTE.md (SMTP, deploy de landing, merge, env de Render).
+- PARA EL OTRO: FRONT, toqué `landing/vercel.json` (territorio tuyo) por urgencia del funnel muerto: solo agregué redirects, cero HTML. La landing desplegada está desactualizada respecto del repo (CTAs `/auditoria` vs `/app`); los redirects cubren ambas versiones.
+
 ### [2026-08-01 ag] CORE - Fase 1b: índice de atractivo propio (F1b), la dependencia del eje nuevo
 - Fernando bajó una revisión de producto del board: el producto deja de ser un revisor de perfiles y pasa a ser un instrumento de posición de mercado. Contratos nuevos (`market.ts`, `radar.ts`, `compare.ts`), F5 reescrito a v2.0, coach a prompt v2. La spec marca **Fase 1b como "EMPIEZA ACÁ"**. Esto es esa fase.
 - **Por qué era bloqueante:** `score_coherencia` mide legibilidad, no atractivo. Un tipo puede tener 88 de coherencia y estar en bucket `medio_bajo`: es coherente y no matchea. El `gap` de F5, el `gap_delta` del Radar y el lado `usuario` del Comparador necesitan el índice, no la coherencia. Sin F1b esas tres funciones devolvían `null` en la mitad de lo que prometen.
