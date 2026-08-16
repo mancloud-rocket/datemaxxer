@@ -18,8 +18,24 @@ function leer(v: string | string[] | undefined, def: number): number {
   return Number.isFinite(n) ? Math.max(0, Math.min(100, Math.round(n))) : def;
 }
 
+/**
+ * Sin `d` en la URL no hay medición: alguien entró a /gap a mano, no por una
+ * card compartida. Mostrar "0 puntos de distancia" ahí era presentar la
+ * ausencia de datos como si fuera un resultado. En ese caso va el pitch y el
+ * CTA solos, sin números inventados.
+ */
+function conDatos(sp: Record<string, string | string[] | undefined>): boolean {
+  return sp.d !== undefined;
+}
+
 export async function generateMetadata({ searchParams }: Params): Promise<Metadata> {
   const sp = await searchParams;
+  if (!conDatos(sp)) {
+    return {
+      title: 'Datemaxxer',
+      description: 'Medí en qué escalón del mercado estás parado.',
+    };
+  }
   const d = leer(sp.d, 0);
   const c = Math.min(leer(sp.c, 0), d);
   const og = `/api/og/gap?d=${d}&c=${c}`;
@@ -37,6 +53,7 @@ export async function generateMetadata({ searchParams }: Params): Promise<Metada
 
 export default async function GapPage({ searchParams }: Params) {
   const sp = await searchParams;
+  const medicion = conDatos(sp);
   const d = leer(sp.d, 0);
   const c = Math.min(leer(sp.c, 0), d);
   const rasgos = d - c;
@@ -45,19 +62,24 @@ export default async function GapPage({ searchParams }: Params) {
   return (
     <main className="gap-share">
       <p className="marca">Datemaxxer</p>
-      <div className="cifra">
-        <b>{d}</b>
-        <span>puntos de distancia</span>
-      </div>
 
-      <div className="barra">
-        <i style={{ width: `${pct}%`, background: 'var(--signal)' }} />
-        <i style={{ width: `${100 - pct}%`, background: 'var(--steel-dim)' }} />
-      </div>
-      <div className="leyenda">
-        <span style={{ color: 'var(--signal)' }}>{c} recuperables</span>
-        <span style={{ color: 'var(--steel)' }}>{rasgos} son rasgos</span>
-      </div>
+      {medicion && (
+        <>
+          <div className="cifra">
+            <b>{d}</b>
+            <span>puntos de distancia</span>
+          </div>
+
+          <div className="barra">
+            <i style={{ width: `${pct}%`, background: 'var(--signal)' }} />
+            <i style={{ width: `${100 - pct}%`, background: 'var(--steel-dim)' }} />
+          </div>
+          <div className="leyenda">
+            <span style={{ color: 'var(--signal)' }}>{c} recuperables</span>
+            <span style={{ color: 'var(--steel)' }}>{rasgos} son rasgos</span>
+          </div>
+        </>
+      )}
 
       <p className="pitch">
         No es cuánto valés. Es en qué escalón del mercado estás parado, y cuántos de esos
