@@ -423,7 +423,12 @@
     padding:.9rem 1.1rem;border-right:0;border-bottom:1px solid var(--line);
   }
   .dmx-sidebar::after{display:none}
-  .dmx-sidebar-nav{flex-direction:row;gap:.4rem}
+  /* 10 items + marca no entran en 375px: sin esto la franja fija el ancho
+     minimo del shell entero y TODA la pagina queda mas ancha que el viewport,
+     recortada por el overflow-x:clip del .dmx. La fila scrollea, el resto no. */
+  .dmx-sidebar-nav{flex-direction:row;gap:.4rem;flex:1;min-width:0;overflow-x:auto;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .dmx-sidebar-nav::-webkit-scrollbar{display:none}
   .dmx-sidebar-link{padding:.5rem .7rem;font-size:.78rem}
   .dmx-sidebar-link .lab{display:none}
   .dmx-sidebar-link .led{width:6px;height:6px}
@@ -749,7 +754,9 @@
 .dmx-comparador .chead .hint{margin-top:.85rem;color:var(--ink-mute);font-size:.92rem;line-height:1.5}
 
 .dmx-comparador .ranuras{display:flex;align-items:center;gap:1rem;margin-bottom:1.4rem}
-.dmx-comparador .ranura{flex:1;cursor:pointer;text-align:center}
+/* min-width:0: sin esto el texto descriptivo del hueco fija el min-content
+   del flex item y a 375px las ranuras desbordan la pantalla. */
+.dmx-comparador .ranura{flex:1;min-width:0;cursor:pointer;text-align:center}
 .dmx-comparador .ranura img,.dmx-comparador .ranura .hueco{width:100%;aspect-ratio:3/4;border-radius:10px;
   object-fit:cover;border:1px solid var(--line);display:block}
 /* El hueco dice adentro qué foto espera: es la información que decide todo. */
@@ -813,6 +820,10 @@
 
 @media (max-width:520px){
   .dmx-comparador .caras{flex-direction:column;gap:1.1rem}
+  /* En un telefono las dos ranuras lado a lado quedan de 150px y el texto
+     descriptivo no respira: se apilan, cada una generosa, con el VS entre. */
+  .dmx-comparador .ranuras{flex-direction:column;gap:.7rem}
+  .dmx-comparador .ranura{width:min(230px,72vw)}
 }
 
 /* ============ COACH · la conversación ============
