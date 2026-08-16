@@ -18,7 +18,13 @@ export type VeredictoDecision = z.infer<typeof VeredictoDecision>;
 
 export const Comportamiento = z
   .object({
-    latencia_promedio_min: z.number().nonnegative(),
+    /**
+     * `null` cuando no hubo ni una latencia medible (ninguna captura mostraba
+     * hora, o las que mostraba no eran creíbles). Es distinto de 0: 0 significa
+     * "contesta al instante", que es la señal positiva más fuerte que existe, y
+     * salía sola cuando faltaba el dato.
+     */
+    latencia_promedio_min: z.number().nonnegative().nullable(),
     latencia_tendencia: z.enum(['creciente', 'estable', 'decreciente']),
     ratio_esfuerzo: z.number().nonnegative(),
     preguntas_ella_ultimos_10: z.number().int().nonnegative(),

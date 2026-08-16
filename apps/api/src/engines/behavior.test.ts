@@ -146,7 +146,9 @@ describe('calcularComportamiento', () => {
   it('una conversación vacía no rompe ni inventa números', () => {
     const c = calcularComportamiento([]);
     expect(() => Comportamiento.parse(c)).not.toThrow();
-    expect(c.latencia_promedio_min).toBe(0);
+    // Sin muestras la latencia queda en null. Antes acá iba 0, que es
+    // justamente inventar un número: 0 minutos es "contesta al instante".
+    expect(c.latencia_promedio_min).toBeNull();
     expect(c.ratio_esfuerzo).toBe(0);
     expect(c.latencia_tendencia).toBe('estable');
   });
@@ -156,7 +158,7 @@ describe('calcularComportamiento', () => {
     // seguir sirviendo igual.
     const chat = [m('yo', 'hola que tal', null), m('ella', 'bien, y vos?', null)];
     const c = calcularComportamiento(chat);
-    expect(c.latencia_promedio_min).toBe(0);
+    expect(c.latencia_promedio_min).toBeNull();
     expect(c.ratio_esfuerzo).toBeGreaterThan(0);
     expect(c.preguntas_ella_ultimos_10).toBe(1);
   });

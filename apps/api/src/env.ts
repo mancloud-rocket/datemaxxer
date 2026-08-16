@@ -12,6 +12,10 @@ const EnvSchema = z
     // Motores de IA: sin key la API bootea igual pero /audit responde 503
     ANTHROPIC_API_KEY: z.string().min(20).optional(),
     AUDIT_MODEL: z.string().min(1).optional(),
+    // Paso 1 de F4 (extracción del chat). Va a un modelo chico a propósito: es
+    // transcribir y separar quién dijo qué, no interpretar. El paso 2, que es el
+    // que emite el veredicto, se queda en AUDIT_MODEL.
+    CHAT_EXTRACCION_MODEL: z.string().min(1).default('claude-haiku-4-5-20251001'),
     RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
     // Límite específico del endpoint de auditoría (caro: llama a Claude)
     AUDIT_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(5),

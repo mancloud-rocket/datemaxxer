@@ -124,7 +124,8 @@ export function profundidad(mensajes: MensajeParseado[]): Comportamiento['profun
 export function calcularComportamiento(mensajes: MensajeParseado[]): Comportamiento {
   const latencias = latenciasDeElla(mensajes);
   return {
-    latencia_promedio_min: Math.round(promedio(latencias)),
+    // Sin muestras no hay promedio. Devolver 0 acá decía "contesta al toque".
+    latencia_promedio_min: latencias.length === 0 ? null : Math.round(promedio(latencias)),
     latencia_tendencia: tendencia(latencias),
     ratio_esfuerzo: ratioEsfuerzo(mensajes),
     preguntas_ella_ultimos_10: preguntasDeElla(mensajes),

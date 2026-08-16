@@ -293,7 +293,8 @@ function Analisis(props: { a: ChatTurnAnalysis }) {
         <div className="plabel">Los números · calculados, no estimados</div>
         <div className="grilla">
           <div className="dato">
-            <b>{c.latencia_promedio_min}′</b>
+            {/* null es "ninguna captura mostraba la hora", no "contesta al toque". */}
+            <b>{c.latencia_promedio_min === null ? 's/d' : `${c.latencia_promedio_min}′`}</b>
             <small>tarda en contestar</small>
             <span>{TENDENCIAS[c.latencia_tendencia]}</span>
           </div>

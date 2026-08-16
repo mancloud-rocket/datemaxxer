@@ -145,8 +145,10 @@ function resolveRadarEngine(env: Env, deps: AppDeps): RadarEngine | undefined {
 function resolveChatEngine(env: Env, deps: AppDeps): ChatEngine | undefined {
   if (deps.chatEngine) return deps.chatEngine;
   if (env.ANTHROPIC_API_KEY === undefined) return undefined;
+  // Dos modelos: la extracción va al chico, el veredicto al grande.
   return buildChatEngine({
     client: claudeClientFromSdk(sdkAnthropic(env.ANTHROPIC_API_KEY)),
+    modelExtraccion: env.CHAT_EXTRACCION_MODEL,
     ...(env.AUDIT_MODEL !== undefined ? { model: env.AUDIT_MODEL } : {}),
   });
 }
