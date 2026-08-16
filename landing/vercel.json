@@ -1,6 +1,10 @@
 {
   "redirects": [
-    { "source": "/", "destination": "/cinema.html", "permanent": false }
+    { "source": "/", "destination": "/cinema.html", "permanent": false },
+
+    { "source": "/app", "destination": "https://datemaxxer-app.vercel.app/app", "permanent": false },
+    { "source": "/app/:path*", "destination": "https://datemaxxer-app.vercel.app/app/:path*", "permanent": false },
+    { "source": "/auditoria", "destination": "https://datemaxxer-app.vercel.app/app", "permanent": false }
   ],
   "headers": [
     {
