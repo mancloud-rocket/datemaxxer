@@ -70,8 +70,12 @@ const EnvSchema = z
     RESEND_API_KEY: z.string().min(10).optional(),
     RESEND_FROM: z.string().default('Datemaxxer <onboarding@resend.dev>'),
     ADMIN_EMAIL: z.string().email().optional(),
-    // Link al panel que se mete en el mail de aviso.
-    ADMIN_PANEL_URL: z.string().url().default('https://datemaxxer.vercel.app/admin'),
+    // Link al panel que se mete en el mail de aviso. El panel vive en el
+    // proyecto de la APP (datemaxxer-app), no en el de la landing, y la ruta
+    // es /app/admin. El default anterior apuntaba a datemaxxer.vercel.app/admin,
+    // que es 404: si Render no pisaba la variable, el mail de "alguien quiere
+    // pagar" llegaba con un link muerto.
+    ADMIN_PANEL_URL: z.string().url().default('https://datemaxxer-app.vercel.app/app/admin'),
   });
 // Nota: SUPABASE_* son opcionales para que la API bootee en dev sin proyecto Supabase;
 // las rutas autenticadas responden 503 hasta que se configure (src/auth.ts).
