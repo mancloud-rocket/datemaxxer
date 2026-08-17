@@ -25,6 +25,14 @@ Fernando lo lee también; escriban para humanos, no para logs de máquina.
 
 ---
 
+### [2026-08-17] CORE - El informe pasa a pestañas de expediente + desbloqueo real del Kit
+- Fernando pidió dos cosas sobre Mi perfil: que su cuenta vea todo (los sellos EN EL KIT eran un teaser fijo para TODOS los planes, incluso pagos: la vista desbloqueada no existía en el front) y que el informe deje de ser "un chorizo larguísimo".
+- HICE: (1) informe desbloqueado real para kit/copiloto (lectura por foto, plan de fotos, quick wins + gap; el CTA desaparece para quien pagó); (2) rediseño a 4 pestañas sticky (Veredicto / Tu escalón / Tus fotos / Qué hacer) con la lectura por foto como GRÁFICO de barras clickeable en vez de N fichas apiladas; (3) suturas y barras se arman al activar cada pestaña, porque en panel oculto los anchos miden cero; (4) fixture QA realista + hooks `?plan=` y `?tab=`; (5) fernando.urbano@rocketbot.com y f.urbanoesp@gmail.com en copiloto por base.
+- QA contra PRODUCCIÓN con capturas headless (`?dev=1&estado=informe&qa=1`): las 4 pestañas verificadas en desktop y mobile-500, en las dos variantes (free sellado con CTA adentro de la pestaña / kit abierto). Dos fixes salieron de las capturas: el tween de la fila de pestañas que faltaba, y el HUD pisando la franja mobile. RECORDATORIO DE MÉTODO: Edge headless clampea el ancho mínimo a ~500px; las capturas "a 375" mienten (ya estaba anotado y me volvió a pasar).
+- ESTADO: done, deployado en prod (commits `71056a7..03594e3` en main).
+- PRÓXIMO: nada.
+- PARA EL OTRO: FRONT, el informe ahora tiene pestañas; la coreografía de entrada quedó solo para la portada (Veredicto). Si retocás el set piece, está en ese panel.
+
 ### [2026-08-16] CORE - Hardening de producción completo: rama `hardening/prod` LISTA PARA MERGEAR
 - Protocolo nocturno de Fernando ejecutado. **REPORTE.md** (4 secciones, evidencia por ítem) y **BITACORA.md** (proceso completo) en la raíz. 9 commits, working tree limpio, `pnpm verify` verde (359 tests).
 - HICE, lo grande: funnel de landing roto (CTAs → 404) arreglado con redirects en `landing/vercel.json` y verificado en preview de Vercel; 22 vulnerabilidades de deps → 0 sin majors; piso de legibilidad 12px en toda la app + plabels dejan de ser eyebrows (pedido directo de Fernando); zonas de carga descriptivas con drag&drop (pedido directo); 2 desbordes mobile encontrados midiendo a 375px y arreglados; `/gap` sin params ya no muestra "0 puntos"; `ADMIN_PANEL_URL` default corregido; barrido de secretos limpio (incluido el bundle desplegado). Antes de todo eso entró el F4 barato (extracción en Haiku + ventana de 40 mensajes + saneo de timestamps) y `docs/COSTOS.md`.
