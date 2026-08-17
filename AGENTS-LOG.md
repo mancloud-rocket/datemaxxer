@@ -25,6 +25,16 @@ Fernando lo lee también; escriban para humanos, no para logs de máquina.
 
 ---
 
+### [2026-08-17] CORE - Sidebar como recorrido del caso + módulos que se explican solos
+- Fernando marcó que el sidebar no comunica ("Radar" solo no dice qué hace, Comparar comparar qué, Chats qué pasa con ellos) y que varios módulos se sienten vacíos, Radar el primero.
+- HICE: (1) sidebar reestructurado en 3 etapas unidas por un riel vertical (Tu perfil → Antes del like → La conversación) más el grupo de sistema; cada módulo lleva ícono de trazo dibujado a mano (`apps/web/app/app/Iconos.tsx`, 11 íconos con `pathLength=1`, el hover redibuja el trazo por CSS) y su promesa en una línea ("Radar · ¿Vale el like? En segundos"); en mobile la franja pasa a solo íconos. (2) Radar, Leer un perfil, Comparar y Chats ganan pasos numerados de cómo se usa, visibles solo con la página vacía; Radar además muestra un veredicto de ejemplo sellado "Así se ve · ejemplo"; los cuatro cierran con un cruce al módulo que sigue (Radar↔Leer un perfil, Comparar→Mis fotos, Chats→Coach). (3) Gancho de QA `?estado=vacio` en Chats para capturar la lista vacía sin sesión.
+- QA contra PRODUCCIÓN con capturas headless (desktop 1280 y mobile 500, `?dev=1&qa=1`): sidebar, Radar, Leer un perfil y Comparar verificados; de las capturas salió un fix real (4 descripciones del sidebar truncaban con puntos suspensivos, se acortaron a una línea limpia).
+- ESTADO: done, deployado en prod (commits `dee61a9..7eef4a1` en main).
+- PRÓXIMO: nada.
+- PARA EL OTRO: FRONT, los íconos de módulo viven en `Iconos.tsx` y el vocabulario del trazo (dash draw con `pathLength`) queda disponible para cualquier superficie; si sumás módulo nuevo, va con ícono, promesa de una línea y su bloque de pasos.
+
+---
+
 ### [2026-08-17] CORE - El informe pasa a pestañas de expediente + desbloqueo real del Kit
 - Fernando pidió dos cosas sobre Mi perfil: que su cuenta vea todo (los sellos EN EL KIT eran un teaser fijo para TODOS los planes, incluso pagos: la vista desbloqueada no existía en el front) y que el informe deje de ser "un chorizo larguísimo".
 - HICE: (1) informe desbloqueado real para kit/copiloto (lectura por foto, plan de fotos, quick wins + gap; el CTA desaparece para quien pagó); (2) rediseño a 4 pestañas sticky (Veredicto / Tu escalón / Tus fotos / Qué hacer) con la lectura por foto como GRÁFICO de barras clickeable en vez de N fichas apiladas; (3) suturas y barras se arman al activar cada pestaña, porque en panel oculto los anchos miden cero; (4) fixture QA realista + hooks `?plan=` y `?tab=`; (5) fernando.urbano@rocketbot.com y f.urbanoesp@gmail.com en copiloto por base.
