@@ -25,6 +25,16 @@ Fernando lo lee también; escriban para humanos, no para logs de máquina.
 
 ---
 
+### [2026-08-17] CORE - Login por correo destrabado sin tocar el dashboard de Supabase
+- El SMTP built-in de Supabase sigue roto (500 al mandar el mail) y solo se arregla por dashboard. En vez de esperar eso, el código de ingreso ahora lo genera y lo manda nuestra API: `POST /auth/otp` crea la cuenta si no existe (admin API, email confirmado), pide un magiclink y despacha el `email_otp` de 8 dígitos por Resend (`apps/api/src/auth-otp/`). El cliente lo canjea con `verifyOtp` igual que siempre. Supabase quedó fuera del circuito de mails.
+- Frenos: rate limit propio por IP (8 cada 10 min) + intervalo de 45 s por correo; sin `RESEND_API_KEY` la ruta contesta 503 tipado. La UI pasó de 6 a 8 casilleros (largo real del proyecto, verificado en vivo).
+- VERIFICADO en prod: mecanismo `generate_link` → `verifyOtp` emite sesión (probado por REST); `POST /auth/otp` devuelve 200 para `f.urbanoesp@gmail.com` (dueña de la cuenta de Resend, el mail salió), 502 tipado para otros correos (límite de `onboarding@resend.dev` sin dominio verificado) y 429 en el reintento inmediato; 326 tests verdes (6 nuevos); `pnpm verify` completo; pantalla de login nueva capturada en prod.
+- ESTADO: done y deployado (commit `58fa9c7`). Para que el mail llegue a CUALQUIER usuario falta un solo paso, de Fernando: verificar un dominio en Resend y setear `RESEND_FROM` en Render.
+- PRÓXIMO: nada.
+- PARA EL OTRO: FRONT, el login ya no llama a `signInWithOtp`; si tocás esa pantalla, el envío va por `pedirCodigoLogin` de `lib/api.ts`.
+
+---
+
 ### [2026-08-17] CORE - Sidebar como recorrido del caso + módulos que se explican solos
 - Fernando marcó que el sidebar no comunica ("Radar" solo no dice qué hace, Comparar comparar qué, Chats qué pasa con ellos) y que varios módulos se sienten vacíos, Radar el primero.
 - HICE: (1) sidebar reestructurado en 3 etapas unidas por un riel vertical (Tu perfil → Antes del like → La conversación) más el grupo de sistema; cada módulo lleva ícono de trazo dibujado a mano (`apps/web/app/app/Iconos.tsx`, 11 íconos con `pathLength=1`, el hover redibuja el trazo por CSS) y su promesa en una línea ("Radar · ¿Vale el like? En segundos"); en mobile la franja pasa a solo íconos. (2) Radar, Leer un perfil, Comparar y Chats ganan pasos numerados de cómo se usa, visibles solo con la página vacía; Radar además muestra un veredicto de ejemplo sellado "Así se ve · ejemplo"; los cuatro cierran con un cruce al módulo que sigue (Radar↔Leer un perfil, Comparar→Mis fotos, Chats→Coach). (3) Gancho de QA `?estado=vacio` en Chats para capturar la lista vacía sin sesión.
