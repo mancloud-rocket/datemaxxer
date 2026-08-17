@@ -315,6 +315,23 @@ export async function enviarAlCoach(
 
 /* --- Pedir plan (el cobro todavía es a mano: link de pago + activación) --- */
 
+/**
+ * POST /auth/otp: pide el código de ingreso. Público a propósito: es la puerta
+ * de entrada y todavía no hay token. El código lo manda nuestra API por Resend
+ * (el SMTP de Supabase está fuera del circuito).
+ */
+export async function pedirCodigoLogin(email: string): Promise<void> {
+  const res = await fetch(`${API_URL}/auth/otp`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ email }),
+  });
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { error?: string; message?: string };
+    throw new ApiError(body.error ?? 'error', body.message ?? `HTTP ${res.status}`, res.status);
+  }
+}
+
 export async function pedirPlan(
   token: string,
   sku: Sku,

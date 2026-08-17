@@ -68,6 +68,10 @@ const EnvSchema = z
     // Aviso por mail cuando alguien pide un plan. Sin key, la solicitud igual se
     // guarda y aparece en el panel: el mail es empujón, no fuente de verdad.
     RESEND_API_KEY: z.string().min(10).optional(),
+    // Códigos de ingreso por correo (POST /auth/otp): tope por IP cada 10
+    // minutos. Alto para no bloquear NATs de oficina; el freno fino por correo
+    // vive en la ruta.
+    AUTH_OTP_RATE_LIMIT_MAX: z.coerce.number().int().positive().default(8),
     RESEND_FROM: z.string().default('Datemaxxer <onboarding@resend.dev>'),
     ADMIN_EMAIL: z.string().email().optional(),
     // Link al panel que se mete en el mail de aviso. El panel vive en el

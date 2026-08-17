@@ -291,7 +291,8 @@
 .dmx-ingreso .field-note{font-size:.82rem;color:var(--ink-mute);font-weight:500;line-height:1.45;padding:0 .2rem}
 .dmx-ingreso .field-note b{color:var(--ink)}
 
-.dmx-ingreso .otp{display:flex;gap:.55rem;justify-content:center}
+.dmx-ingreso .otp{display:flex;gap:.45rem;justify-content:center}
+@media (max-width:420px){ .dmx-ingreso .otp{gap:.3rem} .dmx-ingreso .otp input{font-size:1.15rem;border-radius:5px} }
 .dmx-ingreso .otp input{width:100%;aspect-ratio:3/4;max-width:52px;text-align:center;background:var(--surface-2);border:1px solid var(--line);border-radius:7px;color:var(--ink);font-family:var(--font-mono),monospace;font-size:1.5rem;font-weight:500;caret-color:var(--signal);transition:border-color .25s,background .25s}
 .dmx-ingreso .otp input:focus{outline:none;border-color:var(--steel)}
 .dmx-ingreso .otp input.filled{border-color:var(--steel);background:var(--surface)}

@@ -9,15 +9,20 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
+import { ApiError, pedirCodigoLogin } from '../../lib/api';
 import { getSupabase } from '../../lib/supabase';
 import { gsap, setDraw } from '../../lib/motion';
 
 type Paso = 'metodo' | 'codigo';
 
+/** Largo del código que emite Supabase en este proyecto (verificado en vivo). */
+const LARGO = 8;
+const VACIO = (): string[] => Array.from({ length: LARGO }, () => '');
+
 export function Login() {
   const [paso, setPaso] = useState<Paso>('metodo');
   const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [otp, setOtp] = useState<string[]>(VACIO());
   const [otpEstado, setOtpEstado] = useState<'idle' | 'bad' | 'good'>('idle');
   const [otpMsg, setOtpMsg] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -48,10 +53,19 @@ export function Login() {
     }
     setCargando(true);
     setError(null);
-    const { error: err } = await getSupabase().auth.signInWithOtp({ email });
-    setCargando(false);
-    if (err) setError('No pudimos mandar el código. Revisa el mail e intenta de nuevo.');
-    else setPaso('codigo');
+    try {
+      // El código lo genera y lo manda nuestra API (Supabase no envía mails acá).
+      await pedirCodigoLogin(email);
+      setPaso('codigo');
+    } catch (err) {
+      setError(
+        err instanceof ApiError
+          ? err.message
+          : 'No pudimos mandar el código. Revisa el mail e intenta de nuevo.',
+      );
+    } finally {
+      setCargando(false);
+    }
   }
 
   function seal() {
@@ -86,10 +100,10 @@ export function Login() {
     setCargando(false);
     if (err) {
       setOtpEstado('bad');
-      setOtpMsg('Código incorrecto · revisa los 6 dígitos');
+      setOtpMsg(`Código incorrecto · revisa los ${LARGO} dígitos`);
       if (!REDUCED) {
         setTimeout(() => {
-          setOtp(['', '', '', '', '', '']);
+          setOtp(VACIO());
           setOtpEstado('idle');
           otpRefs.current[0]?.focus();
         }, 900);
@@ -110,7 +124,7 @@ export function Login() {
     setOtp(next);
     setOtpEstado('idle');
     setOtpMsg('');
-    if (digit && i < 5) otpRefs.current[i + 1]?.focus();
+    if (digit && i < LARGO - 1) otpRefs.current[i + 1]?.focus();
     if (next.every((x) => x)) void verificar(next.join(''));
   }
 
@@ -125,12 +139,12 @@ export function Login() {
 
   function onOtpPaste(e: React.ClipboardEvent<HTMLInputElement>) {
     e.preventDefault();
-    const digits = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6).split('');
+    const digits = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, LARGO).split('');
     if (!digits.length) return;
     const next = [...otp];
-    digits.forEach((d, k) => { if (k < 6) next[k] = d; });
+    digits.forEach((d, k) => { if (k < LARGO) next[k] = d; });
     setOtp(next);
-    otpRefs.current[Math.min(digits.length, 5)]?.focus();
+    otpRefs.current[Math.min(digits.length, LARGO - 1)]?.focus();
     if (next.every((x) => x)) void verificar(next.join(''));
   }
 
@@ -169,7 +183,7 @@ export function Login() {
             {abriendo
               ? 'Identidad verificada. Te llevamos a la mesa.'
               : paso === 'codigo'
-                ? 'Seis dígitos, recién horneados. Si no aparece, mira en spam.'
+                ? 'Ocho dígitos, recién horneados. Si no aparece, mira en spam.'
                 : 'Tu auditoría queda guardada aquí, privada y bajo llave. Entra para abrirla cuando quieras.'}
           </p>
         </header>
@@ -194,7 +208,7 @@ export function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') void mandarCodigo(); }}
                 />
-                <p className="field-note">Te mandamos un código de 6 dígitos. <b>Sin contraseñas</b> que olvidar.</p>
+                <p className="field-note">Te mandamos un código de un solo uso. <b>Sin contraseñas</b> que olvidar.</p>
                 <button className="btn submit" disabled={cargando} onClick={() => void mandarCodigo()}>
                   {cargando ? 'Mandando…' : 'Mandame el código'}
                 </button>
@@ -224,7 +238,7 @@ export function Login() {
                 <p className="reenvio">
                   ¿No llegó?{' '}
                   <button className="linkish" onClick={() => void mandarCodigo()}>Reenviar</button> ·{' '}
-                  <button className="linkish mute" onClick={() => { setPaso('metodo'); setOtp(['', '', '', '', '', '']); setOtpEstado('idle'); setOtpMsg(''); }}>Cambiar correo</button>
+                  <button className="linkish mute" onClick={() => { setPaso('metodo'); setOtp(VACIO()); setOtpEstado('idle'); setOtpMsg(''); }}>Cambiar correo</button>
                 </p>
               </div>
             )}

@@ -58,6 +58,9 @@ import { registerProfileRoutes } from './profile/routes.js';
 import { InMemoryProfileStore, SupabaseProfileStore, type ProfileStore } from './profile/store.js';
 import { NoopNotificador, ResendNotificador, type Notificador } from './upgrades/notificador.js';
 import { registerUpgradeRoutes } from './upgrades/routes.js';
+import { registerAuthOtpRoutes } from './auth-otp/routes.js';
+import { ResendMailerOtp, type MailerOtp } from './auth-otp/mailer.js';
+import { SupabaseGeneradorOtp, type GeneradorOtp } from './auth-otp/supabase.js';
 import { InMemoryUpgradeStore, SupabaseUpgradeStore, type UpgradeStore } from './upgrades/store.js';
 
 export interface AppDeps {
@@ -69,6 +72,8 @@ export interface AppDeps {
   upgradeStore?: UpgradeStore;
   adminStore?: AdminStore;
   notificador?: Notificador;
+  otpGenerador?: GeneradorOtp;
+  otpMailer?: MailerOtp;
   coachStore?: CoachStore;
   coachEngine?: CoachEngine;
   profileReadStore?: ProfileReadStore;
@@ -413,6 +418,25 @@ export async function buildApp(env: Env, deps: AppDeps = {}): Promise<FastifyIns
     notificador: resolveNotificador(env, deps),
     authenticate,
     requireAdmin: makeRequireAdmin(admins),
+  });
+
+  // Ingreso por código propio: Supabase genera el OTP, Resend lo manda.
+  // Sin RESEND_API_KEY o sin SUPABASE_*, la ruta contesta 503 y lo dice.
+  registerAuthOtpRoutes(app, {
+    generador:
+      deps.otpGenerador ??
+      (hasSupabase
+        ? new SupabaseGeneradorOtp({
+            url: env.SUPABASE_URL!,
+            serviceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY!,
+          })
+        : undefined),
+    mailer:
+      deps.otpMailer ??
+      (env.RESEND_API_KEY !== undefined
+        ? new ResendMailerOtp({ apiKey: env.RESEND_API_KEY, from: env.RESEND_FROM })
+        : undefined),
+    rateLimitMax: env.AUTH_OTP_RATE_LIMIT_MAX,
   });
 
   await registerBillingRoutes(app, {
