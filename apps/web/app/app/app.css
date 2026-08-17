@@ -438,6 +438,11 @@
    fase+progress del HUD (lado derecho) siguen sirviendo, no chocan. */
 .dmx-shell{display:flex;min-height:100dvh}
 .dmx-shell .apphud .chip{display:none}
+/* En mobile el shell colapsa a franja superior y el HUD fijo (fase) le caía
+   encima del avatar: se corre debajo de la franja. */
+@media (max-width:860px){
+  .dmx-shell .apphud .fase{top:78px}
+}
 
 .dmx-sidebar{
   position:sticky;top:0;align-self:flex-start;height:100dvh;z-index:10;flex:none;width:248px;
