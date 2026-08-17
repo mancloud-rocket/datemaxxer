@@ -76,6 +76,11 @@ export function Chats() {
   }, []);
 
   useEffect(() => {
+    // QA sin sesión real: ?estado=vacio muestra la lista vacía con su guía
+    if (new URLSearchParams(window.location.search).get('estado') === 'vacio') {
+      setLista([]);
+      return;
+    }
     void cargar();
   }, [cargar]);
 
