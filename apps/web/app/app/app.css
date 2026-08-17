@@ -180,6 +180,41 @@
 .dmx-informe .unlock .precio small{font-family:var(--font-body),sans-serif;font-weight:600;font-size:.85rem;color:var(--steel)}
 .dmx-informe .unlock .micro{margin-top:1rem}
 
+/* ---- las pestañas del expediente ---- */
+.dmx-informe .tabs{position:sticky;top:0;z-index:24;display:flex;gap:.45rem;
+  padding:.9rem 0 .8rem;margin-bottom:1.3rem;
+  background:linear-gradient(180deg,var(--void) 74%,transparent)}
+.dmx-informe .tabbtn{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:.5rem;
+  padding:.72rem .4rem;border-radius:8px;background:var(--surface);border:1px solid var(--line);
+  color:var(--ink-mute);font-family:var(--font-body),sans-serif;font-weight:600;font-size:.88rem;cursor:pointer;
+  white-space:nowrap;transition:color .25s,border-color .25s,background .25s}
+.dmx-informe .tabbtn .led{flex:none;width:6px;height:6px;border-radius:50%;background:var(--steel-dim);
+  transition:background .3s,box-shadow .3s}
+.dmx-informe .tabbtn:hover{color:var(--ink);border-color:var(--steel-dim)}
+.dmx-informe .tabbtn.on{color:var(--ink);border-color:rgba(79,217,194,.45);background:rgba(79,217,194,.07)}
+.dmx-informe .tabbtn.on .led{background:var(--signal);box-shadow:0 0 8px rgba(79,217,194,.85)}
+.dmx-informe .tabpanel{display:none}
+.dmx-informe .tabpanel.on{display:block}
+@media (max-width:440px){
+  .dmx-informe .tabbtn{font-size:.78rem;padding:.62rem .25rem;gap:.35rem}
+}
+
+/* ---- gráfico de calidad por foto: las barras SON el selector ---- */
+.dmx-informe .calchart{display:flex;align-items:stretch;gap:.55rem;height:158px;margin-bottom:1.1rem}
+.dmx-informe .calbar{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:.4rem;
+  background:transparent;border:0;padding:0;cursor:pointer}
+.dmx-informe .calbar .cval{font-family:var(--font-mono),monospace;font-size:.78rem;color:var(--ink-mute);
+  font-variant-numeric:tabular-nums;transition:color .25s}
+.dmx-informe .calbar .cola{flex:1;width:100%;display:flex;align-items:flex-end;justify-content:center}
+.dmx-informe .calbar .cola i{display:block;width:min(44px,78%);border-radius:4px 4px 0 0;background:var(--steel-dim);
+  transition:background .25s,box-shadow .25s}
+.dmx-informe .calbar .cfoto{width:100%;text-align:center;font-family:var(--font-mono),monospace;font-size:.75rem;
+  color:var(--steel);border-top:1px solid var(--line);padding-top:.4rem;transition:color .25s}
+.dmx-informe .calbar:hover .cola i{background:var(--steel)}
+.dmx-informe .calbar.on .cval{color:var(--signal)}
+.dmx-informe .calbar.on .cfoto{color:var(--ink)}
+.dmx-informe .calbar.on .cola i{background:var(--signal);box-shadow:0 0 14px rgba(79,217,194,.35)}
+
 /* ---- el contenido del Kit desbloqueado (plan kit/copilot) ---- */
 .dmx-informe .puntos{list-style:none;display:flex;flex-direction:column;gap:.4rem}
 .dmx-informe .puntos li{position:relative;padding-left:1rem;color:var(--ink-mute);font-size:.9rem;line-height:1.5}

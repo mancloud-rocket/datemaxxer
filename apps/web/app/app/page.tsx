@@ -52,8 +52,52 @@ function faseDeQa(params: URLSearchParams): Fase | null {
             score_coherencia: 41,
             arquetipo_detectado: { nombre: 'viajero', confianza: 0.72 },
             lectura_200ms: 'Tres señales distintas compitiendo: viaje, oficina, gimnasio.',
-            evidencia_por_foto: Array.from({ length: total }, () => ({})),
-            quick_wins: [{}, {}, {}],
+            // Con ?plan=kit|copilot el informe QA muestra el contenido
+            // desbloqueado: estas fichas tienen que parecer reales.
+            evidencia_por_foto: Array.from({ length: total }, (_, i) => ({
+              foto: i + 1,
+              dice: [
+                'Viajero de postal: la montaña habla más que vos.',
+                'Oficina con luz fría: dice empleado, no profesional.',
+                'Grupo de cinco: nadie sabe cuál sos.',
+                'La mejor del set: luz de tarde y mirada a cámara.',
+                'Selfie de gimnasio con flash directo: esfuerzo visible, retorno negativo.',
+                'Restorán con plato a medio comer: contexto sin mensaje.',
+                'Contraluz en la playa: silueta linda, cara ilegible.',
+                'Foto de documento reciclada: rígida y con fondo blanco.',
+                'Con lentes de sol en la única foto nítida de cara.',
+              ][i % 9]!,
+              señales: [
+                ['encuadre lejano', 'cara al 8% del cuadro'],
+                ['luz fluorescente', 'fondo de oficina'],
+                ['cinco personas', 'sin foco claro'],
+                ['luz dorada', 'mirada a cámara', 'fondo limpio'],
+              ][i % 4]!,
+              calidad_tecnica: [62, 38, 45, 81, 33, 57, 41, 29, 66][i % 9]!,
+            })),
+            plan_de_fotos: {
+              conservar: [4, 1],
+              reemplazar: [2, 3],
+              orden_sugerido: [4, 1, 3, 2].filter((n) => n <= total),
+              briefs_faltantes: [
+                { tipo: 'Cuerpo entero en exterior', specs: 'Luz de día, plano completo de frente, ropa que uses de verdad. Sin lentes de sol.' },
+                { tipo: 'Primer plano nítido de cara', specs: 'A 1 metro, luz de ventana lateral, fondo neutro. Es la foto que decide el like.' },
+              ],
+            },
+            gap_analysis: {
+              objetivo: 'profesional',
+              distancia: 'media',
+              acciones: [
+                'Sacá la foto de oficina con luz fría: resta más de lo que suma.',
+                'Sumá una foto de cuerpo entero con ropa de salir, no de trabajar.',
+                'La bio tiene que decir qué hacés, no tu cargo.',
+              ],
+            },
+            quick_wins: [
+              'Poné la foto 4 de apertura hoy: es la única con luz buena y mirada a cámara.',
+              'Borrá la selfie con flash del gimnasio antes de tu próxima sesión de swipe.',
+              'Recortá la foto de grupo a vos y una persona más, o sacala.',
+            ],
             // Datos calcados de una auditoría real, incluido un componente en
             // null: es el caso que hay que poder ver sin inventar un número.
             indice: {
@@ -87,6 +131,13 @@ export default function AppHome() {
   const qaActivo = useRef(false);
 
   useEffect(() => {
+    // QA: ?plan=kit|copilot fuerza el plan para poder ver el informe
+    // desbloqueado con el fixture, sin cuenta paga de por medio.
+    const planQa = new URLSearchParams(window.location.search).get('plan');
+    if (planQa === 'kit' || planQa === 'copilot') {
+      setPlan(planQa);
+      return;
+    }
     void (async () => {
       const token = await getAccessToken();
       if (!token) return;

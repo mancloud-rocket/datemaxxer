@@ -76,6 +76,71 @@ export function Informe(props: {
     !!props.quickWins?.length;
 
   /**
+   * El informe dejó de ser una columna infinita: es un expediente con
+   * pestañas. El veredicto es la portada; el resto se navega. "Tu escalón"
+   * solo existe si la auditoría trae índice (las anteriores a F1b no).
+   */
+  const TABS = [
+    { id: 'veredicto' as const, label: 'Veredicto' },
+    ...(props.indice ? [{ id: 'escalon' as const, label: 'Tu escalón' }] : []),
+    { id: 'fotos' as const, label: 'Tus fotos' },
+    { id: 'plan' as const, label: 'Qué hacer' },
+  ];
+  type TabId = (typeof TABS)[number]['id'];
+  const [tab, setTab] = useState<TabId>('veredicto');
+  const prevTab = useRef<TabId>('veredicto');
+  const armado = useRef<Set<string>>(new Set());
+  const [fotoSel, setFotoSel] = useState(0);
+
+  /* Deep link a una pestaña (?tab=fotos). También es el hook de QA para
+     capturar cada pestaña por URL sin clicks. */
+  useEffect(() => {
+    const t = new URLSearchParams(window.location.search).get('tab');
+    if (t === 'escalon' || t === 'fotos' || t === 'plan') setTab(t);
+  }, []);
+
+  /* Al cambiar de pestaña: micro-entrada, y lo que se anima una sola vez
+     (barras del índice, suturas de lo sellado) se arma recién acá, porque
+     en un panel oculto los anchos miden cero. */
+  useEffect(() => {
+    const el = root.current;
+    if (!el || tab === prevTab.current) return;
+    prevTab.current = tab;
+    const panel = el.querySelector<HTMLElement>(`.tabpanel[data-tab="${tab}"]`);
+    if (!panel) return;
+    gsap.fromTo(panel, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out' });
+
+    if (tab === 'escalon' && !armado.current.has('escalon')) {
+      armado.current.add('escalon');
+      panel.querySelectorAll<HTMLElement>('.comp .track i').forEach((barra, k) => {
+        gsap.fromTo(barra, { width: 0 }, { width: barra.style.width, duration: 0.8, ease: 'power3.out', delay: 0.15 + k * 0.1 });
+      });
+    }
+
+    if (!armado.current.has(`sellos-${tab}`) && panel.querySelector('.sellado')) {
+      armado.current.add(`sellos-${tab}`);
+      panel.querySelectorAll('.sellado').forEach((sec) => {
+        const svg = sec.querySelector('.sutura')!;
+        if (svg.childNodes.length > 0) return;
+        const w = (sec as HTMLElement).offsetWidth, h = (sec as HTMLElement).offsetHeight;
+        svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+        const g = mk('g', { fill: 'none', stroke: '#4FD9C2', 'stroke-width': 2.4, 'stroke-linecap': 'round', opacity: 0.55 }, svg);
+        const st: SVGPathElement[] = [];
+        const paso = Math.max(96, (w - 60) / 4), cruz = 46;
+        for (let x = 30; x < w - cruz - 12; x += paso) {
+          st.push(mk('path', { d: `M${x} 10 L${x + cruz} ${h - 10}` }, g) as SVGPathElement);
+          st.push(mk('path', { d: `M${x + cruz} 10 L${x} ${h - 10}` }, g) as SVGPathElement);
+          mk('circle', { cx: x, cy: 10, r: 3, fill: '#101318', stroke: '#4FD9C2', 'stroke-width': 1.5 }, g);
+          mk('circle', { cx: x + cruz, cy: h - 10, r: 3, fill: '#101318', stroke: '#4FD9C2', 'stroke-width': 1.5 }, g);
+        }
+        st.forEach((s) => setDraw(s));
+        gsap.to(st, { strokeDashoffset: 0, duration: 0.5, stagger: 0.03, ease: 'power2.inOut', delay: 0.2 });
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab]);
+
+  /**
    * Todavía no hay checkout: el pedido queda registrado, le avisa a Fernando por
    * mail y el cobro se cierra a mano con un link de pago. Es a propósito - se
    * valida que alguien quiera pagar antes de montar la pasarela.
@@ -148,24 +213,8 @@ export function Informe(props: {
       /* svgOrigin, no transformOrigin: el pivote debe ser el centro del arco en coords SVG */
       gsap.set(q('#gneedle'), { rotation: needleDeg(0), svgOrigin: '180 178' });
 
-      /* ---------- suturas de las fichas selladas ---------- */
-      const stitchesBySec = new Map<Element, SVGPathElement[]>();
-      el.querySelectorAll('.sellado').forEach((sec) => {
-        const svg = sec.querySelector('.sutura')!;
-        svg.innerHTML = '';
-        const w = (sec as HTMLElement).offsetWidth, h = (sec as HTMLElement).offsetHeight;
-        svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-        const g = mk('g', { fill: 'none', stroke: '#4FD9C2', 'stroke-width': 2.4, 'stroke-linecap': 'round', opacity: 0.55 }, svg);
-        const st: SVGPathElement[] = [];
-        const paso = Math.max(96, (w - 60) / 4), cruz = 46;
-        for (let x = 30; x < w - cruz - 12; x += paso) {
-          st.push(mk('path', { d: `M${x} 10 L${x + cruz} ${h - 10}` }, g) as SVGPathElement);
-          st.push(mk('path', { d: `M${x + cruz} 10 L${x} ${h - 10}` }, g) as SVGPathElement);
-          mk('circle', { cx: x, cy: 10, r: 3, fill: '#101318', stroke: '#4FD9C2', 'stroke-width': 1.5 }, g);
-          mk('circle', { cx: x + cruz, cy: h - 10, r: 3, fill: '#101318', stroke: '#4FD9C2', 'stroke-width': 1.5 }, g);
-        }
-        stitchesBySec.set(sec, st);
-      });
+      /* Las suturas de lo sellado ya no se cosen acá: viven en pestañas que
+         arrancan ocultas (ancho cero) y se arman al activar la pestaña. */
 
       /* ---------- la secuencia causal del veredicto ---------- */
       const hud = q('.apphud');
@@ -173,11 +222,9 @@ export function Informe(props: {
       gsap.to(q('.apphud .progress i'), { scaleX: 1, duration: 0.6, ease: 'power2.out' });
 
       const tl = gsap.timeline({ paused: QA });
-      // #pIndice no existe en auditorías anteriores a F1b: se filtra en vez de
-      // meter un null en la timeline.
-      // Con el Kit desbloqueado no existen #s1-#s3 ni .unlock; en su lugar
-      // están #k1-#k3. El filtro de nulls cubre las dos variantes.
-      const paneles = ['.doc-head', '.medidor', '#pIndice', '#pArq', '#pLectura', '#s1', '#s2', '#s3', '#k1', '#k2', '#k3', '.unlock']
+      // Solo la portada (pestaña Veredicto) entra coreografiada; el resto de
+      // las pestañas arranca oculto y anima al activarse.
+      const paneles = ['.doc-head', '.tabs', '.medidor', '#pArq', '#pLectura']
         .map((s) => q(s))
         .filter((n): n is HTMLElement => n !== null);
       gsap.set(paneles, { autoAlpha: 0, y: 30 });
@@ -217,22 +264,8 @@ export function Informe(props: {
       /* 3: la lectura se escribe y se subraya en óxido */
       tl.to(q('#pLectura'), { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 3.4)
         .to(q('#lecturaTxt'), { '--w': 100, duration: 0.9, ease: 'power2.inOut' }, 3.8);
-      /* 4: lo pago. Sellado: entra cosido y las puntadas se tensan una a una.
-         Desbloqueado (#k1-#k3): entra con el mismo ritmo, sin sutura. */
-      ['#s1', '#s2', '#s3', '#k1', '#k2', '#k3'].forEach((id, k) => {
-        const sec = q(id);
-        if (sec === null) return; // solo existe una de las dos variantes
-        const at = 4.1 + (k % 3) * 0.35;
-        tl.to(sec, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, at);
-        const st = stitchesBySec.get(sec);
-        if (!st) return;
-        tl.call(() => st.forEach((s) => setDraw(s)), undefined, at + 0.05);
-        tl.to(st, { strokeDashoffset: 0, duration: 0.5, stagger: 0.03, ease: 'power2.inOut' }, at + 0.15);
-      });
-      const unlockEl = q('.unlock');
-      if (unlockEl !== null) {
-        tl.to(unlockEl, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 5.4);
-      }
+      /* Lo pago vive en las pestañas Tus fotos y Qué hacer: entra (y se cose,
+         si está sellado) al activar cada pestaña, no acá. */
 
       if (QA) {
         tl.progress(1);
@@ -250,6 +283,28 @@ export function Informe(props: {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  /* El CTA del Kit vive dentro de las pestañas selladas (Tus fotos y Qué
+     hacer): se pide donde se choca con el candado, no al final de un rollo. */
+  const bloqueUnlock = (
+    <section className="unlock">
+      <h2 className="display">Mira todo lo que<br />te falta recuperar.</h2>
+      <div className="precio">Kit · US$ 19 <small>una sola vez</small></div>
+      {pedido === 'listo' ? (
+        <p style={{ color: 'var(--signal)', fontWeight: 600 }}>
+          Listo, quedó anotado. Te escribimos al mail con el link de pago.
+        </p>
+      ) : (
+        <button className="btn" disabled={pedido === 'enviando'} onClick={() => void pedirKit()}>
+          {pedido === 'enviando' ? 'Anotando…' : 'Desbloquear con el Kit'}
+        </button>
+      )}
+      {errorPedido && (
+        <p className="micro" style={{ color: 'var(--rust)' }}>{errorPedido}</p>
+      )}
+      <p className="micro">Garantía de 30 días: si tu match rate no mejora, te devolvemos el dinero.</p>
+    </section>
+  );
+
   return (
     <div ref={root} className="dmx-informe">
       <div className="apphud">
@@ -264,6 +319,24 @@ export function Informe(props: {
           <h1 className="display">El veredicto<br />de tu perfil.</h1>
           <div className="caso"><span className="selloe s-cy">MEDIDO SOBRE {nFotos} FOTOS + BIO</span></div>
         </header>
+
+        {/* Las pestañas del expediente: el veredicto es la portada, el resto
+            se navega. Nada de columna infinita. */}
+        <nav className="tabs" role="tablist" aria-label="Secciones del informe">
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              role="tab"
+              aria-selected={tab === t.id}
+              className={`tabbtn${tab === t.id ? ' on' : ''}`}
+              onClick={() => setTab(t.id)}
+            >
+              <i className="led" />{t.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className={`tabpanel${tab === 'veredicto' ? ' on' : ''}`} data-tab="veredicto">
 
         {/* 1 · el medidor */}
         <section className="panel medidor">
@@ -289,10 +362,12 @@ export function Informe(props: {
           <div className="scoreline"><span id="scoreNum">0</span><small> / 100</small></div>
           <div className="zona"><span className="selloe" id="zonaSello" style={{ opacity: 0 }}>Zona de riesgo</span></div>
         </section>
+        </div>
 
-        {/* 1b · el índice de mercado (F1b). Solo si la auditoría lo trae:
-            las anteriores a F1b no tienen y no se inventa un número. */}
+        {/* 1b · el índice de mercado (F1b), en su propia pestaña. Solo si la
+            auditoría lo trae: las anteriores a F1b no, y no se inventa. */}
         {props.indice && (
+          <div className={`tabpanel${tab === 'escalon' ? ' on' : ''}`} data-tab="escalon">
           <section className="panel indice" id="pIndice">
             <div className="plabel">Índice de mercado · en qué escalón estás parado</div>
             <div className="cabeza">
@@ -337,8 +412,10 @@ export function Informe(props: {
               </div>
             )}
           </section>
+          </div>
         )}
 
+        <div className={`tabpanel${tab === 'veredicto' ? ' on' : ''}`} data-tab="veredicto">
         {/* 2 · el arquetipo (glifo genérico: los 8 propios los debe FRONT) */}
         <section className="panel" id="pArq">
           <div className="plabel">Arquetipo detectado · lo que tu perfil dice que eres</div>
@@ -374,13 +451,34 @@ export function Informe(props: {
           <p className="pq2"><span className="sub2">«<u id="lecturaTxt">{props.lectura}</u>»</span></p>
         </section>
 
-        {/* 4 · el contenido del Kit: real si el plan lo incluye, teaser si no */}
-        {desbloqueado && (
+        </div>
+
+        {/* Tus fotos: gráfico de calidad por foto (las barras son el selector)
+            + la ficha de la foto elegida + el plan de fotos. Sellado sin Kit. */}
+        <div className={`tabpanel${tab === 'fotos' ? ' on' : ''}`} data-tab="fotos">
+        {desbloqueado ? (
           <>
             <section className="panel" id="k1">
-              <div className="plabel">La lectura foto por foto · qué dice cada una y qué la traiciona</div>
-              <div className="fotolista">
-                {props.evidencia!.map((e) => (
+              <div className="plabel">La lectura foto por foto · tocá una barra para leerla</div>
+              <div className="calchart" role="tablist" aria-label="Calidad técnica por foto">
+                {props.evidencia!.map((e, i) => (
+                  <button
+                    key={e.foto}
+                    role="tab"
+                    aria-selected={i === fotoSel}
+                    className={`calbar${i === fotoSel ? ' on' : ''}`}
+                    onClick={() => setFotoSel(i)}
+                    aria-label={`Foto ${e.foto}: calidad técnica ${e.calidad_tecnica} de 100`}
+                  >
+                    <span className="cval">{e.calidad_tecnica}</span>
+                    <span className="cola"><i style={{ height: `${Math.max(8, e.calidad_tecnica)}%` }} /></span>
+                    <span className="cfoto">F{e.foto}</span>
+                  </button>
+                ))}
+              </div>
+              {(() => {
+                const e = props.evidencia![Math.min(fotoSel, props.evidencia!.length - 1)]!;
+                return (
                   <div className="fotoev" key={e.foto}>
                     <div className="ftop">
                       <span className="selloe s-cy">Foto {e.foto}</span>
@@ -391,8 +489,8 @@ export function Informe(props: {
                       {e.señales.map((s) => <li key={s}>{s}</li>)}
                     </ul>
                   </div>
-                ))}
-              </div>
+                );
+              })()}
             </section>
 
             <section className="panel" id="k2">
@@ -438,7 +536,64 @@ export function Informe(props: {
                 </div>
               )}
             </section>
+          </>
+        ) : (
+          <>
+            <section className="panel sellado" id="s1">
+              <div className="contenido">
+                <svg viewBox="0 0 500 190">
+                  <rect x="20" y="20" width="120" height="150" rx="8" fill="#1A212B" stroke="#262C36" strokeWidth="1.5" />
+                  <circle cx="80" cy="70" r="22" fill="#232C37" /><path d="M46 150 C58 116 102 116 114 150 Z" fill="#232C37" />
+                  <circle cx="80" cy="70" r="30" fill="none" stroke="#4FD9C2" strokeWidth="1.4" />
+                  <line x1="112" y1="60" x2="170" y2="44" stroke="#4FD9C2" strokeWidth="1.2" />
+                  <text x="174" y="48" fontFamily="var(--font-mono),monospace" fontSize="12" fill="#E6E9ED">DICE: PROFESIONAL</text>
+                  <line x1="106" y1="96" x2="170" y2="112" stroke="#C94B32" strokeWidth="1.2" />
+                  <text x="174" y="116" fontFamily="var(--font-mono),monospace" fontSize="12" fill="#C94B32">LUZ FRÍA · INTERIOR</text>
+                  <rect x="330" y="30" width="150" height="26" rx="4" fill="#151A22" stroke="#262C36" />
+                  <rect x="330" y="66" width="150" height="26" rx="4" fill="#151A22" stroke="#262C36" />
+                  <rect x="330" y="102" width="150" height="26" rx="4" fill="#151A22" stroke="#262C36" />
+                  <text x="340" y="47" fontFamily="var(--font-mono),monospace" fontSize="11" fill="#8C96A3">CALIDAD 62/100</text>
+                </svg>
+              </div>
+              <div className="velo">
+                <svg className="sutura" preserveAspectRatio="none" />
+                <span className="selloe s-cy">En el Kit</span>
+                <div className="queHay">La lectura foto por foto de tus {nFotos} fotos<small>qué dice cada una y qué la traiciona</small></div>
+              </div>
+            </section>
 
+            <section className="panel sellado" id="s2">
+              <div className="contenido">
+                <svg viewBox="0 0 500 190">
+                  <g fontFamily="var(--font-mono),monospace" fontSize="11" fill="#8C96A3">
+                    <rect x="24" y="30" width="90" height="120" rx="6" fill="#1A212B" stroke="#4FD9C2" strokeWidth="1.6" />
+                    <text x="40" y="100">FOTO 4</text>
+                    <rect x="140" y="30" width="90" height="120" rx="6" fill="#1A212B" stroke="#262C36" strokeWidth="1.4" />
+                    <text x="156" y="100">FOTO 2</text>
+                    <rect x="256" y="30" width="90" height="120" rx="6" fill="#1A212B" stroke="#262C36" strokeWidth="1.4" />
+                    <text x="272" y="100">FOTO 6</text>
+                    <rect x="372" y="30" width="90" height="120" rx="6" fill="#1A212B" stroke="#C94B32" strokeWidth="1.6" strokeDasharray="6 5" />
+                    <text x="388" y="100">FUERA</text>
+                  </g>
+                  <path d="M118 90 L136 90 M234 90 L252 90 M350 90 L368 90" stroke="#4FD9C2" strokeWidth="2" />
+                </svg>
+              </div>
+              <div className="velo">
+                <svg className="sutura" preserveAspectRatio="none" />
+                <span className="selloe s-cy">En el Kit</span>
+                <div className="queHay">Tu plan de fotos completo<small>cuáles conservar, cuáles reemplazar y el orden que convierte</small></div>
+              </div>
+            </section>
+
+            {bloqueUnlock}
+          </>
+        )}
+        </div>
+
+        {/* Qué hacer: quick wins + el plan contra el objetivo. Sellado sin Kit. */}
+        <div className={`tabpanel${tab === 'plan' ? ' on' : ''}`} data-tab="plan">
+        {desbloqueado ? (
+          <>
             <section className="panel" id="k3">
               <div className="plabel">Quick wins · lo accionable, ordenado por impacto</div>
               <ol className="wins">
@@ -457,98 +612,32 @@ export function Informe(props: {
               )}
             </section>
           </>
+        ) : (
+          <>
+            <section className="panel sellado" id="s3">
+              <div className="contenido">
+                <svg viewBox="0 0 500 150">
+                  <g fontFamily="var(--font-body),sans-serif" fontSize="14" fill="#E6E9ED">
+                    <path d="M36 40 L43 48 L56 30" fill="none" stroke="#4FD9C2" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                    <text x="72" y="45">Quick win 01 · alto impacto, cero costo</text>
+                    <path d="M36 84 L43 92 L56 74" fill="none" stroke="#4FD9C2" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                    <text x="72" y="89">Quick win 02 · antes de tu próxima semana</text>
+                    <path d="M36 128 L43 136 L56 118" fill="none" stroke="#4FD9C2" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                    <text x="72" y="133">Gap contra tu arquetipo objetivo</text>
+                  </g>
+                </svg>
+              </div>
+              <div className="velo">
+                <svg className="sutura" preserveAspectRatio="none" />
+                <span className="selloe s-cy">En el Kit</span>
+                <div className="queHay">Quick wins + tu plan contra el objetivo<small>lo accionable, ordenado por impacto</small></div>
+              </div>
+            </section>
+
+            {bloqueUnlock}
+          </>
         )}
-
-        {!desbloqueado && (
-        <>
-        <section className="panel sellado" id="s1">
-          <div className="contenido">
-            <svg viewBox="0 0 500 190">
-              <rect x="20" y="20" width="120" height="150" rx="8" fill="#1A212B" stroke="#262C36" strokeWidth="1.5" />
-              <circle cx="80" cy="70" r="22" fill="#232C37" /><path d="M46 150 C58 116 102 116 114 150 Z" fill="#232C37" />
-              <circle cx="80" cy="70" r="30" fill="none" stroke="#4FD9C2" strokeWidth="1.4" />
-              <line x1="112" y1="60" x2="170" y2="44" stroke="#4FD9C2" strokeWidth="1.2" />
-              <text x="174" y="48" fontFamily="var(--font-mono),monospace" fontSize="12" fill="#E6E9ED">DICE: PROFESIONAL</text>
-              <line x1="106" y1="96" x2="170" y2="112" stroke="#C94B32" strokeWidth="1.2" />
-              <text x="174" y="116" fontFamily="var(--font-mono),monospace" fontSize="12" fill="#C94B32">LUZ FRÍA · INTERIOR</text>
-              <rect x="330" y="30" width="150" height="26" rx="4" fill="#151A22" stroke="#262C36" />
-              <rect x="330" y="66" width="150" height="26" rx="4" fill="#151A22" stroke="#262C36" />
-              <rect x="330" y="102" width="150" height="26" rx="4" fill="#151A22" stroke="#262C36" />
-              <text x="340" y="47" fontFamily="var(--font-mono),monospace" fontSize="11" fill="#8C96A3">CALIDAD 62/100</text>
-            </svg>
-          </div>
-          <div className="velo">
-            <svg className="sutura" preserveAspectRatio="none" />
-            <span className="selloe s-cy">En el Kit</span>
-            <div className="queHay">La lectura foto por foto de tus {nFotos} fotos<small>qué dice cada una y qué la traiciona</small></div>
-          </div>
-        </section>
-
-        <section className="panel sellado" id="s2">
-          <div className="contenido">
-            <svg viewBox="0 0 500 190">
-              <g fontFamily="var(--font-mono),monospace" fontSize="11" fill="#8C96A3">
-                <rect x="24" y="30" width="90" height="120" rx="6" fill="#1A212B" stroke="#4FD9C2" strokeWidth="1.6" />
-                <text x="40" y="100">FOTO 4</text>
-                <rect x="140" y="30" width="90" height="120" rx="6" fill="#1A212B" stroke="#262C36" strokeWidth="1.4" />
-                <text x="156" y="100">FOTO 2</text>
-                <rect x="256" y="30" width="90" height="120" rx="6" fill="#1A212B" stroke="#262C36" strokeWidth="1.4" />
-                <text x="272" y="100">FOTO 6</text>
-                <rect x="372" y="30" width="90" height="120" rx="6" fill="#1A212B" stroke="#C94B32" strokeWidth="1.6" strokeDasharray="6 5" />
-                <text x="388" y="100">FUERA</text>
-              </g>
-              <path d="M118 90 L136 90 M234 90 L252 90 M350 90 L368 90" stroke="#4FD9C2" strokeWidth="2" />
-            </svg>
-          </div>
-          <div className="velo">
-            <svg className="sutura" preserveAspectRatio="none" />
-            <span className="selloe s-cy">En el Kit</span>
-            <div className="queHay">Tu plan de fotos completo<small>cuáles conservar, cuáles reemplazar y el orden que convierte</small></div>
-          </div>
-        </section>
-
-        <section className="panel sellado" id="s3">
-          <div className="contenido">
-            <svg viewBox="0 0 500 150">
-              <g fontFamily="var(--font-body),sans-serif" fontSize="14" fill="#E6E9ED">
-                <path d="M36 40 L43 48 L56 30" fill="none" stroke="#4FD9C2" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                <text x="72" y="45">Quick win 01 · alto impacto, cero costo</text>
-                <path d="M36 84 L43 92 L56 74" fill="none" stroke="#4FD9C2" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                <text x="72" y="89">Quick win 02 · antes de tu próxima semana</text>
-                <path d="M36 128 L43 136 L56 118" fill="none" stroke="#4FD9C2" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                <text x="72" y="133">Gap contra tu arquetipo objetivo</text>
-              </g>
-            </svg>
-          </div>
-          <div className="velo">
-            <svg className="sutura" preserveAspectRatio="none" />
-            <span className="selloe s-cy">En el Kit</span>
-            <div className="queHay">Quick wins + tu plan contra el objetivo<small>lo accionable, ordenado por impacto</small></div>
-          </div>
-        </section>
-        </>
-        )}
-
-        {/* 5 · desbloqueo: solo tiene sentido para quien no pagó */}
-        {!desbloqueado && (
-        <section className="unlock">
-          <h2 className="display">Mira todo lo que<br />te falta recuperar.</h2>
-          <div className="precio">Kit · US$ 19 <small>una sola vez</small></div>
-          {pedido === 'listo' ? (
-            <p style={{ color: 'var(--signal)', fontWeight: 600 }}>
-              Listo, quedó anotado. Te escribimos al mail con el link de pago.
-            </p>
-          ) : (
-            <button className="btn" disabled={pedido === 'enviando'} onClick={() => void pedirKit()}>
-              {pedido === 'enviando' ? 'Anotando…' : 'Desbloquear con el Kit'}
-            </button>
-          )}
-          {errorPedido && (
-            <p className="micro" style={{ color: 'var(--rust)' }}>{errorPedido}</p>
-          )}
-          <p className="micro">Garantía de 30 días: si tu match rate no mejora, te devolvemos el dinero.</p>
-        </section>
-        )}
+        </div>
 
         {props.onRehacer && (
           <p style={{ textAlign: 'center', marginTop: '1.6rem' }}>
