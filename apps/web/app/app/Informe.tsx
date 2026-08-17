@@ -106,9 +106,15 @@ export function Informe(props: {
     const el = root.current;
     if (!el || tab === prevTab.current) return;
     prevTab.current = tab;
-    const panel = el.querySelector<HTMLElement>(`.tabpanel[data-tab="${tab}"]`);
-    if (!panel) return;
-    gsap.fromTo(panel, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out' });
+    const paneles = [...el.querySelectorAll<HTMLElement>(`.tabpanel[data-tab="${tab}"]`)];
+    if (paneles.length === 0) return;
+    const panel = paneles[0]!;
+    // ?qa=1: estado final directo, para capturas deterministas.
+    if (new URLSearchParams(window.location.search).get('qa') !== null) {
+      gsap.set(paneles, { autoAlpha: 1, y: 0 });
+    } else {
+      gsap.fromTo(paneles, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: 0.3, ease: 'power2.out' });
+    }
 
     if (tab === 'escalon' && !armado.current.has('escalon')) {
       armado.current.add('escalon');
@@ -229,6 +235,7 @@ export function Informe(props: {
         .filter((n): n is HTMLElement => n !== null);
       gsap.set(paneles, { autoAlpha: 0, y: 30 });
       tl.to(q('.doc-head'), { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 0)
+        .to(q('.tabs'), { autoAlpha: 1, y: 0, duration: 0.5, ease: 'power2.out' }, 0.15)
         .to(q('.medidor'), { autoAlpha: 1, y: 0, duration: 0.65, ease: 'power2.out' }, 0.25);
 
       /* 1: la aguja barre con física y se clava en el score */
