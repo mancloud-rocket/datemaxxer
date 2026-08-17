@@ -270,6 +270,28 @@ export function LeerPerfil() {
           <button className="btn btn-ghost" onClick={() => setArchivos([])}>Vaciar</button>
         )}
       </div>
+
+      {archivos.length === 0 && (
+        <>
+          <ol className="pasos">
+            <li>
+              <span className="pnum">1</span>
+              <div><b>Capturá su perfil entero</b><span>Todas las fotos que se vean, y la bio si la tiene</span></div>
+            </li>
+            <li>
+              <span className="pnum">2</span>
+              <div><b>Subí las capturas</b><span>Hasta {MAX}: cuantas más, más exacta la lectura</span></div>
+            </li>
+            <li>
+              <span className="pnum">3</span>
+              <div><b>El plan completo</b><span>Su escalón, tu chance, sus ganchos y 3 openers para ella</span></div>
+            </li>
+          </ol>
+          <a className="cruce" href="/app/radar">
+            ¿Solo querés saber si vale el like antes de swipear? Para eso está el <b>Radar →</b>
+          </a>
+        </>
+      )}
     </div>
   );
 }

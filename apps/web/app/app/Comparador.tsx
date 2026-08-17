@@ -180,6 +180,28 @@ export function Comparador() {
           {estado.t === 'comparando' ? 'Comparando…' : 'Comparar'}
         </button>
       </div>
+
+      {!mia && !suya && (
+        <>
+          <ol className="pasos">
+            <li>
+              <span className="pnum">1</span>
+              <div><b>Tu foto de apertura</b><span>La primera de tu perfil, la que ve antes de decidir</span></div>
+            </li>
+            <li>
+              <span className="pnum">2</span>
+              <div><b>Una captura de ella</b><span>Donde se la vea clara, mejor su primera foto</span></div>
+            </li>
+            <li>
+              <span className="pnum">3</span>
+              <div><b>El gap, desarmado</b><span>Cuántos puntos los separan y cuáles recuperás vos</span></div>
+            </li>
+          </ol>
+          <a className="cruce" href="/app/fotos">
+            Si el gap sale grande, no es fijo: en <b>Mis fotos →</b> recuperás puntos con la cámara que ya tenés.
+          </a>
+        </>
+      )}
     </div>
   );
 }

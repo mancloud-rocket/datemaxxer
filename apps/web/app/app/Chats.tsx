@@ -150,7 +150,26 @@ export function Chats() {
       {lista === null ? (
         <div className="loading-row"><span className="dot" />CARGANDO…</div>
       ) : lista.length === 0 ? (
-        <p className="vacio">Todavía no anotaste ninguna conversación.</p>
+        <div className="vacio-guia">
+          <p className="vacio">Todavía no anotaste ninguna conversación.</p>
+          <ol className="pasos">
+            <li>
+              <span className="pnum">1</span>
+              <div><b>Anotá con quién hablás</b><span>Un nombre por persona: &quot;Flor de Bumble&quot;</span></div>
+            </li>
+            <li>
+              <span className="pnum">2</span>
+              <div><b>Subí capturas del chat</b><span>Cada vez que avanza, sumás las nuevas</span></div>
+            </li>
+            <li>
+              <span className="pnum">3</span>
+              <div><b>Números y jugada</b><span>Quién invierte más, si va bien y qué mandar ahora</span></div>
+            </li>
+          </ol>
+          <a className="cruce" href="/app/coach">
+            ¿La duda es más tuya que del chat? Para hablarlo está el <b>Coach →</b>
+          </a>
+        </div>
       ) : (
         <div className="lista">
           {lista.map((c) => {

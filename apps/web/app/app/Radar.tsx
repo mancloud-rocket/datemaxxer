@@ -163,6 +163,42 @@ export function Radar() {
               <button className="btn btn-ghost" onClick={reiniciar}>Vaciar</button>
             )}
           </div>
+
+          {/* La página no puede ser solo una caja de subir: muestra cómo se
+              usa y cómo se ve lo que devuelve, antes de pedir nada. */}
+          {archivos.length === 0 && (
+            <>
+              <ol className="pasos">
+                <li>
+                  <span className="pnum">1</span>
+                  <div><b>Capturá su perfil</b><span>Screenshot en la app, como siempre hacés</span></div>
+                </li>
+                <li>
+                  <span className="pnum">2</span>
+                  <div><b>Tirala acá</b><span>Hasta {MAX} capturas, el orden da igual</span></div>
+                </li>
+                <li>
+                  <span className="pnum">3</span>
+                  <div><b>Veredicto en segundos</b><span>Like o seguí de largo, con el porqué</span></div>
+                </li>
+              </ol>
+
+              <div className="golpe v-ok ejemplo" aria-label="Ejemplo de veredicto">
+                <span className="selloe s-mute sello-ej">Así se ve · ejemplo</span>
+                <div className="vlabel">Dale like.</div>
+                <div className="cifras">
+                  <div className="cifra"><b>62</b><small>ella</small></div>
+                  <div className="cifra"><b>57</b><small>vos</small></div>
+                  <div className="cifra gap"><b>−5</b><small>gap</small></div>
+                </div>
+                <p className="lectura">Está un escalón arriba pero el gap es corto: con tu mejor foto de apertura, jugable.</p>
+              </div>
+
+              <a className="medite" href="/app/perfil">
+                ¿Ya matchearon o querés el plan completo para abrirle? Eso es <b>Leer un perfil →</b>
+              </a>
+            </>
+          )}
         </>
       )}
 

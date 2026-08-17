@@ -15,20 +15,48 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { obtenerPerfil } from '../../lib/api';
+import { IconoModulo } from './Iconos';
 import { gsap } from '../../lib/motion';
 import { getAccessToken, getSupabase, type DisplayUser } from '../../lib/supabase';
 
-const NAV = [
-  { href: '/app', label: 'Mi perfil' },
-  { href: '/app/radar', label: 'Radar' },
-  { href: '/app/perfil', label: 'Leer un perfil' },
-  { href: '/app/comparar', label: 'Comparar' },
-  { href: '/app/chats', label: 'Chats' },
-  { href: '/app/fotos', label: 'Mis fotos' },
-  { href: '/app/bio', label: 'Mi bio' },
-  { href: '/app/coach', label: 'Coach' },
-  { href: '/app/historial', label: 'Historial' },
-  { href: '/app/settings', label: 'Configuración' },
+/**
+ * El sidebar no es una lista de features: es el recorrido del caso, en el
+ * orden en que se vive. Tres etapas unidas por un riel (preparás tu perfil →
+ * decidís sobre ella → jugás la conversación) y cada módulo con su promesa en
+ * una línea, porque "Radar" solo no dice qué hace.
+ */
+const ETAPAS: Array<{
+  titulo: string;
+  items: Array<{ href: string; label: string; desc: string; icono: string }>;
+}> = [
+  {
+    titulo: 'Tu perfil',
+    items: [
+      { href: '/app', label: 'Mi perfil', desc: 'La auditoría: dónde estás parado', icono: 'medidor' },
+      { href: '/app/fotos', label: 'Mis fotos', desc: 'La misma foto, bien revelada', icono: 'foto' },
+      { href: '/app/bio', label: 'Mi bio', desc: 'Tres variantes que suenan a vos', icono: 'bio' },
+    ],
+  },
+  {
+    titulo: 'Antes del like',
+    items: [
+      { href: '/app/radar', label: 'Radar', desc: '¿Vale el like? En segundos', icono: 'radar' },
+      { href: '/app/perfil', label: 'Leer un perfil', desc: '¿Tenés chance? Con qué abrirle', icono: 'lupa' },
+      { href: '/app/comparar', label: 'Comparar', desc: 'Tu mejor foto contra la de ella', icono: 'vs' },
+    ],
+  },
+  {
+    titulo: 'La conversación',
+    items: [
+      { href: '/app/chats', label: 'Chats', desc: '¿Va bien? Números y qué mandar', icono: 'chat' },
+      { href: '/app/coach', label: 'Coach', desc: 'Hablalo: insistir o soltar', icono: 'brujula' },
+    ],
+  },
+];
+
+const SISTEMA: Array<{ href: string; label: string; desc: string; icono: string }> = [
+  { href: '/app/historial', label: 'Historial', desc: 'Cómo se movió tu número', icono: 'historial' },
+  { href: '/app/settings', label: 'Configuración', desc: 'Tu cuenta y tu registro', icono: 'config' },
 ];
 
 export function Sidebar(props: { user: DisplayUser; children: React.ReactNode }) {
@@ -110,16 +138,43 @@ export function Sidebar(props: { user: DisplayUser; children: React.ReactNode })
         </div>
 
         <nav className="dmx-sidebar-nav">
-          {(esAdmin ? [...NAV, { href: '/app/admin', label: 'Admin' }] : NAV).map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`dmx-sidebar-link${pathname === item.href ? ' on' : ''}`}
-            >
-              <i className="led" />
-              <span className="lab">{item.label}</span>
-            </Link>
+          {ETAPAS.map((etapa) => (
+            <div className="dmx-sidebar-etapa" key={etapa.titulo}>
+              <div className="etapa-titulo"><i className="nodo" />{etapa.titulo}</div>
+              {etapa.items.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`dmx-sidebar-link${pathname === item.href ? ' on' : ''}`}
+                >
+                  <IconoModulo nombre={item.icono} className="modicono" />
+                  <span className="lab">
+                    <b>{item.label}</b>
+                    <small>{item.desc}</small>
+                  </span>
+                </Link>
+              ))}
+            </div>
           ))}
+
+          <div className="dmx-sidebar-etapa sistema">
+            {(esAdmin
+              ? [...SISTEMA, { href: '/app/admin', label: 'Admin', desc: 'Planes y usuarios', icono: 'llave' }]
+              : SISTEMA
+            ).map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`dmx-sidebar-link${pathname === item.href ? ' on' : ''}`}
+              >
+                <IconoModulo nombre={item.icono} className="modicono" />
+                <span className="lab">
+                  <b>{item.label}</b>
+                  <small>{item.desc}</small>
+                </span>
+              </Link>
+            ))}
+          </div>
         </nav>
 
         <div className="dmx-sidebar-user" style={{ marginTop: 'auto' }}>
