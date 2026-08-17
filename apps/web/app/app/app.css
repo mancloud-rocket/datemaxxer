@@ -195,8 +195,14 @@
 .dmx-informe .tabbtn.on .led{background:var(--signal);box-shadow:0 0 8px rgba(79,217,194,.85)}
 .dmx-informe .tabpanel{display:none}
 .dmx-informe .tabpanel.on{display:block}
-@media (max-width:440px){
-  .dmx-informe .tabbtn{font-size:.78rem;padding:.62rem .25rem;gap:.35rem}
+@media (max-width:520px){
+  /* Cuatro labels con nowrap no entran en 375px: si la fila no scrollea,
+     fija el min-content del doc entero y recorta toda la página (mismo
+     patrón que la nav superior del shell). La fila scrollea, el resto no. */
+  .dmx-informe .tabs{overflow-x:auto;justify-content:flex-start;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .dmx-informe .tabs::-webkit-scrollbar{display:none}
+  .dmx-informe .tabbtn{flex:0 0 auto;font-size:.8rem;padding:.62rem .85rem;gap:.4rem}
 }
 
 /* ---- gráfico de calidad por foto: las barras SON el selector ---- */
