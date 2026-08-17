@@ -32,23 +32,23 @@ const ETAPAS: Array<{
   {
     titulo: 'Tu perfil',
     items: [
-      { href: '/app', label: 'Mi perfil', desc: 'La auditoría: dónde estás parado', icono: 'medidor' },
+      { href: '/app', label: 'Mi perfil', desc: 'Dónde estás parado, medido', icono: 'medidor' },
       { href: '/app/fotos', label: 'Mis fotos', desc: 'La misma foto, bien revelada', icono: 'foto' },
-      { href: '/app/bio', label: 'Mi bio', desc: 'Tres variantes que suenan a vos', icono: 'bio' },
+      { href: '/app/bio', label: 'Mi bio', desc: 'Tres bios que suenan a vos', icono: 'bio' },
     ],
   },
   {
     titulo: 'Antes del like',
     items: [
       { href: '/app/radar', label: 'Radar', desc: '¿Vale el like? En segundos', icono: 'radar' },
-      { href: '/app/perfil', label: 'Leer un perfil', desc: '¿Tenés chance? Con qué abrirle', icono: 'lupa' },
+      { href: '/app/perfil', label: 'Leer un perfil', desc: 'Tu chance y con qué abrirle', icono: 'lupa' },
       { href: '/app/comparar', label: 'Comparar', desc: 'Tu mejor foto contra la de ella', icono: 'vs' },
     ],
   },
   {
     titulo: 'La conversación',
     items: [
-      { href: '/app/chats', label: 'Chats', desc: '¿Va bien? Números y qué mandar', icono: 'chat' },
+      { href: '/app/chats', label: 'Chats', desc: '¿Va bien? Y qué mandar ahora', icono: 'chat' },
       { href: '/app/coach', label: 'Coach', desc: 'Hablalo: insistir o soltar', icono: 'brujula' },
     ],
   },
