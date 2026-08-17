@@ -9,7 +9,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import type { IndiceAtractivo } from '@percentil/contracts';
+import type { AuditResult, IndiceAtractivo } from '@percentil/contracts';
 import { GLIFOS } from '../../lib/glifos';
 import { ApiError, pedirPlan } from '../../lib/api';
 import { getAccessToken } from '../../lib/supabase';
@@ -50,6 +50,16 @@ export function Informe(props: {
   lectura: string;
   nFotos: number;
   indice?: IndiceAtractivo | null;
+  /**
+   * Con plan kit/copilot las tres secciones selladas se abren de verdad: el
+   * motor SIEMPRE produjo la lectura por foto, el plan de fotos y los quick
+   * wins; hasta ahora el front solo mostraba el teaser, incluso a quien pagó.
+   */
+  plan?: 'free' | 'kit' | 'copilot';
+  evidencia?: AuditResult['evidencia_por_foto'];
+  planFotos?: AuditResult['plan_de_fotos'];
+  quickWins?: string[];
+  gap?: AuditResult['gap_analysis'];
   qa?: boolean;
   onRehacer?: (() => void) | undefined;
 }) {
@@ -59,6 +69,11 @@ export function Informe(props: {
   const [errorPedido, setErrorPedido] = useState<string | null>(null);
   const { score, confianza, nFotos } = props;
   const nombre = NOMBRES[props.arquetipo] ?? props.arquetipo;
+  const desbloqueado =
+    (props.plan === 'kit' || props.plan === 'copilot') &&
+    !!props.evidencia?.length &&
+    !!props.planFotos &&
+    !!props.quickWins?.length;
 
   /**
    * Todavía no hay checkout: el pedido queda registrado, le avisa a Fernando por
@@ -160,7 +175,9 @@ export function Informe(props: {
       const tl = gsap.timeline({ paused: QA });
       // #pIndice no existe en auditorías anteriores a F1b: se filtra en vez de
       // meter un null en la timeline.
-      const paneles = ['.doc-head', '.medidor', '#pIndice', '#pArq', '#pLectura', '#s1', '#s2', '#s3', '.unlock']
+      // Con el Kit desbloqueado no existen #s1-#s3 ni .unlock; en su lugar
+      // están #k1-#k3. El filtro de nulls cubre las dos variantes.
+      const paneles = ['.doc-head', '.medidor', '#pIndice', '#pArq', '#pLectura', '#s1', '#s2', '#s3', '#k1', '#k2', '#k3', '.unlock']
         .map((s) => q(s))
         .filter((n): n is HTMLElement => n !== null);
       gsap.set(paneles, { autoAlpha: 0, y: 30 });
@@ -200,15 +217,22 @@ export function Informe(props: {
       /* 3: la lectura se escribe y se subraya en óxido */
       tl.to(q('#pLectura'), { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, 3.4)
         .to(q('#lecturaTxt'), { '--w': 100, duration: 0.9, ease: 'power2.inOut' }, 3.8);
-      /* 4: lo pago entra ya cosido; las puntadas se tensan una a una */
-      ['#s1', '#s2', '#s3'].forEach((id, k) => {
-        const at = 4.1 + k * 0.35;
-        tl.to(q(id), { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, at);
-        const st = stitchesBySec.get(q(id))!;
+      /* 4: lo pago. Sellado: entra cosido y las puntadas se tensan una a una.
+         Desbloqueado (#k1-#k3): entra con el mismo ritmo, sin sutura. */
+      ['#s1', '#s2', '#s3', '#k1', '#k2', '#k3'].forEach((id, k) => {
+        const sec = q(id);
+        if (sec === null) return; // solo existe una de las dos variantes
+        const at = 4.1 + (k % 3) * 0.35;
+        tl.to(sec, { autoAlpha: 1, y: 0, duration: 0.6, ease: 'power2.out' }, at);
+        const st = stitchesBySec.get(sec);
+        if (!st) return;
         tl.call(() => st.forEach((s) => setDraw(s)), undefined, at + 0.05);
         tl.to(st, { strokeDashoffset: 0, duration: 0.5, stagger: 0.03, ease: 'power2.inOut' }, at + 0.15);
       });
-      tl.to(q('.unlock'), { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 5.4);
+      const unlockEl = q('.unlock');
+      if (unlockEl !== null) {
+        tl.to(unlockEl, { autoAlpha: 1, y: 0, duration: 0.7, ease: 'power2.out' }, 5.4);
+      }
 
       if (QA) {
         tl.progress(1);
@@ -350,7 +374,93 @@ export function Informe(props: {
           <p className="pq2"><span className="sub2">«<u id="lecturaTxt">{props.lectura}</u>»</span></p>
         </section>
 
-        {/* 4 · lo sellado (teaser del Kit) */}
+        {/* 4 · el contenido del Kit: real si el plan lo incluye, teaser si no */}
+        {desbloqueado && (
+          <>
+            <section className="panel" id="k1">
+              <div className="plabel">La lectura foto por foto · qué dice cada una y qué la traiciona</div>
+              <div className="fotolista">
+                {props.evidencia!.map((e) => (
+                  <div className="fotoev" key={e.foto}>
+                    <div className="ftop">
+                      <span className="selloe s-cy">Foto {e.foto}</span>
+                      <span className="fcal">Calidad técnica <b>{e.calidad_tecnica}</b>/100</span>
+                    </div>
+                    <p className="fdice">{e.dice}</p>
+                    <ul className="puntos">
+                      {e.señales.map((s) => <li key={s}>{s}</li>)}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="panel" id="k2">
+              <div className="plabel">Tu plan de fotos · cuáles conservar, cuáles reemplazar y el orden</div>
+              {props.planFotos!.conservar.length > 0 && (
+                <div className="pf-grupo">
+                  <b className="glabel">Conservar</b>
+                  <div className="pills">
+                    {props.planFotos!.conservar.map((n) => <span key={n} className="pill ok">Foto {n}</span>)}
+                  </div>
+                </div>
+              )}
+              {props.planFotos!.reemplazar.length > 0 && (
+                <div className="pf-grupo">
+                  <b className="glabel">Reemplazar</b>
+                  <div className="pills">
+                    {props.planFotos!.reemplazar.map((n) => <span key={n} className="pill mal">Foto {n}</span>)}
+                  </div>
+                </div>
+              )}
+              {props.planFotos!.orden_sugerido.length > 0 && (
+                <div className="pf-grupo">
+                  <b className="glabel">El orden que convierte</b>
+                  <div className="pills orden">
+                    {props.planFotos!.orden_sugerido.map((n, i) => (
+                      <span key={`${n}-${i}`} className="ordenpaso">
+                        {i > 0 && <i className="flecha">→</i>}
+                        <span className="pill">Foto {n}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {props.planFotos!.briefs_faltantes.length > 0 && (
+                <div className="pf-grupo">
+                  <b className="glabel">Las fotos que te faltan</b>
+                  {props.planFotos!.briefs_faltantes.map((b) => (
+                    <div className="brief" key={b.tipo}>
+                      <b>{b.tipo}</b>
+                      <p>{b.specs}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            <section className="panel" id="k3">
+              <div className="plabel">Quick wins · lo accionable, ordenado por impacto</div>
+              <ol className="wins">
+                {props.quickWins!.map((w) => <li key={w}>{w}</li>)}
+              </ol>
+              {props.gap && (
+                <div className="gapobj">
+                  <b>
+                    Contra tu objetivo · {NOMBRES[props.gap.objetivo] ?? props.gap.objetivo} ·
+                    distancia {props.gap.distancia}
+                  </b>
+                  <ul className="puntos">
+                    {props.gap.acciones.map((a) => <li key={a}>{a}</li>)}
+                  </ul>
+                </div>
+              )}
+            </section>
+          </>
+        )}
+
+        {!desbloqueado && (
+        <>
         <section className="panel sellado" id="s1">
           <div className="contenido">
             <svg viewBox="0 0 500 190">
@@ -416,8 +526,11 @@ export function Informe(props: {
             <div className="queHay">Quick wins + tu plan contra el objetivo<small>lo accionable, ordenado por impacto</small></div>
           </div>
         </section>
+        </>
+        )}
 
-        {/* 5 · desbloqueo */}
+        {/* 5 · desbloqueo: solo tiene sentido para quien no pagó */}
+        {!desbloqueado && (
         <section className="unlock">
           <h2 className="display">Mira todo lo que<br />te falta recuperar.</h2>
           <div className="precio">Kit · US$ 19 <small>una sola vez</small></div>
@@ -435,6 +548,7 @@ export function Informe(props: {
           )}
           <p className="micro">Garantía de 30 días: si tu match rate no mejora, te devolvemos el dinero.</p>
         </section>
+        )}
 
         {props.onRehacer && (
           <p style={{ textAlign: 'center', marginTop: '1.6rem' }}>

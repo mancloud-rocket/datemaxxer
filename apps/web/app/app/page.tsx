@@ -11,7 +11,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ApiError, crearAuditoria, miAuditoria, obtenerAuditoria, type AuditView } from '../../lib/api';
+import { ApiError, crearAuditoria, miAuditoria, obtenerAuditoria, obtenerPerfil, type AuditView } from '../../lib/api';
 import { getAccessToken } from '../../lib/supabase';
 import { Escaner, type EscanerEstado } from './Escaner';
 import { Informe } from './Informe';
@@ -81,7 +81,22 @@ function faseDeQa(params: URLSearchParams): Fase | null {
 export default function AppHome() {
   const [fase, setFase] = useState<Fase>({ nombre: 'cargando' });
   const [qa, setQa] = useState(false);
+  // El plan decide si el informe muestra el contenido del Kit o el teaser.
+  // Arranca en 'free' (nunca muestra de más) y se corrige al cargar /me.
+  const [plan, setPlan] = useState<'free' | 'kit' | 'copilot'>('free');
   const qaActivo = useRef(false);
+
+  useEffect(() => {
+    void (async () => {
+      const token = await getAccessToken();
+      if (!token) return;
+      try {
+        setPlan((await obtenerPerfil(token)).plan);
+      } catch {
+        /* sin /me el informe queda en modo free, que es el fallback seguro */
+      }
+    })();
+  }, []);
   const restaurando = useRef(false);
 
   const restaurar = useCallback(async () => {
@@ -201,6 +216,11 @@ export default function AppHome() {
         lectura={fase.view.result.lectura_200ms}
         nFotos={fase.view.result.evidencia_por_foto.length}
         indice={fase.view.result.indice ?? null}
+        plan={plan}
+        evidencia={fase.view.result.evidencia_por_foto}
+        planFotos={fase.view.result.plan_de_fotos}
+        quickWins={fase.view.result.quick_wins}
+        gap={fase.view.result.gap_analysis}
         qa={qa}
         onRehacer={() => setFase({ nombre: 'mesa', error: null, enviando: false })}
       />
